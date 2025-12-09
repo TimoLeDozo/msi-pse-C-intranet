@@ -1,0 +1,2607 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MSI Propales · Neural Console</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      color-scheme: dark;
+      --gradient-primary: linear-gradient(135deg, #e0a3ff, #ff69b4, #00ffff);
+      --glass-bg: rgba(255, 255, 255, 0.06);
+      --glass-border: rgba(255, 255, 255, 0.18);
+      --glass-shadow: 0 20px 45px rgba(0, 0, 0, 0.35);
+      --color-border: rgba(255, 255, 255, 0.16);
+      --color-text: rgba(255, 255, 255, 0.94);
+      --color-text-soft: rgba(255, 255, 255, 0.75);
+      --color-text-muted: rgba(255, 255, 255, 0.55);
+      --focus-ring: 0 0 0 3px rgba(0, 255, 255, 0.25);
+      --transition-base: 0.3s ease;
+    }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background: #050505;
+      color: #f2e7ff;
+      overflow-x: hidden;
+      min-height: 100vh;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; }
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+    .mb-0 { margin-bottom: 0; }
+    .neural-background {
+      position: fixed;
+      inset: 0;
+      z-index: -3;
+      background: radial-gradient(circle at 15% 85%, rgba(75, 0, 130, 0.7) 0%, transparent 55%),
+        radial-gradient(circle at 85% 15%, rgba(139, 37, 99, 0.8) 0%, transparent 55%),
+        radial-gradient(circle at 50% 50%, rgba(0, 255, 255, 0.22) 0%, transparent 65%),
+        linear-gradient(135deg, #050505 0%, #12051c 50%, #050505 100%);
+      animation: backgroundPulse 16s ease-in-out infinite;
+    }
+    @keyframes backgroundPulse {
+      0%, 100% { filter: brightness(0.92) saturate(1.4); }
+      40% { filter: brightness(1.04) saturate(1.55) hue-rotate(10deg); }
+      70% { filter: brightness(0.98) saturate(1.6) hue-rotate(-8deg); }
+    }
+    .geometric-shapes {
+      position: fixed;
+      inset: 0;
+      z-index: -2;
+      overflow: hidden;
+      pointer-events: none;
+    }
+    .shape {
+      position: absolute;
+      border: 1px solid rgba(0, 255, 255, 0.25);
+      animation: floatShape 22s linear infinite;
+      filter: drop-shadow(0 0 18px rgba(224, 163, 255, 0.35));
+    }
+    .shape:nth-child(1) { width: 110px; height: 110px; left: 8%; animation-delay: -2s; border-radius: 28px; }
+    .shape:nth-child(2) { width: 70px; height: 70px; left: 76%; animation-delay: -9s; border-radius: 50%; border-color: rgba(255, 105, 180, 0.35); }
+    .shape:nth-child(3) { width: 90px; height: 90px; left: 30%; animation-delay: -13s; transform: rotate(45deg); }
+    .shape:nth-child(4) { width: 150px; height: 150px; left: 58%; animation-delay: -18s; clip-path: polygon(50% 0%, 0% 100%, 100% 100%); background: linear-gradient(45deg, rgba(255, 0, 128, 0.12), transparent); }
+    @keyframes floatShape {
+      from { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+      15%, 85% { opacity: 1; }
+      to { transform: translateY(-120px) rotate(360deg); opacity: 0; }
+    }
+    .neural-lines {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+    }
+    .neural-line {
+      position: absolute;
+      left: 0;
+      width: 100%;
+      height: 1px;
+      opacity: 0.25;
+      transform-origin: left;
+      transition: transform 0.4s ease;
+    }
+    .neural-line:nth-child(1) { top: 22%; background: linear-gradient(90deg, transparent, #e0a3ff, transparent); }
+    .neural-line:nth-child(2) { top: 52%; background: linear-gradient(90deg, transparent, #ff69b4, transparent); }
+    .neural-line:nth-child(3) { top: 78%; background: linear-gradient(90deg, transparent, #00ffff, transparent); }
+    @keyframes neuralPulse { 0%,100%{opacity:0.25;transform:scaleX(0.5);} 50%{opacity:1;transform:scaleX(1);} }
+
+    header {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: min(1200px, 94vw);
+      padding: 18px 30px;
+      border-radius: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 30px;
+      background: rgba(18, 18, 18, 0.65);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: var(--glass-shadow);
+      backdrop-filter: blur(26px);
+      transition: all 0.4s ease;
+      z-index: 200;
+    }
+    header.scrolled {
+      background: rgba(12, 12, 12, 0.85);
+      border-color: rgba(224, 163, 255, 0.25);
+      box-shadow: 0 25px 45px rgba(0, 0, 0, 0.45);
+    }
+    nav { display: contents; }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 700;
+      letter-spacing: 0.28em;
+      font-size: 0.95rem;
+      text-decoration: none;
+      text-transform: uppercase;
+      color: #fefbff;
+    }
+    .icam-logo {
+      display: block;
+      max-width: 100%;
+      height: auto;
+      object-fit: contain;
+    }
+    .icam-logo-custom {
+      background-color: white;
+      padding: 5px;
+      border-radius: 5px;
+      transform: scale(1.5);
+    }
+header .logo .icam-logo-custom {
+  padding: 5px 10px;
+  border-radius: 8px;
+}
+    .logo-icon {
+  width: 56px;
+      filter: drop-shadow(0 0 12px rgba(224, 163, 255, 0.65));
+    }
+    .nav-links {
+      list-style: none;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-left: auto;
+    }
+    .nav-links a {
+      text-decoration: none;
+      padding: 12px 18px;
+      border-radius: 18px;
+      font-size: 0.92rem;
+      color: rgba(255, 255, 255, 0.88);
+      transition: all 0.3s ease;
+      position: relative;
+    }
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 18px;
+      background: linear-gradient(135deg, rgba(224, 163, 255, 0.18), rgba(0, 255, 255, 0.18));
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      z-index: -1;
+    }
+    .nav-links a:hover::after,
+    .nav-links a.active::after { opacity: 1; }
+    .nav-links a.active { color: #ffffff; }
+    .nav-links a.external-link::after { opacity: 0.45; }
+
+    .mobile-menu-toggle {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      padding: 10px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .mobile-menu-toggle:hover { background: rgba(224, 163, 255, 0.2); }
+    .hamburger-line { width: 24px; height: 2px; background: linear-gradient(90deg, #e0a3ff, #ff69b4); border-radius: 2px; transition: transform 0.3s ease, opacity 0.3s ease; }
+    .mobile-menu-toggle.active .hamburger-line:nth-child(1) { transform: rotate(45deg) translate(6px, 6px); }
+    .mobile-menu-toggle.active .hamburger-line:nth-child(2) { opacity: 0; }
+    .mobile-menu-toggle.active .hamburger-line:nth-child(3) { transform: rotate(-45deg) translate(6px, -6px); }
+    .mobile-nav {
+      position: fixed;
+      top: 95px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: min(420px, 90vw);
+      padding: 28px;
+      border-radius: 24px;
+      background: rgba(10, 10, 10, 0.92);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      box-shadow: 0 25px 55px rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(22px);
+      display: none;
+      flex-direction: column;
+      gap: 18px;
+      z-index: 190;
+    }
+    .mobile-nav a {
+      text-decoration: none;
+      padding: 14px 18px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      text-align: center;
+      color: rgba(255, 255, 255, 0.9);
+      transition: all 0.3s ease;
+    }
+    .mobile-nav a:hover,
+    .mobile-nav a.active { background: rgba(224, 163, 255, 0.15); border-color: rgba(224, 163, 255, 0.4); color: #fff; }
+    .mobile-nav.active { display: flex; animation: slideDown 0.28s ease-out; }
+    @keyframes slideDown { from { opacity: 0; transform: translate(-50%, -10px); } to { opacity: 1; transform: translate(-50%, 0); } }
+
+    main { position: relative; padding-top: 140px; }
+    .hero {
+      min-height: 95vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 140px 20px 120px;
+      position: relative;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 20% 12% 10%;
+      background: radial-gradient(circle, rgba(224, 163, 255, 0.1) 0%, transparent 70%);
+      z-index: -1;
+      animation: heroGlow 12s ease-in-out infinite;
+    }
+    @keyframes heroGlow { 0%,100%{transform:scale(1);opacity:0.6;} 50%{transform:scale(1.22);opacity:1;} }
+    .hero-content { max-width: 960px; margin: 0 auto; }
+    .hero-subtitle {
+      text-transform: uppercase;
+      letter-spacing: 0.5em;
+      font-size: 0.75rem;
+      color: rgba(224, 163, 255, 0.8);
+      margin-bottom: 24px;
+    }
+    .hero h1 {
+      font-size: clamp(2.2rem, 6vw, 4.4rem);
+      font-weight: 800;
+      background: linear-gradient(135deg, #e0a3ff, #ff69b4, #8ec5ff);
+      background-size: 260% 260%;
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      animation: modernGradient 8s ease infinite;
+      margin-bottom: 28px;
+    }
+    @keyframes modernGradient { 0%{background-position:0% 50%;} 50%{background-position:100% 50%;} 100%{background-position:0% 50%;} }
+    .hero-description { max-width: 740px; margin: 0 auto 60px; color: rgba(255, 255, 255, 0.75); font-size: 1.05rem; }
+    .hero-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 24px; margin: 0 auto 60px; max-width: 800px; }
+    .hero-stat { position: relative; padding: 24px; border-radius: 20px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(224, 163, 255, 0.2); box-shadow: 0 20px 45px rgba(0,0,0,0.3); backdrop-filter: blur(16px); transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease, border-color 0.3s ease, z-index 0s; }
+    .hero-stat:hover { box-shadow: 0 32px 60px rgba(0,0,0,0.55), 0 0 30px rgba(224, 163, 255, 0.25); background: rgba(255, 255, 255, 0.08); border-color: rgba(255, 255, 255, 0.4); z-index: 10; }
+    .hero-stat-number { font-size: 2.1rem; font-weight: 700; color: #ffffff; margin-bottom: 6px; }
+    .hero-stat-label { text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.2em; color: rgba(255,255,255,0.65); }
+    .cta-buttons { display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; }
+    .cta-button { display: inline-flex; align-items: center; gap: 10px; padding: 14px 34px; border-radius: 999px; border: none; cursor: pointer; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.85rem; transition: all 0.3s ease; text-decoration: none; }
+    .cta-button.primary { background: var(--gradient-primary); color: #050505; box-shadow: 0 18px 35px rgba(224, 163, 255, 0.35); }
+    .cta-button.secondary { background: rgba(255,255,255,0.04); color: #fff; border: 1px solid rgba(255,255,255,0.15); }
+    .cta-button:hover { transform: translateY(-4px) scale(1.01); box-shadow: 0 25px 45px rgba(0,0,0,0.4); }
+
+    .console-section {
+      position: relative;
+      padding: 160px 20px 140px;
+    }
+    .console-wrapper {
+      width: min(1100px, 94vw);
+      margin: 0 auto;
+      display: grid;
+      gap: 40px;
+    }
+    .console-layout {
+      display: grid;
+      gap: 32px;
+      align-items: start;
+    }
+    .results-column {
+      display: grid;
+      gap: 28px;
+      align-content: start;
+    }
+    .console-header { text-align: center; }
+    .console-header h2 { font-size: clamp(2.2rem, 4vw, 3.1rem); margin-bottom: 16px; letter-spacing: -0.01em; }
+    .console-header p { color: rgba(255, 255, 255, 0.7); max-width: 680px; margin: 0 auto; }
+    .form-panels {
+      display: grid;
+      gap: 32px;
+    }
+    .glass-panel {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 28px;
+      padding: 34px;
+      box-shadow: var(--glass-shadow);
+      backdrop-filter: blur(22px);
+    }
+    .insights-panel {
+      background: var(--glass-bg);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 32px;
+      padding: 40px 32px 32px;
+      box-shadow: 0 28px 60px rgba(0, 0, 0, 0.45);
+      backdrop-filter: blur(24px);
+      display: grid;
+      gap: 28px;
+      position: relative;
+      isolation: isolate;
+    }
+    .insights-panel::after {
+      content: '';
+      position: absolute;
+      inset: 12px;
+      border-radius: 28px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      pointer-events: none;
+      z-index: -1;
+    }
+    .insights-pinned-header {
+      position: sticky;
+      top: 80px;
+      z-index: 5;
+      margin: -8px -8px 0;
+      padding: 18px 22px;
+      border-radius: 22px;
+      background: rgba(8, 8, 8, 0.92);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 18px 38px rgba(0, 0, 0, 0.55);
+      backdrop-filter: blur(18px);
+      display: grid;
+      gap: 6px;
+    }
+    .insights-pinned-header h3 {
+      font-size: 1.2rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #fff;
+      margin: 0;
+    }
+    .insights-pinned-header p {
+      color: var(--color-text-muted);
+      font-size: 0.92rem;
+      margin: 0;
+    }
+    .insights-section { display: grid; gap: 14px; }
+    .insights-section h4 {
+      font-size: 0.82rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.7);
+    }
+    .insights-section-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+    .insights-section-heading h4 { margin: 0; }
+    .insights-section-heading .console-open-button {
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.04);
+      color: #fff;
+      font-size: 0.75rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 6px 12px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .insights-section-heading .console-open-button:hover:not(:disabled) {
+      color: #00ffff;
+      border-color: rgba(0, 255, 255, 0.6);
+      background: rgba(0, 255, 255, 0.12);
+    }
+    .insights-section-heading .console-open-button:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+    .insights-tips {
+      list-style: none;
+      display: grid;
+      gap: 10px;
+      color: var(--color-text-muted);
+      font-size: 0.9rem;
+      padding-left: 0;
+      margin: 0;
+    }
+    .insights-tips li { display: flex; gap: 12px; align-items: flex-start; }
+    .insights-tips li span:first-child { font-size: 1.1rem; }
+    .generation-progress {
+      display: none;
+      flex-direction: column;
+      gap: 12px;
+      padding: 18px 20px;
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.05);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+      color: var(--color-text-soft);
+    }
+    .generation-progress.is-active { display: flex; animation: fadeSlideIn 0.4s ease; }
+    .generation-progress-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 0.9rem;
+      letter-spacing: 0.02em;
+    }
+    .generation-progress-message { color: var(--color-text-soft); }
+    .generation-progress-percent {
+      font-variant-numeric: tabular-nums;
+      font-weight: 600;
+      color: #ffffff;
+    }
+    .generation-progress-bar {
+      position: relative;
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      overflow: hidden;
+    }
+    .generation-progress-bar-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, rgba(127, 127, 255, 0.95), rgba(0, 255, 255, 0.85));
+      transition: width 0.3s ease;
+    }
+    @keyframes fadeSlideIn {
+      from { opacity: 0; transform: translateY(-6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .console-header-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      gap: 24px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+    .console-logo-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: auto;
+      padding: 0;
+      padding-top: 10px;
+      background: none;
+      border: none;
+      box-shadow: none;
+      backdrop-filter: none;
+    }
+    .console-logo {
+      width: 130px;
+      height: 75px;
+      object-fit: contain;
+      filter: drop-shadow(0 0 14px rgba(224, 163, 255, 0.6));
+      transform: none;
+      padding: 10px;
+      border-radius: 12px;
+      background: #ffffff;
+    }
+
+    .console-header .icam-logo-custom {
+      transform: none;
+    }
+    .console-header p { max-width: 780px; margin: 0 auto; }
+    .result-preview {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 18px;
+      padding: 18px;
+      color: var(--color-text-muted);
+      font-size: 0.92rem;
+      line-height: 1.6;
+      max-height: 320px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+    }
+    .result-preview strong { color: var(--color-text); }
+    .cost-log-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      border-radius: 14px;
+      border: 1px solid rgba(0, 255, 255, 0.25);
+      background: rgba(0, 255, 255, 0.12);
+      color: #00ffff;
+      font-weight: 600;
+      text-decoration: none;
+      transition: transform 0.3s ease, box-shadow 0.3s ease, border 0.3s ease;
+    }
+    .cost-log-link:hover { transform: translateY(-2px); box-shadow: 0 18px 40px rgba(0, 255, 255, 0.25); }
+    .cost-log-link.is-disabled {
+      opacity: 0.5;
+      pointer-events: none;
+      border-color: rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.06);
+      color: rgba(255, 255, 255, 0.6);
+    }
+    .files-hint {
+      font-size: 0.78rem;
+      color: rgba(255, 255, 255, 0.55);
+      margin-top: 8px;
+    }
+    .field-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .field-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .dictation-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(0, 255, 255, 0.4);
+      background: rgba(0, 255, 255, 0.12);
+      color: #00ffff;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    }
+    .dictation-button:hover,
+    .dictation-button:focus-visible {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0, 255, 255, 0.25);
+      outline: none;
+    }
+    .dictation-button.is-active {
+      background: rgba(0, 255, 200, 0.3);
+      color: #041014;
+      border-color: rgba(0, 255, 200, 0.7);
+    }
+    .dictation-button.is-disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+    .dict-status {
+      font-size: 0.7rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(0, 255, 255, 0.75);
+    }
+
+    .dict-status:empty {
+      display: none;
+    }
+    .form-note {
+      font-size: 0.75rem;
+      color: rgba(255, 255, 255, 0.5);
+      margin-top: 6px;
+    }
+    .field input[type="file"] {
+      border-style: dashed;
+      border-color: rgba(255, 255, 255, 0.2);
+      padding: 16px;
+      cursor: pointer;
+      background: rgba(6, 6, 6, 0.7);
+    }
+    .field input[type="file"]::-webkit-file-upload-button {
+      background: rgba(255, 255, 255, 0.12);
+      border: none;
+      border-radius: 10px;
+      color: #fff;
+      font-weight: 600;
+      padding: 10px 16px;
+      margin-right: 12px;
+      cursor: pointer;
+    }
+    .field input[type="file"]::file-selector-button {
+      background: rgba(255, 255, 255, 0.12);
+      border: none;
+      border-radius: 10px;
+      color: #fff;
+      font-weight: 600;
+      padding: 10px 16px;
+      margin-right: 12px;
+      cursor: pointer;
+    }
+    .result-status {
+      padding: 18px 20px;
+      border-radius: 20px;
+      background: rgba(0, 0, 0, 0.28);
+      border: 1px solid var(--color-border);
+      color: var(--color-text);
+      font-weight: 500;
+      line-height: 1.5;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+      transition: transform var(--transition-base), border-color var(--transition-base), background var(--transition-base);
+    }
+    .result-status span { flex: 1 1 auto; }
+    .result-status a {
+      color: #050505;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      border-radius: 14px;
+      background: var(--gradient-primary);
+      text-decoration: none;
+      box-shadow: 0 20px 35px rgba(0,0,0,0.45);
+      transition: transform var(--transition-base), box-shadow var(--transition-base);
+    }
+    .result-status a:hover,
+    .result-status a:focus-visible {
+      transform: translateY(-2px);
+      box-shadow: 0 26px 45px rgba(0,0,0,0.55);
+      outline: none;
+      box-shadow: 0 26px 45px rgba(0,0,0,0.55), var(--focus-ring);
+    }
+    .result-status.is-idle { border-color: var(--color-border); background: rgba(255,255,255,0.04); }
+    .result-status.is-progress { border-color: rgba(0, 247, 255, 0.45); background: rgba(0, 247, 255, 0.08); }
+    .result-status.is-warning { border-color: rgba(255, 168, 88, 0.7); background: rgba(255, 168, 88, 0.12); }
+    .result-status.is-success { border-color: rgba(0, 255, 153, 0.45); background: rgba(0, 255, 153, 0.08); }
+    .result-status.is-error { border-color: rgba(255, 105, 180, 0.5); background: rgba(255, 105, 180, 0.1); }
+    .result-history {
+      position: relative;
+      list-style: none;
+      display: grid;
+      gap: 18px;
+      margin: 0;
+      padding-left: 0;
+    }
+    .insights-timeline::before {
+      content: '';
+      position: absolute;
+      top: 12px;
+      bottom: 0;
+      left: 18px;
+      width: 2px;
+      background: linear-gradient(180deg, rgba(224, 163, 255, 0.7), rgba(0, 255, 255, 0.4));
+      opacity: 0.65;
+    }
+    .result-item {
+      position: relative;
+      display: grid;
+      gap: 6px;
+      padding: 16px 18px 16px 56px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      color: var(--color-text-soft);
+      font-size: 0.9rem;
+      transition: transform var(--transition-base), border-color var(--transition-base), background var(--transition-base);
+    }
+    .result-item::before {
+      content: '';
+      position: absolute;
+      top: 20px;
+      left: 10px;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      border: 2px solid rgba(0, 255, 255, 0.6);
+      background: #050505;
+      box-shadow: 0 0 0 4px rgba(0, 255, 255, 0.12);
+    }
+    .result-item.is-progress::before {
+      border-color: rgba(0, 247, 255, 0.85);
+      box-shadow: 0 0 0 4px rgba(0, 247, 255, 0.18);
+    }
+    .result-item.is-warning::before {
+      border-color: rgba(255, 168, 88, 0.85);
+      box-shadow: 0 0 0 4px rgba(255, 168, 88, 0.2);
+    }
+    .result-item.is-success::before {
+      border-color: rgba(0, 255, 153, 0.85);
+      box-shadow: 0 0 0 4px rgba(0, 255, 153, 0.18);
+    }
+    .result-item.is-error::before {
+      border-color: rgba(255, 105, 180, 0.85);
+      box-shadow: 0 0 0 4px rgba(255, 105, 180, 0.2);
+    }
+    .result-item span { color: var(--color-text-soft); }
+    .result-item time {
+      font-size: 0.75rem;
+      letter-spacing: 0.08em;
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+    }
+    .result-item:hover { transform: translateY(-3px); border-color: rgba(0, 247, 255, 0.3); }
+    .result-item.is-progress { border-color: rgba(0, 247, 255, 0.3); }
+    .result-item.is-warning { border-color: rgba(255, 168, 88, 0.4); }
+    .result-item.is-success { border-color: rgba(0, 255, 153, 0.35); }
+    .result-item.is-error { border-color: rgba(255, 105, 180, 0.35); }
+    .validation-alert {
+      margin-top: 12px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 168, 88, 0.6);
+      background: rgba(255, 168, 88, 0.08);
+      color: var(--color-text);
+      line-height: 1.5;
+    }
+    .validation-alert ul {
+      margin: 8px 0 0 18px;
+      padding: 0;
+    }
+    .validation-alert li { margin-bottom: 6px; }
+    .panel-title { font-size: 1.3rem; font-weight: 600; margin-bottom: 24px; letter-spacing: 0.04em; display: flex; align-items: center; gap: 10px; color: #fff; }
+    .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px 22px; }
+    .field label { display: block; margin-bottom: 8px; font-size: 0.78rem; letter-spacing: 0.14em; color: rgba(255, 255, 255, 0.65); text-transform: uppercase; }
+    .field input,
+    .field textarea,
+    .field select {
+      width: 100%;
+      padding: 14px 16px;
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(6, 6, 6, 0.75);
+      color: #ffffff;
+      font-size: 0.95rem;
+      font-weight: 500;
+      transition: border 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+      resize: vertical;
+      min-height: 52px;
+    }
+    .field textarea { min-height: 120px; }
+    .field select { appearance: none; cursor: pointer; }
+    .field input:focus,
+    .field textarea:focus,
+    .field select:focus {
+      outline: none;
+      border-color: rgba(0, 255, 255, 0.6);
+      box-shadow: 0 0 0 3px rgba(0, 255, 255, 0.25);
+      background: rgba(12, 12, 12, 0.9);
+    }
+    .grid-span-2 { grid-column: span 2; }
+    .actions { text-align: center; display: grid; gap: 16px; margin-top: 20px; }
+    .action-buttons { display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; }
+    .secondary-button {
+      background: rgba(255, 255, 255, 0.08);
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 999px;
+      padding: 16px 28px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      letter-spacing: 0.08em;
+      cursor: pointer;
+      transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.45);
+    }
+    .secondary-button:hover,
+    .secondary-button.active {
+      transform: translateY(-3px);
+      background: rgba(0, 255, 255, 0.12);
+      box-shadow: 0 28px 46px rgba(0, 0, 0, 0.55);
+    }
+    #btnGenerate { background: var(--gradient-primary); color: #050505; border: none; border-radius: 999px; padding: 18px 34px; font-weight: 700; font-size: 0.95rem; letter-spacing: 0.12em; cursor: pointer; transition: transform 0.3s ease, box-shadow 0.3s ease; box-shadow: 0 22px 50px rgba(0, 0, 0, 0.55); }
+    #btnGenerate:hover { transform: translateY(-5px); box-shadow: 0 32px 60px rgba(0, 0, 0, 0.6); }
+    .console-header .microcopy { font-size: 0.75rem; color: rgba(255, 255, 255, 0.45); letter-spacing: 0.1em; text-transform: uppercase; margin-top: 12px; }
+
+    .showcase, footer { position: relative; }
+    .section-title { font-size: clamp(2.2rem, 4vw, 3.2rem); text-align: center; margin-bottom: 80px; letter-spacing: 0.02em; }
+    .showcase { padding: 140px 20px; }
+    .hexagon-container { display: flex; flex-wrap: wrap; gap: 28px; justify-content: center; }
+    .hexagon { width: 210px; height: 260px; position: relative; transition: transform 0.8s ease, opacity 0.8s ease; }
+    .hexagon-bg { position: absolute; inset: 0; border-radius: 26px; transform: rotate(0deg); background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.18); backdrop-filter: blur(18px); transition: transform 0.4s ease, box-shadow 0.4s ease, background 0.4s ease, border-color 0.4s ease; box-shadow: var(--glass-shadow); z-index: 1; }
+    .hexagon-content { position: absolute; inset: 0; padding: 40px 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; text-align: center; z-index: 2; pointer-events: none; }
+    .hexagon:hover { z-index: 10; }
+    .hexagon:hover .hexagon-bg { background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.5); box-shadow: 0 40px 70px rgba(0, 0, 0, 0.55), 0 0 20px rgba(224, 163, 255, 0.25); }
+    .hexagon-icon { font-size: 2.6rem; width: 100%; text-align: center; }
+    .hexagon h4 { font-size: 1.2rem; text-align: center; margin: 0; }
+    .hexagon p { color: rgba(255, 255, 255, 0.65); font-size: 0.9rem; text-align: center; margin: 0; text-wrap: balance; }
+
+
+    footer { padding: 80px 20px; background: rgba(0, 0, 0, 0.5); border-top: 1px solid rgba(255, 255, 255, 0.1); }
+    .footer-content { width: min(1100px, 94vw); margin: 0 auto; display: grid; gap: 24px; text-align: center; color: rgba(255, 255, 255, 0.65); }
+    .footer-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 18px; }
+    .footer-links a { text-decoration: none; font-size: 0.85rem; color: rgba(255,255,255,0.6); transition: color 0.3s ease; }
+    .footer-links a:hover { color: #fff; }
+
+    #modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(5, 5, 12, 0.65);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 300;
+      backdrop-filter: blur(8px);
+      padding: 20px;
+    }
+    #modal.active { display: flex; }
+    .modal-card {
+      width: min(420px, 92vw);
+      background: rgba(12, 12, 12, 0.9);
+      border-radius: 28px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.55);
+      padding: 32px;
+      color: #fff;
+      display: grid;
+      gap: 18px;
+    }
+    .modal-progress { width: 100%; height: 10px; border-radius: 999px; background: rgba(255,255,255,0.08); overflow: hidden; }
+    .modal-progress-bar { width: 0%; height: 100%; border-radius: 999px; background: linear-gradient(90deg, #00ffff, #ff69b4); transition: width 0.2s ease; }
+    .modal-actions { display: flex; justify-content: flex-end; }
+    #btnCloseModal { padding: 12px 22px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.16); background: rgba(255,255,255,0.08); color: #fff; font-weight: 500; cursor: pointer; transition: all 0.3s ease; display: none; }
+    #btnCloseModal:hover { background: rgba(224,163,255,0.25); }
+    .modal-result a { display: inline-flex; align-items: center; justify-content: center; padding: 12px 20px; border-radius: 16px; background: linear-gradient(135deg, #6a5bff, #00ffff); color: #050505; font-weight: 600; text-decoration: none; margin-top: 10px; }
+
+    /* Modal champs manquants */
+    #missingFieldsModal {
+      position: fixed;
+      inset: 0;
+      background: rgba(5, 5, 12, 0.75);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 360;
+      padding: 20px;
+      backdrop-filter: blur(8px);
+    }
+    #missingFieldsModal .modal-content {
+      background: rgba(12, 12, 12, 0.95);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 24px;
+      padding: 24px;
+      color: #fff;
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+      display: grid;
+      gap: 16px;
+    }
+    #missingFieldsModal .modal-header { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+    #missingFieldsModal .modal-close { background: transparent; border: none; color: #fff; font-size: 1.4rem; cursor: pointer; }
+    #missingFieldsModal .modal-body { color: rgba(255,255,255,0.85); font-size: 0.95rem; }
+    .missing-fields-list {
+      max-height: 300px;
+      overflow-y: auto;
+      padding: 0;
+      margin: 12px 0 0;
+    }
+    .missing-fields-list li {
+      padding: 12px;
+      margin: 8px 0;
+      background: rgba(255, 200, 0, 0.1);
+      border-left: 4px solid #ffc800;
+      border-radius: 6px;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .missing-fields-list li strong { color: #ffc800; font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; }
+    .alert-warning {
+      background: rgba(255, 152, 0, 0.08);
+      border: 1px solid rgba(255, 152, 0, 0.25);
+      padding: 14px;
+      border-radius: 10px;
+      color: #ffdd99;
+      font-size: 0.95rem;
+    }
+    #missingFieldsModal .modal-footer { display: flex; gap: 12px; justify-content: flex-end; flex-wrap: wrap; }
+    #missingFieldsModal .cta-button { border: none; padding: 12px 18px; border-radius: 12px; cursor: pointer; font-weight: 600; letter-spacing: 0.06em; }
+    #missingFieldsModal .cta-button.secondary { background: rgba(255,255,255,0.08); color: #fff; border: 1px solid rgba(255,255,255,0.12); }
+    #missingFieldsModal .cta-button:not(.secondary) { background: linear-gradient(135deg, #ffc800, #ff7b00); color: #050505; }
+
+    .llm-console-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 350;
+      backdrop-filter: blur(10px);
+    }
+    .llm-console-overlay.active { display: flex; }
+    .llm-console-card {
+      width: min(960px, 94vw);
+      max-height: 90vh;
+      background: rgba(10, 10, 10, 0.96);
+      border-radius: 28px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      box-shadow: 0 40px 120px rgba(0, 0, 0, 0.65);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .llm-console-header {
+      padding: 22px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .llm-console-header h3 {
+      margin: 0;
+      font-size: 0.92rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+    .llm-console-actions { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+    .llm-console-actions a,
+    .llm-console-actions button {
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      background: rgba(255, 255, 255, 0.04);
+      color: #fff;
+      font-size: 0.78rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 8px 16px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-decoration: none;
+    }
+    .llm-console-actions a:hover,
+    .llm-console-actions button:hover {
+      color: #00ffff;
+      border-color: rgba(0, 255, 255, 0.6);
+    }
+    .llm-console-actions a.is-disabled { opacity: 0.4; pointer-events: none; }
+    .llm-console-body {
+      padding: 24px 28px;
+      overflow: auto;
+      font-family: 'JetBrains Mono', 'Fira Code', 'SFMono-Regular', Consolas, monospace;
+      font-size: 0.9rem;
+      line-height: 1.55;
+      white-space: pre-wrap;
+    }
+
+    @media (min-width: 1100px) {
+      .console-layout { grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr); }
+      .results-column { position: sticky; top: 140px; }
+    }
+    @media (max-width: 900px) {
+      .console-layout { gap: 28px; }
+      .results-column { order: 2; }
+      .insights-panel { padding: 30px; gap: 24px; }
+      .insights-section h4 { letter-spacing: 0.12em; }
+      .console-logo-wrapper {
+        width: clamp(88px, 26vw, 120px);
+        padding: 6px;
+      }
+    }
+    @media (max-width: 620px) {
+      .insights-timeline::before { left: 14px; }
+      .result-item { padding: 16px 16px 16px 48px; }
+      .result-item::before { left: 4px; }
+    }
+    @media (max-width: 1000px) {
+      .nav-links { display: none; }
+      .mobile-menu-toggle { display: flex; }
+    }
+    @media (max-width: 768px) {
+      header { padding: 14px 20px; }
+      .hero { padding-top: 160px; }
+      .hero h1 { font-size: clamp(2rem, 8vw, 3.4rem); }
+      .hero-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .form-grid { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+      .grid-span-2 { grid-column: span 1; }
+    }
+    @media (max-width: 540px) {
+      header { width: 96vw; }
+      .console-wrapper { gap: 28px; }
+      .glass-panel { padding: 26px; }
+      .hexagon { width: 240px; height: 300px; }
+      .console-logo-wrapper { width: clamp(76px, 32vw, 96px); padding: 6px; }
+    }
+    ::-webkit-scrollbar { width: 12px; }
+    ::-webkit-scrollbar-track { background: rgba(8, 8, 8, 0.85); }
+    ::-webkit-scrollbar-thumb { background: linear-gradient(135deg, #00ffff, #ff0080); border-radius: 6px; }
+
+    .attachments-list {
+      list-style: none;
+      margin-top: 12px;
+      display: grid;
+      gap: 8px;
+      padding: 0;
+    }
+    .attachment-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(255, 255, 255, 0.08);
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      font-size: 0.85rem;
+      color: rgba(255, 255, 255, 0.9);
+    }
+    .attachment-name {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 80%;
+    }
+    .attachment-remove {
+      background: none;
+      border: none;
+      color: #ff6b6b;
+      cursor: pointer;
+      font-size: 1.1rem;
+      padding: 0 4px;
+      line-height: 1;
+      transition: color 0.2s;
+    }
+    .attachment-remove:hover {
+      color: #ff4040;
+    }
+  </style>
+</head>
+<body>
+  <div class="neural-background"></div>
+  <div class="geometric-shapes">
+    <div class="shape"></div>
+    <div class="shape"></div>
+    <div class="shape"></div>
+    <div class="shape"></div>
+  </div>
+  <div class="neural-lines">
+    <div class="neural-line"></div>
+    <div class="neural-line"></div>
+    <div class="neural-line"></div>
+  </div>
+
+  <header class="glass">
+    <nav>
+      <a href="#home" class="logo">
+        <img class="icam-logo logo-icon icam-logo-custom" src="https://upload.wikimedia.org/wikipedia/fr/thumb/1/1d/Logo_ICAM_-_2008.svg/1200px-Logo_ICAM_-_2008.svg.png" alt="Icam" data-icam-logo data-fallback-logo="https://www.icam.fr/wp-content/uploads/2017/08/logo-icam-2.png" />
+        <span class="sr-only">Icam Propales</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="#console" class="active">Console</a></li>
+        <li><a href="#showcase">Matrix</a></li>
+        <li><a href="https://github.com/TimoLeDozo/PSE-propales" target="_blank" class="external-link" rel="noopener">GitHub</a></li>
+      </ul>
+      <div class="mobile-menu-toggle" aria-label="Menu">
+        <div class="hamburger-line"></div>
+        <div class="hamburger-line"></div>
+        <div class="hamburger-line"></div>
+      </div>
+    </nav>
+    <div class="mobile-nav">
+      <a href="#console" class="active">Console</a>
+      <a href="#showcase">Matrix</a>
+      <a href="https://github.com/TimoLeDozo/PSE-propales" target="_blank" class="external-link" rel="noopener">GitHub</a>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero" id="home">
+      <div class="hero-content">
+        <div class="hero-subtitle">Propales instantanées</div>
+        <h1>NEURAL PROPALE ENGINE</h1>
+        <div class="hero-description">
+          <p>Alimentez DeepSeek, déclenchez la duplication Drive et produisez vos propositions en un éclair, sans compromis sur l'élégance, avec la rigueur Icam.</p>
+        </div>
+        <div class="hero-stats">
+          <div class="hero-stat">
+            <span class="hero-stat-number">60s</span>
+            <span class="hero-stat-label">Document prêt</span>
+          </div>
+          <div class="hero-stat">
+            <span class="hero-stat-number">100%</span>
+            <span class="hero-stat-label">Color mapping</span>
+          </div>
+          <div class="hero-stat">
+            <span class="hero-stat-number">∞</span>
+            <span class="hero-stat-label">DeepSeek Access</span>
+          </div>
+          <div class="hero-stat">
+            <span class="hero-stat-number">1</span>
+            <span class="hero-stat-label">Clic nécessaire</span>
+          </div>
+        </div>
+        <div class="cta-buttons">
+          <a href="#console" class="cta-button primary">Initier la console</a>
+          <a href="#showcase" class="cta-button secondary">Découvrir les flux</a>
+        </div>
+      </div>
+    </section>
+
+        <section class="console-section" id="console">
+      <div class="console-wrapper">
+        <div class="console-header">
+          <div class="console-header-top">
+            <div class="console-logo-wrapper">
+              <img class="icam-logo console-logo icam-logo-custom" src="https://upload.wikimedia.org/wikipedia/fr/thumb/1/1d/Logo_ICAM_-_2008.svg/1200px-Logo_ICAM_-_2008.svg.png" alt="Icam" data-icam-logo data-fallback-logo="https://www.icam.fr/wp-content/uploads/2017/08/logo-icam-2.png" />
+            </div>
+            <div class="console-header-text">
+              <h4 class="mb-0">Générateur Propale V2 (Corrigé)</h4>
+              <h2>Console Neural · Génération de propale</h2>
+              <p>Renseignez les zones clés. Toutes les informations sont transmises à Apps Script qui orchestre la copie du template Google Docs, le remplissage des zones surlignées et l'appel à DeepSeek.</p>
+              <p class="microcopy">Les données sont journalisées pour le suivi des coûts DeepSeek.</p>
+            </div>
+          </div>
+        </div>
+        <div class="console-layout">
+          <div class="form-panels">
+            <div class="glass-panel">
+              <div class="panel-title">📋 Informations projet</div>
+              <div class="form-grid">
+                <div class="field grid-span-2"><label for="f_titre">Titre *</label><input id="f_titre" type="text" placeholder="Optimisation flux entrepôt" required></div>
+                <div class="field"><label for="f_codeProjet">Code projet</label><input id="f_codeProjet" type="text" placeholder="144-16"></div>
+                <div class="field"><label for="f_dateDebut">Date Début</label><input id="f_dateDebut" type="text" placeholder="Septembre 2025"></div>
+                <div class="field"><label for="f_nbEquipes">Nb. Équipes</label><input id="f_nbEquipes" type="number" value="1" min="1"></div>
+                <div class="field"><label for="f_dureeSemaines">Durée (Semaines)</label><input id="f_dureeSemaines" type="number" value="24" placeholder="Standard: 24"></div>
+                <div class="field"><label for="f_versionDoc">Version Doc</label><input id="f_versionDoc" type="text" value="v1.0"></div>
+                <div class="field"><label for="f_dureeProjet">Durée</label><input id="f_dureeProjet" type="text" placeholder="6 mois"></div>
+                <div class="field"><label for="f_thematique">Thématique</label><input id="f_thematique" type="text" placeholder="Logistique / Supply-chain"></div>
+              </div>
+            </div>
+            <div class="glass-panel">
+              <div class="panel-title">🏢 Entreprise & Contact</div>
+              <div class="form-grid">
+                <div class="field"><label for="f_entrepriseNom">Entreprise *</label><input id="f_entrepriseNom" type="text" placeholder="Velibor SA" required></div>
+                <div class="field"><label for="f_entrepriseAdresse">Adresse</label><input id="f_entrepriseAdresse" type="text" placeholder="49 bis rue Sedaine, 75011 Paris"></div>
+                <div class="field"><label for="f_entrepriseLogo">Logo URL (Mapped #D9D9D9)</label><input id="f_entrepriseLogo" type="url" placeholder="https://exemple.com/logo.png"></div>
+                <div class="field"><label for="f_clientNom">Nom contact</label><input id="f_clientNom" type="text" placeholder="Jean Dupont"></div>
+                <div class="field"><label for="f_clientFonction">Fonction</label><input id="f_clientFonction" type="text" placeholder="Directeur Technique"></div>
+                <div class="field"><label for="f_clientEmail">Email</label><input id="f_clientEmail" type="email" placeholder="jean@exemple.com"></div>
+                <div class="field"><label for="f_clientTelephone">Téléphone</label><input id="f_clientTelephone" type="tel" placeholder="01 23 45 67 89"></div>
+              </div>
+            </div>
+            <div class="glass-panel">
+              <div class="panel-title">🧠 Brief pour DeepSeek</div>
+              <div class="form-grid">
+                <div class="field grid-span-2">
+                  <div class="field-header">
+                    <label for="f_ia_probleme">Problème principal *</label>
+                    <div class="field-actions">
+                      <button type="button" class="dictation-button" data-dict-target="f_ia_probleme">🎙️ Dicter</button>
+                      <span class="dict-status" data-dict-status="f_ia_probleme"></span>
+                    </div>
+                  </div>
+                  <textarea id="f_ia_probleme" placeholder="Retards de livraison, manque de traçabilité…"></textarea>
+                </div>
+                <div class="field grid-span-2">
+                  <div class="field-header">
+                    <label for="f_ia_solution">Solution proposée</label>
+                    <div class="field-actions">
+                      <button type="button" class="dictation-button" data-dict-target="f_ia_solution">🎙️ Dicter</button>
+                      <span class="dict-status" data-dict-status="f_ia_solution"></span>
+                    </div>
+                  </div>
+                  <textarea id="f_ia_solution" placeholder="5S, outil de tracking, formation équipes…"></textarea>
+                </div>
+                <div class="field grid-span-2">
+                  <div class="field-header">
+                    <label for="f_ia_objectifs">Objectifs clés</label>
+                    <div class="field-actions">
+                      <button type="button" class="dictation-button" data-dict-target="f_ia_objectifs">🎙️ Dicter</button>
+                      <span class="dict-status" data-dict-status="f_ia_objectifs"></span>
+                    </div>
+                  </div>
+                  <textarea id="f_ia_objectifs" placeholder="Réduire de 20% les temps de préparation, etc."></textarea>
+                </div>
+              </div>
+            </div>
+            <div class="glass-panel">
+              <div class="panel-title">🤖 Sections générées par DeepSeek</div>
+              <div class="form-grid">
+                <div class="field grid-span-2">
+                  <div class="field-header">
+                    <label for="f_contexte">Contexte</label>
+                    <div class="field-actions">
+                      <button type="button" class="dictation-button" data-dict-target="f_contexte">🎙️ Dicter</button>
+                      <span class="dict-status" data-dict-status="f_contexte"></span>
+                    </div>
+                  </div>
+                  <textarea id="f_contexte" placeholder="(Généré / Édition manuelle possible)"></textarea>
+                </div>
+                <div class="field grid-span-2">
+                  <div class="field-header">
+                    <label for="f_demarche">Démarche</label>
+                    <div class="field-actions">
+                      <button type="button" class="dictation-button" data-dict-target="f_demarche">🎙️ Dicter</button>
+                      <span class="dict-status" data-dict-status="f_demarche"></span>
+                    </div>
+                  </div>
+                  <textarea id="f_demarche" placeholder="(Généré / Édition manuelle possible)"></textarea>
+                </div>
+                <div class="field grid-span-2">
+                  <div class="field-header">
+                    <label for="f_phases">Phases</label>
+                    <div class="field-actions">
+                      <button type="button" class="dictation-button" data-dict-target="f_phases">🎙️ Dicter</button>
+                      <span class="dict-status" data-dict-status="f_phases"></span>
+                    </div>
+                  </div>
+                  <textarea id="f_phases" placeholder="(Généré / Édition manuelle possible)"></textarea>
+                </div>
+                <div class="field grid-span-2">
+                  <div class="field-header">
+                    <label for="f_phrase">Phrase de clôture</label>
+                    <div class="field-actions">
+                      <button type="button" class="dictation-button" data-dict-target="f_phrase">🎙️ Dicter</button>
+                      <span class="dict-status" data-dict-status="f_phrase"></span>
+                    </div>
+                  </div>
+                  <textarea id="f_phrase" rows="2" placeholder="(Généré / Édition manuelle possible)"></textarea>
+                </div>
+                <!-- ⚠️ Test hors Apps Script (CI): l'environnement ne fournit pas google.script.run, prévoir une vérification manuelle via l'éditeur Apps Script pour confirmer la recopie multi-paragraphe. -->
+              </div>
+              <div class="actions">
+                <div class="action-buttons">
+                  <button type="button" id="btnGenerate">✨ Générer la propale</button>
+                </div>
+              </div>
+            </div>
+            <div class="glass-panel">
+              <div class="panel-title">📎 Pièces jointes & outils</div>
+              <div class="form-grid">
+                <div class="field grid-span-2">
+                  <label for="f_attachments">Ajouter des documents (jusqu’à 15)</label>
+                  <input id="f_attachments" type="file" multiple accept=".xlsx,.xls,.csv,.pdf,.doc,.docx,.jpeg,.jpg,.png,.mp3,.mp4" data-max="15">
+                  <p class="files-hint" id="filesHint">Aucun fichier sélectionné (0/15).</p>
+                  <ul id="attachmentsList" class="attachments-list"></ul>
+                </div>
+              </div>
+            </div>
+          </div>
+          <aside class="results-column">
+            <section class="insights-panel">
+              <div class="insights-pinned-header">
+                <h3>📟 Pilotage & journalisation</h3>
+                <p>Suivez l’état de la génération, le suivi des coûts et les derniers évènements.</p>
+              </div>
+              <div class="insights-section">
+                <div class="insights-section-heading">
+                  <h4>Statut en direct</h4>
+                  <button type="button" class="console-open-button" data-open-llm-console disabled>Console IA</button>
+                </div>
+                <div class="result-status is-idle" id="resultStatus"><span>En attente d’une génération.</span></div>
+                <div class="generation-progress" id="generationProgress" aria-hidden="true">
+                  <div class="generation-progress-header">
+                    <span class="generation-progress-message" id="generationProgressMessage">Préparation…</span>
+                    <span class="generation-progress-percent" id="generationProgressPercent">0%</span>
+                  </div>
+                  <div class="generation-progress-bar" id="generationProgressBar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                    <div class="generation-progress-bar-fill" id="generationProgressFill"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="insights-section">
+                <div class="insights-section-heading">
+                  <h4>Prévisualisation</h4>
+                  <a id="costLogLink" class="cost-log-link is-disabled" href="#" target="_blank" rel="noopener" aria-disabled="true">📊 Journal des coûts</a>
+                </div>
+                <pre id="resultPreview" class="result-preview">Prêt à compiler les informations du brief.</pre>
+              </div>
+              <div class="insights-section">
+                <h4>Historique des actions</h4>
+                <ol id="resultHistory" class="result-history insights-timeline">
+                  <li class="result-item is-idle" data-placeholder="true"><span>Historique vide pour le moment.</span><time datetime=""></time></li>
+                </ol>
+              </div>
+              <div class="insights-section">
+                <h4>Conseils rapides</h4>
+                <ul class="insights-tips">
+                  <li><span aria-hidden="true">🧾</span><span>Précisez le problème principal pour guider DeepSeek.</span></li>
+                  <li><span aria-hidden="true">📎</span><span>Ajoutez des documents clés pour la mise en contexte.</span></li>
+                  <li><span aria-hidden="true">📊</span><span>Consultez le journal Google Sheets pour suivre les coûts.</span></li>
+                </ul>
+              </div>
+            </section>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+
+    
+
+    <section class="showcase" id="showcase">
+      <h2 class="section-title">Matrix Protocols</h2>
+      <div class="hexagon-container">
+        <div class="hexagon"><div class="hexagon-bg"></div><div class="hexagon-content"><div class="hexagon-icon">🔮</div><h4>Holographic UI</h4><p>Interface monofichier prête pour Apps Script</p></div></div>
+        <div class="hexagon"><div class="hexagon-bg"></div><div class="hexagon-content"><div class="hexagon-icon">🛡️</div><h4>Quantum Security</h4><p>Clé DeepSeek stockée côté serveur</p></div></div>
+        <div class="hexagon"><div class="hexagon-bg"></div><div class="hexagon-content"><div class="hexagon-icon">🚀</div><h4>Speed Navigation</h4><p>Accès direct au document généré</p></div></div>
+        <div class="hexagon"><div class="hexagon-bg"></div><div class="hexagon-content"><div class="hexagon-icon">💎</div><h4>Crystal Storage</h4><p>Copie organisée dans Drive cible</p></div></div>
+        <div class="hexagon"><div class="hexagon-bg"></div><div class="hexagon-content"><div class="hexagon-icon">🎯</div><h4>Neural Targeting</h4><p>Color mapping intelligent</p></div></div>
+        <div class="hexagon"><div class="hexagon-bg"></div><div class="hexagon-content"><div class="hexagon-icon">⭐</div><h4>Stellar Network</h4><p>Workflow collaboratif Icam</p></div></div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <div class="footer-content">
+      <div class="footer-links">
+        <a href="#console">Console</a>
+        <a href="#showcase">Matrix Protocols</a>
+        <a href="https://github.com/TimoLeDozo/PSE-propales" target="_blank" rel="noopener">GitHub</a>
+      </div>
+      <div>&copy; 2025 MSI Propales · Interface Apps Script</div>
+      <div>CAGIN Timothé - VELOSO Toni </div>
+    </div>
+  </footer>
+
+  <div class="llm-console-overlay" id="llmConsole" aria-hidden="true">
+    <div class="llm-console-card" role="dialog" aria-labelledby="llmConsoleTitle">
+      <div class="llm-console-header">
+        <h3 id="llmConsoleTitle">Console IA · transcript brut</h3>
+        <div class="llm-console-actions">
+          <a href="#" id="llmConsoleDocLink" class="is-disabled" target="_blank" rel="noopener" aria-disabled="true">Ouvrir dans Google Docs</a>
+          <button type="button" id="llmConsoleClose">Fermer</button>
+        </div>
+      </div>
+      <pre class="llm-console-body" id="llmConsoleContent">En attente d’une génération IA…</pre>
+    </div>
+  </div>
+
+  <div id="modal">
+    <div class="modal-card">
+      <div>
+        <h3 id="modalTitle">Génération en cours…</h3>
+        <p id="modalStatus">Préparation</p>
+      </div>
+      <div class="modal-progress"><div id="progressBar" class="modal-progress-bar"></div></div>
+      <div id="modalResult" class="modal-result"></div>
+      <div class="modal-actions"><button id="btnCloseModal">Fermer</button></div>
+    </div>
+  </div>
+
+  <!-- Modal pour champs manquants -->
+  <div id="missingFieldsModal" aria-hidden="true">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>⚠️ Champs Incomplets Détectés</h3>
+        <button id="btnCloseMissingFields" class="modal-close" aria-label="Fermer">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p>Les champs suivants sont vides. Le document généré contiendra des zones colorées pour ces placeholders :</p>
+        <ul id="missingFieldsList" class="missing-fields-list"></ul>
+        <div class="alert-warning">
+          <strong>Recommandation :</strong> Remplissez tous les champs pour un document professionnel sans traces visuelles.
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="btnFillFields" class="cta-button secondary">Remplir les champs</button>
+        <button id="btnContinueAnyway" class="cta-button">Continuer quand même</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
+    const mobileNav = document.querySelector('.mobile-nav');
+    if (mobileMenuToggle && mobileNav) {
+      mobileMenuToggle.addEventListener('click', () => {
+        mobileMenuToggle.classList.toggle('active');
+        mobileNav.classList.toggle('active');
+      });
+      document.querySelectorAll('.mobile-nav a').forEach(link => {
+        link.addEventListener('click', () => {
+          mobileMenuToggle.classList.remove('active');
+          mobileNav.classList.remove('active');
+        });
+      });
+      document.addEventListener('click', (e) => {
+        if (!mobileMenuToggle.contains(e.target) && !mobileNav.contains(e.target)) {
+          mobileMenuToggle.classList.remove('active');
+          mobileNav.classList.remove('active');
+        }
+      });
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        const targetId = this.getAttribute('href');
+        if (targetId === '#') return;
+        const target = document.querySelector(targetId);
+        if (target) {
+          e.preventDefault();
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    });
+
+    function updateActiveMenuItem() {
+      const sections = document.querySelectorAll('section[id]');
+      const navLinks = document.querySelectorAll('.nav-links a, .mobile-nav a');
+      let currentSection = '';
+      const scrollPos = window.pageYOffset + 120;
+      sections.forEach(section => {
+        const top = section.offsetTop;
+        const height = section.offsetHeight;
+        if (scrollPos >= top && scrollPos < top + height) {
+          currentSection = '#' + section.id;
+        }
+      });
+      navLinks.forEach(link => {
+        link.classList.remove('active');
+        if (link.getAttribute('href') === currentSection) {
+          link.classList.add('active');
+        }
+      });
+    }
+    window.addEventListener('scroll', updateActiveMenuItem);
+    window.addEventListener('load', updateActiveMenuItem);
+
+    window.addEventListener('scroll', () => {
+      const header = document.querySelector('header');
+      if (!header) return;
+      const scrolled = window.pageYOffset;
+      if (scrolled > 60) { header.classList.add('scrolled'); } else { header.classList.remove('scrolled'); }
+    });
+
+    window.addEventListener('scroll', () => {
+      const shapes = document.querySelectorAll('.shape');
+      const scrolled = window.pageYOffset;
+      shapes.forEach((shape, index) => {
+        const speed = (index + 1) * 0.25;
+        shape.style.transform = `translateY(${scrolled * speed}px) rotate(${scrolled * 0.08}deg)`;
+      });
+    });
+
+    const neuralLines = document.querySelectorAll('.neural-line');
+    if (neuralLines.length) {
+      setInterval(() => {
+        neuralLines.forEach((line, index) => {
+          setTimeout(() => {
+            line.style.animation = 'neuralPulse 1.8s ease';
+            setTimeout(() => { line.style.animation = ''; }, 1800);
+          }, index * 260);
+        });
+      }, 2200);
+    }
+
+    function createQuantumParticle() {
+      const particle = document.createElement('div');
+      particle.style.position = 'fixed';
+      particle.style.width = Math.random() * 4 + 1 + 'px';
+      particle.style.height = particle.style.width;
+      const palette = ['#00ffff', '#ff0080', '#8000ff'];
+      const color = palette[Math.floor(Math.random() * palette.length)];
+      particle.style.background = color;
+      particle.style.borderRadius = '50%';
+      particle.style.left = Math.random() * 100 + '%';
+      particle.style.top = '100vh';
+      particle.style.pointerEvents = 'none';
+      particle.style.zIndex = '-1';
+      particle.style.boxShadow = `0 0 12px ${color}`;
+      document.body.appendChild(particle);
+      const duration = Math.random() * 3000 + 2500;
+      const drift = (Math.random() - 0.5) * 200;
+      particle.animate([
+        { transform: 'translateY(0px) translateX(0px)', opacity: 0 },
+        { transform: `translateY(-105vh) translateX(${drift}px)`, opacity: 1 }
+      ], { duration, easing: 'ease-out' }).onfinish = () => particle.remove();
+    }
+    setInterval(createQuantumParticle, 1600);
+
+    const observerOptions = { threshold: 0.12, rootMargin: '0px 0px -50px 0px' };
+    const revealObserver = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.style.opacity = '1';
+          entry.target.style.transform = 'translateY(0)';
+        }
+      });
+    }, observerOptions);
+    document.querySelectorAll('.hexagon').forEach(el => {
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(40px)';
+      revealObserver.observe(el);
+    });
+
+    const $ = (id) => document.getElementById(id);
+    const resultStatusEl = $('resultStatus');
+    const resultHistoryEl = $('resultHistory');
+    const resultPreviewEl = $('resultPreview');
+    const generationProgressEl = $('generationProgress');
+    const generationProgressMessageEl = $('generationProgressMessage');
+    const generationProgressPercentEl = $('generationProgressPercent');
+    const generationProgressFillEl = $('generationProgressFill');
+    const generationProgressBarEl = $('generationProgressBar');
+    const costLogLinkEl = $('costLogLink');
+    const filesHintEl = $('filesHint');
+    const icamLogoEls = Array.from(document.querySelectorAll('[data-icam-logo]'));
+    const llmConsoleEl = $('llmConsole');
+    const llmConsoleContentEl = $('llmConsoleContent');
+    const llmConsoleDocLinkEl = $('llmConsoleDocLink');
+    const llmConsoleCloseEl = $('llmConsoleClose');
+    const llmConsoleTriggers = Array.from(document.querySelectorAll('[data-open-llm-console]'));
+    const PROMPT_TOKEN_LIMIT = 100000; // FIX: Limite client pour bloquer les prompts trop volumineux.
+    const PROMPT_STATIC_TOKEN_OVERHEAD = 2500; // FIX: Approximation des instructions système pour l'estimation des tokens.
+    const promptEstimateFieldKeys = ['titre','entrepriseNom','ia_probleme','ia_solution','ia_objectifs','thematique','dureeProjet','contexte','demarche','phases','phrase']; // FIX: Liste des champs pris en compte dans l'estimateur local.
+    const actionButtonsContainer = document.querySelector('.action-buttons'); // FIX: Cible le conteneur des boutons d'action pour injecter le bouton de retry.
+    const tokenEstimateBadge = document.createElement('p'); // FIX: Prépare l'indicateur visuel de tokens côté UI.
+    tokenEstimateBadge.id = 'tokenEstimate'; // FIX: Donne un identifiant pour faciliter les mises à jour.
+    tokenEstimateBadge.textContent = 'Estimation prompt ≈ — tokens (limite 100000)'; // FIX: Texte par défaut avant calcul.
+    tokenEstimateBadge.style.fontSize = '0.85rem'; // FIX: Style discret pour l'indicateur de tokens.
+    tokenEstimateBadge.style.opacity = '0.8'; // FIX: Maintient un aspect secondaire.
+    tokenEstimateBadge.style.marginTop = '6px'; // FIX: Ajoute un espacement avec le statut.
+    tokenEstimateBadge.style.display = 'block'; // FIX: Force l'affichage en bloc sous le statut en direct.
+    if (resultStatusEl && resultStatusEl.parentElement) { // FIX: Vérifie l'existence du conteneur avant d'injecter l'indicateur.
+      resultStatusEl.parentElement.appendChild(tokenEstimateBadge); // FIX: Ajoute l'estimation de tokens sous le statut en direct.
+    } // FIX: Termine l'injection de l'indicateur de tokens.
+    let retryButton = null; // FIX: Déclare le bouton de retry pour la gestion offline/rate-limit.
+    if (actionButtonsContainer) { // FIX: N'insère le bouton que si la zone d'action existe.
+      retryButton = document.createElement('button'); // FIX: Crée dynamiquement le bouton de retry.
+      retryButton.type = 'button'; // FIX: Empêche la soumission du formulaire.
+      retryButton.id = 'btnRetry'; // FIX: Ajoute un identifiant pour les tests et l'accessibilité.
+      retryButton.textContent = '↻ Réessayer'; // FIX: Libellé explicite pour relancer la génération.
+      retryButton.style.marginLeft = '12px'; // FIX: Ajoute un espacement par rapport au bouton principal.
+      retryButton.style.padding = '14px 26px'; // FIX: Reproduit une ergonomie proche du bouton principal.
+      retryButton.style.borderRadius = '999px'; // FIX: Harmonise avec le style néomorphique existant.
+      retryButton.style.border = '1px solid rgba(255,255,255,0.4)'; // FIX: Donne un rendu secondaire sans éditer le CSS global.
+      retryButton.style.background = 'rgba(0,0,0,0.2)'; // FIX: Maintient un contraste discret pour ce bouton secondaire.
+      retryButton.style.color = '#ffffff'; // FIX: Garantit la lisibilité du texte.
+      retryButton.style.display = 'none'; // FIX: Masque le bouton tant qu'aucune erreur n'impose un retry.
+      retryButton.style.cursor = 'pointer'; // FIX: Indique que l'action est cliquable.
+      actionButtonsContainer.appendChild(retryButton); // FIX: Insère le bouton directement à côté de l'action principale.
+    } // FIX: Fin de l'insertion conditionnelle du bouton de retry.
+    let retryUnlockTimer = null; // FIX: Sert à retarder la réactivation du bouton après un rate limit ou offline.
+    function collectPromptFieldSnapshot() { // FIX: Centralise la lecture brute des champs utiles à l'estimation.
+      const snapshot = {}; // FIX: Prépare la structure retournée.
+      promptEstimateFieldKeys.forEach((key) => { // FIX: Parcourt l'ensemble des champs surveillés.
+        const el = $('f_' + key); // FIX: Réutilise le helper pour pointer chaque input.
+        snapshot[key] = el ? el.value || '' : ''; // FIX: Capture la valeur actuelle ou une chaîne vide.
+      }); // FIX: Termine la boucle de collecte des champs.
+      return snapshot; // FIX: Retourne le snapshot pour les calculs de tokens.
+    } // FIX: Fin du collecteur de champs d'estimation.
+    function computePromptStats(data) { // FIX: Convertit la longueur des champs en estimation de tokens.
+      const parts = promptEstimateFieldKeys.map((key) => (data && data[key] ? String(data[key]) : '')); // FIX: Concatène les champs surveillés dans un tableau homogène.
+      const approxTokens = Math.ceil((parts.join('\n').length + PROMPT_STATIC_TOKEN_OVERHEAD) / 4); // FIX: Conversion chars→tokens (≈4 chars/token) avec marge système.
+      let severity = 'ok'; // FIX: Niveau par défaut tant que la limite n'est pas approchée.
+      if (approxTokens > PROMPT_TOKEN_LIMIT) severity = 'block'; // FIX: Déclenche le blocage si la limite est dépassée.
+      else if (approxTokens > PROMPT_TOKEN_LIMIT * 0.9) severity = 'warn'; // FIX: Signale un dépassement imminent pour prévenir l'utilisateur.
+      return { tokens: approxTokens, severity }; // FIX: Retourne à la fois la valeur numérique et le niveau de gravité.
+    } // FIX: Termine le calculateur de tokens côté client.
+    function refreshPromptEstimateBadge() { // FIX: Met à jour l'indicateur visuel dès que le brief évolue.
+      if (!tokenEstimateBadge) return { tokens: 0, severity: 'ok' }; // FIX: Sécurise l'appel lorsque l'élément est introuvable.
+      const snapshot = collectPromptFieldSnapshot(); // FIX: Récupère les dernières valeurs saisies.
+      const stats = computePromptStats(snapshot); // FIX: Convertit ces valeurs en estimation de tokens.
+      tokenEstimateBadge.textContent = `Estimation prompt ≈ ${stats.tokens} tokens (limite ${PROMPT_TOKEN_LIMIT})`; // FIX: Affiche le total estimé dans l'UI.
+      tokenEstimateBadge.style.color = stats.severity === 'block' ? '#ff6b6b' : stats.severity === 'warn' ? '#ffd166' : '#9ae6b4'; // FIX: Code couleur rapide selon la gravité.
+      return stats; // FIX: Permet de réutiliser la dernière estimation dans d'autres fonctions.
+    } // FIX: Fin de la mise à jour de l'indicateur de tokens.
+    function toggleRetryButton(show, { delayMs = 0, helperText = '' } = {}) { // FIX: Contrôle l'affichage du bouton de retry en fonction du type d'erreur.
+      if (!retryButton) return; // FIX: Sécurise le cas où aucun bouton n'a été injecté.
+      if (!show) { // FIX: Masque et réinitialise lorsque tout est revenu à la normale.
+        retryButton.style.display = 'none'; // FIX: Cache le bouton de retry.
+        retryButton.disabled = false; // FIX: Supprime un éventuel état désactivé.
+        retryButton.textContent = '↻ Réessayer'; // FIX: Restaure le libellé par défaut.
+        retryButton.removeAttribute('title'); // FIX: Nettoie les infos bulles obsolètes.
+        if (retryUnlockTimer) { clearTimeout(retryUnlockTimer); retryUnlockTimer = null; } // FIX: Annule les timers restants pour éviter des effets de bord.
+        return; // FIX: Termine lorsqu'on veut simplement masquer le bouton.
+      }
+      retryButton.style.display = 'inline-flex'; // FIX: Rend le bouton visible à côté de l'action principale.
+      if (helperText) retryButton.title = helperText; else retryButton.removeAttribute('title'); // FIX: Informe l'utilisateur du motif du retry conseillé.
+      if (delayMs > 0) { // FIX: Gère les cas rate limit/offline avec délai conseillé.
+        retryButton.disabled = true; // FIX: Empêche un clic prématuré pendant le cooldown recommandé.
+        retryButton.textContent = `↻ Patientez ${Math.ceil(delayMs / 1000)}s`; // FIX: Affiche le compteur approximatif en secondes.
+        if (retryUnlockTimer) { clearTimeout(retryUnlockTimer); } // FIX: Évite plusieurs timers concurrents.
+        retryUnlockTimer = setTimeout(() => { // FIX: Programme la réactivation automatique après le délai suggéré.
+          retryButton.disabled = false; // FIX: Autorise à nouveau l'utilisateur à relancer.
+          retryButton.textContent = '↻ Réessayer'; // FIX: Restaure le libellé normal après le cooldown.
+          retryUnlockTimer = null; // FIX: Libère la référence pour les prochains cycles.
+        }, delayMs);
+      } else {
+        retryButton.disabled = false; // FIX: Permet un retry immédiat lorsqu'aucun délai n'est imposé.
+        retryButton.textContent = '↻ Réessayer'; // FIX: Laisse le bouton prêt à l'emploi.
+      }
+    } // FIX: Fin du contrôleur d'affichage du bouton de retry.
+    const promptWatcherIds = promptEstimateFieldKeys.map((key) => 'f_' + key); // FIX: Prépare la liste des inputs à surveiller pour l'estimation.
+    promptWatcherIds.forEach((inputId) => { // FIX: Ajoute les écouteurs sur chaque champ critique.
+      const el = $(inputId); // FIX: Récupère l'élément correspondant à l'identifiant généré.
+      if (!el) return; // FIX: Ignore les champs absents pour éviter les erreurs.
+      el.addEventListener('input', () => refreshPromptEstimateBadge()); // FIX: Met à jour l'indicateur dès la saisie.
+      el.addEventListener('change', () => refreshPromptEstimateBadge()); // FIX: Couvre aussi les modifications non saisies (coller, auto-fill).
+    });
+    refreshPromptEstimateBadge(); // FIX: Initialise l'indicateur dès le chargement de la console.
+    let lastLlmConsoleText = '';
+    let lastLlmConsoleDocUrl = '';
+    const generationProgress = (() => {
+      if (!generationProgressEl) {
+        const noop = () => {};
+        return { start: noop, step: noop, settle: noop, fail: noop, reset: noop };
+      }
+
+      let timer = null;
+      let manualPct = 0;
+      let finished = false;
+      let startedAt = 0;
+      let estimatedMs = 15000;
+
+      function setVisibility(show) {
+        generationProgressEl.classList.toggle('is-active', !!show);
+        generationProgressEl.setAttribute('aria-hidden', show ? 'false' : 'true');
+      }
+
+      function updateFill(pct) {
+        const bounded = Math.max(0, Math.min(100, Number(pct) || 0));
+        if (generationProgressFillEl) {
+          generationProgressFillEl.style.width = bounded + '%';
+        }
+        if (generationProgressPercentEl) {
+          generationProgressPercentEl.textContent = Math.round(bounded) + '%';
+        }
+        if (generationProgressBarEl) {
+          generationProgressBarEl.setAttribute('aria-valuenow', String(Math.round(bounded)));
+        }
+        return bounded;
+      }
+
+      function clearTimer() {
+        if (timer) {
+          clearInterval(timer);
+          timer = null;
+        }
+      }
+
+      function ensureTimer() {
+        if (timer) return;
+        timer = setInterval(() => {
+          if (finished) {
+            clearTimer();
+            return;
+          }
+          if (!estimatedMs) return;
+          const elapsed = Date.now() - startedAt;
+          const autoPct = Math.min(99, (elapsed / estimatedMs) * 100);
+          const target = Math.max(manualPct, autoPct);
+          updateFill(target);
+        }, 180);
+      }
+
+      function applyEstimate(ms) {
+        if (!ms || ms <= 0) return;
+        estimatedMs = Math.max(ms, 4000);
+      }
+
+      return {
+        start({ message, estimatedMs: eta } = {}) {
+          startedAt = Date.now();
+          manualPct = 0;
+          finished = false;
+          applyEstimate(eta || estimatedMs);
+          updateFill(0);
+          if (generationProgressMessageEl) {
+            generationProgressMessageEl.textContent = message || 'Préparation de la génération…';
+          }
+          setVisibility(true);
+          clearTimer();
+          ensureTimer();
+        },
+        step({ message, pct, estimatedMs: eta } = {}) {
+          if (finished) return;
+          if (eta) applyEstimate(eta);
+          if (typeof pct === 'number' && !isNaN(pct)) {
+            manualPct = Math.max(manualPct, Math.min(99, pct));
+            updateFill(manualPct);
+          }
+          if (message && generationProgressMessageEl) {
+            generationProgressMessageEl.textContent = message;
+          }
+          ensureTimer();
+        },
+        settle({ message, latencyMs, delay = 1500 } = {}) {
+          if (finished) return;
+          finished = true;
+          clearTimer();
+          const basePct = Math.max(manualPct, 92);
+          let current = updateFill(basePct);
+          if (message && generationProgressMessageEl) {
+            generationProgressMessageEl.textContent = message;
+          }
+          const finalLatency = latencyMs && latencyMs > 0 ? latencyMs : estimatedMs || 5000;
+          const steps = 5;
+          const increment = (100 - basePct) / steps;
+          let stepIndex = 0;
+          const settleTimer = setInterval(() => {
+            stepIndex++;
+            current = updateFill(current + increment);
+            if (stepIndex >= steps) {
+              clearInterval(settleTimer);
+              updateFill(100);
+              setTimeout(() => setVisibility(false), delay);
+            }
+          }, Math.max(90, finalLatency / (steps * 2)));
+        },
+        fail({ message, delay = 2200 } = {}) {
+          finished = true;
+          clearTimer();
+          if (message && generationProgressMessageEl) {
+            generationProgressMessageEl.textContent = message;
+          }
+          updateFill(100);
+          setTimeout(() => setVisibility(false), delay);
+        },
+        reset() {
+          finished = false;
+          clearTimer();
+          manualPct = 0;
+          updateFill(0);
+          if (generationProgressMessageEl) {
+            generationProgressMessageEl.textContent = '';
+          }
+          setVisibility(false);
+        },
+      };
+    })();
+    function getRunner() {
+      return (typeof google !== 'undefined' && google.script && google.script.run)
+        ? google.script.run
+        : null;
+    }
+    function updateDictStatus(targetId, message) {
+      if (!targetId) return;
+      const statusEl = document.querySelector(`[data-dict-status="${targetId}"]`);
+      if (statusEl) statusEl.textContent = message;
+    }
+    function resetAllDictStatus(message = 'Prêt.') {
+      document.querySelectorAll('.dict-status').forEach((el) => {
+        el.textContent = message;
+      });
+    }
+    function formatLlmConsoleText(raw) {
+      if (!raw) return '';
+      try {
+        return JSON.stringify(JSON.parse(raw), null, 2);
+      } catch (_) {
+        return raw;
+      }
+    }
+    function updateConsoleDocLink(url) {
+      if (!llmConsoleDocLinkEl) return;
+      if (url) {
+        llmConsoleDocLinkEl.href = url;
+        llmConsoleDocLinkEl.classList.remove('is-disabled');
+        llmConsoleDocLinkEl.setAttribute('aria-disabled', 'false');
+      } else {
+        llmConsoleDocLinkEl.href = '#';
+        llmConsoleDocLinkEl.classList.add('is-disabled');
+        llmConsoleDocLinkEl.setAttribute('aria-disabled', 'true');
+      }
+    }
+    function toggleConsoleTriggers(enabled) {
+      llmConsoleTriggers.forEach((btn) => {
+        btn.disabled = !enabled;
+        btn.setAttribute('aria-disabled', enabled ? 'false' : 'true');
+      });
+    }
+    toggleConsoleTriggers(false);
+    function showLlmConsole(content, docUrl) {
+      if (!llmConsoleEl || !llmConsoleContentEl) return;
+      llmConsoleContentEl.textContent = content && content.trim()
+        ? formatLlmConsoleText(content)
+        : 'Aucun transcript disponible.';
+      updateConsoleDocLink(docUrl);
+      llmConsoleEl.classList.add('active');
+      llmConsoleEl.setAttribute('aria-hidden', 'false');
+    }
+    function hideLlmConsoleOverlay() {
+      if (!llmConsoleEl) return;
+      llmConsoleEl.classList.remove('active');
+      llmConsoleEl.setAttribute('aria-hidden', 'true');
+    }
+    if (llmConsoleCloseEl) {
+      llmConsoleCloseEl.addEventListener('click', hideLlmConsoleOverlay);
+    }
+    if (llmConsoleEl) {
+      llmConsoleEl.addEventListener('click', (event) => {
+        if (event.target === llmConsoleEl) hideLlmConsoleOverlay();
+      });
+    }
+    llmConsoleTriggers.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        if (!btn.disabled) {
+          showLlmConsole(lastLlmConsoleText, lastLlmConsoleDocUrl);
+        }
+      });
+    });
+    function updateCostLogLink(url) {
+      if (!costLogLinkEl || !url) return;
+      costLogLinkEl.href = url;
+      costLogLinkEl.classList.remove('is-disabled');
+      costLogLinkEl.setAttribute('aria-disabled', 'false');
+    }
+    function updatePreview(text) {
+      if (!resultPreviewEl) return;
+      resultPreviewEl.textContent = text && text.trim()
+        ? text
+        : 'Prêt à compiler les informations du brief.';
+    }
+    function buildFormPreview(data) {
+      if (!data) return 'Brief non renseigné.';
+      const lines = [
+        `Titre : ${data.titre || '—'}`,
+        `Entreprise : ${data.entrepriseNom || '—'}`,
+        `Problème : ${data.ia_probleme || '—'}`,
+        `Solution : ${data.ia_solution || '—'}`,
+        `Objectifs : ${data.ia_objectifs || '—'}`,
+        `Durée : ${data.dureeProjet || '—'}`
+      ];
+      return lines.join('\n');
+    }
+    function buildAiPreview(sections, docUrl) {
+      if (!sections) return 'Aucune section générée pour le moment.';
+      const parts = [];
+      if (sections.contexte) parts.push(`Contexte\n${sections.contexte}`);
+      if (sections.demarche) parts.push(`Démarche\n${sections.demarche}`);
+      if (sections.phases) parts.push(`Phases\n${sections.phases}`);
+      if (sections.phrase) parts.push(`Phrase de clôture\n${sections.phrase}`);
+      if (docUrl) parts.push(`Document : ${docUrl}`);
+      return parts.length ? parts.join('\n\n') : 'Sections générées disponibles dans le document.';
+    }
+    const COLOR_FIELD_MAP = {
+      '#F4CCCC': 'Thématique',
+      '#E06666': 'Titre',
+      '#C27BA0': 'Code projet',
+      '#FFF2CC': 'Date de début',
+      '#A2C4C9': 'Version du document',
+      '#D9EAD3': 'Nom du contact client',
+      '#FCE5CD': 'Fonction du contact',
+      '#E6B8AF': 'Email du contact',
+      '#EAD1DC': 'Téléphone du contact',
+      '#FFFF00': 'Entreprise',
+      '#C9DAF8': "Adresse de l’entreprise",
+      '#D9D9D9': "Logo de l’entreprise",
+      '#3D85C6': 'Durée du projet',
+      '#A64D79': 'Contexte',
+      '#76A5AF': 'Démarche',
+      '#8E7CC3': 'Phases',
+      '#F6B26B': 'Phrase de clôture',
+      '#9DC3E6': 'Modèle IA',
+      '#F4B183': 'Température LLM',
+      '#B4C7E7': 'Top P LLM',
+      '#A9D18E': 'Max tokens LLM',
+      '#CFE2F3': 'Horodatage journal',
+      '#F9CB9C': 'Type journal',
+      '#D5A6BD': 'Cours journal',
+      '#B6D7A8': 'Log interne',
+    };
+    function normalizeColorHex(color) {
+      if (!color) return null;
+      const normalized = String(color).toUpperCase();
+      return normalized.length > 7 ? normalized.slice(0, 7) : normalized;
+    }
+    function parseValidationReport(report) {
+      const remainingColors = report && Array.isArray(report.remainingColors) ? report.remainingColors : [];
+      const remainingCount = typeof (report && report.remainingColorsCount) === 'number'
+        ? report.remainingColorsCount
+        : remainingColors.reduce((sum, entry) => sum + (entry && typeof entry.count === 'number' ? entry.count : 0), 0);
+      return { remainingColors, remainingCount };
+    }
+    function buildValidationAlert(remainingColors) {
+      if (!remainingColors || !remainingColors.length) return '';
+      const aggregated = remainingColors.reduce((acc, entry) => {
+        const color = normalizeColorHex(entry && entry.color);
+        const label = COLOR_FIELD_MAP[color] || `Couleur ${color || 'inconnue'}`;
+        const count = entry && typeof entry.count === 'number' ? entry.count : 0;
+        acc[label] = (acc[label] || 0) + count;
+        return acc;
+      }, {});
+      const items = Object.keys(aggregated).map(label => `<li>${label} — ${aggregated[label]} surbrillance(s)</li>`).join('');
+      return `<div class="validation-alert"><p>Champs à compléter :</p><ul>${items}</ul></div>`;
+    }
+    function appendLog(message) {
+      const logEl = $('f_log');
+      if (!logEl) return;
+      const now = new Date();
+      const timeLabel = now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      const line = `[${timeLabel}] ${message}`;
+      logEl.value = logEl.value ? `${logEl.value}\n${line}` : line;
+      logEl.scrollTop = logEl.scrollHeight;
+    }
+    function updateResultPanel({ state = 'idle', message = '', link = '', linkLabel = 'Ouvrir', recordHistory = true } = {}) {
+      if (resultStatusEl && message) {
+        resultStatusEl.className = `result-status is-${state}`;
+        resultStatusEl.innerHTML = '';
+        const textSpan = document.createElement('span');
+        textSpan.textContent = message;
+        resultStatusEl.appendChild(textSpan);
+        if (link) {
+          const anchor = document.createElement('a');
+          anchor.href = link;
+          anchor.target = '_blank';
+          anchor.rel = 'noopener';
+          anchor.textContent = linkLabel || 'Ouvrir';
+          resultStatusEl.appendChild(anchor);
+        }
+      }
+      if (recordHistory && resultHistoryEl && message) {
+        const placeholder = resultHistoryEl.querySelector('[data-placeholder="true"]');
+        if (placeholder) placeholder.remove();
+        const timestamp = new Date();
+        const timeLabel = timestamp.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+        const item = document.createElement('li');
+        item.className = `result-item is-${state}`;
+        const span = document.createElement('span');
+        span.textContent = message;
+        const time = document.createElement('time');
+        time.setAttribute('datetime', timestamp.toISOString());
+        time.textContent = timeLabel;
+        item.append(span, time);
+        resultHistoryEl.prepend(item);
+        const entries = resultHistoryEl.querySelectorAll('li');
+        if (entries.length > 5) {
+          Array.from(entries)
+            .slice(5)
+            .forEach((entry) => entry.remove());
+        }
+      }
+    }
+    function showModal(title, status, pct = 0) {
+      $('modalTitle').textContent = title;
+      $('modalStatus').textContent = status;
+      $('progressBar').style.width = pct + '%';
+      $('modalResult').innerHTML = '';
+      $('btnCloseModal').style.display = 'none';
+      $('modal').classList.add('active');
+    }
+    function hideModal() { $('modal').classList.remove('active'); }
+    const decimalFields = new Set(['llmTemperature', 'llmTopP']);
+    const integerFields = new Set(['llmMaxTokens']);
+    const rawFields = new Set(['log']);
+    function collectForm() {
+      const fields = ['titre','codeProjet','dateDebut','nbEquipes','dureeSemaines','versionDoc','dureeProjet','thematique','entrepriseNom','entrepriseAdresse','clientNom','clientFonction','clientEmail','clientTelephone','entrepriseLogo','ia_probleme','ia_solution','ia_objectifs','contexte','demarche','phases','phrase','deepseekModel','llmTemperature','llmTopP','llmMaxTokens','journalHorodatage','journalType','journalCours','log'];
+      const out = {};
+      fields.forEach(f => {
+        const el = $('f_' + f);
+        if (!el) {
+          out[f] = '';
+          return;
+        }
+        const raw = el.value ?? '';
+        if (rawFields.has(f)) {
+          out[f] = raw;
+          return;
+        }
+        const trimmed = typeof raw === 'string' ? raw.trim() : raw;
+        if (decimalFields.has(f)) {
+          const numeric = parseFloat(String(trimmed).replace(',', '.'));
+          out[f] = Number.isFinite(numeric) ? numeric : null;
+          return;
+        }
+        if (integerFields.has(f)) {
+          const numeric = parseInt(String(trimmed), 10);
+          out[f] = Number.isFinite(numeric) ? numeric : null;
+          return;
+        }
+        out[f] = trimmed;
+      });
+
+      if (!out.deepseekModel) out.deepseekModel = 'deepseek-reasoner';
+      if (!out.journalType) out.journalType = 'generation';
+
+      if (out.journalHorodatage) {
+        const parsed = new Date(out.journalHorodatage);
+        if (!Number.isNaN(parsed.getTime())) {
+          out.journalHorodatage = parsed.toISOString();
+        }
+      } else {
+        const now = new Date();
+        const localIso = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
+          .toISOString()
+          .slice(0, 16);
+        const input = $('f_journalHorodatage');
+        if (input && !input.value) input.value = localIso;
+        out.journalHorodatage = now.toISOString();
+      }
+      return out;
+    }
+
+    const REQUIRED_FIELDS = {
+      f_titre: { label: 'Titre du projet', color: '#E06666' },
+      f_entrepriseNom: { label: 'Nom entreprise', color: '#FFFF00' },
+      f_clientNom: { label: 'Nom du contact', color: '#D9EAD3' },
+      f_dureeProjet: { label: 'Durée du projet', color: '#3D85C6' },
+      f_thematique: { label: 'Thématique', color: '#F4CCCC' },
+    };
+    let lastMissingFields = [];
+    let pendingGenerationStart = null;
+
+    function checkMissingFields() {
+      const missing = [];
+      Object.keys(REQUIRED_FIELDS).forEach((fieldId) => {
+        const el = document.getElementById(fieldId);
+        const value = el && typeof el.value === 'string' ? el.value.trim() : '';
+        if (!value) {
+          missing.push({
+            id: fieldId,
+            label: REQUIRED_FIELDS[fieldId].label,
+            color: REQUIRED_FIELDS[fieldId].color,
+          });
+        }
+      });
+      lastMissingFields = missing;
+      return missing;
+    }
+
+    function showMissingFieldsModal(missingFields) {
+      const modal = $('missingFieldsModal');
+      const list = $('missingFieldsList');
+      if (!modal || !list) return;
+      list.innerHTML = '';
+      missingFields.forEach((field) => {
+        const li = document.createElement('li');
+        li.innerHTML = `<strong>${field.label}</strong><span style="background:${field.color}; padding:2px 8px; border-radius:4px; margin-left:8px; font-size:0.85em;">Zone colorée</span>`;
+        list.appendChild(li);
+      });
+      modal.style.display = 'flex';
+      modal.setAttribute('aria-hidden', 'false');
+    }
+
+    function hideMissingFieldsModal() {
+      const modal = $('missingFieldsModal');
+      if (!modal) return;
+      modal.style.display = 'none';
+      modal.setAttribute('aria-hidden', 'true');
+    }
+
+    function focusFirstMissingField() {
+      const first = lastMissingFields[0];
+      if (first) {
+        const target = document.getElementById(first.id);
+        if (target) target.focus();
+      }
+    }
+    let speechRecognition = null;
+    let dictationActive = false;
+    let dictationStopping = false;
+    let dictationTarget = null;
+    let dictationButton = null;
+    let pendingDictation = null;
+
+    function initSpeechDictation() {
+      const dictationButtons = Array.from(document.querySelectorAll('[data-dict-target]'));
+      if (!dictationButtons.length) return;
+
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        dictationButtons.forEach((btn) => {
+          btn.disabled = true;
+          btn.classList.add('is-disabled');
+        });
+        appendLog('Dictée vocale non supportée par ce navigateur.');
+        resetAllDictStatus('Dictée non supportée.');
+        return;
+      }
+
+      dictationButtons.forEach((btn) => {
+        if (!btn.dataset.originalLabel) {
+          btn.dataset.originalLabel = btn.textContent.trim();
+        }
+      });
+
+      speechRecognition = new SpeechRecognition();
+      speechRecognition.lang = 'fr-FR';
+      speechRecognition.continuous = true;
+      speechRecognition.interimResults = true;
+
+      speechRecognition.onresult = (event) => {
+        if (!dictationTarget) return;
+        let finalTranscript = '';
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          const result = event.results[i];
+          if (!result || !result[0]) continue;
+          const transcript = (result[0].transcript || '').trim();
+          if (!transcript) continue;
+          if (result.isFinal) {
+            finalTranscript += transcript + ' ';
+          } else {
+            updateDictStatus(dictationTarget.id, `… ${transcript}`);
+          }
+        }
+        finalTranscript = finalTranscript.trim();
+        if (!finalTranscript) return;
+        const current = dictationTarget.value || '';
+        const separator = current && !(/[\s\n]$/.test(current)) ? ' ' : '';
+        dictationTarget.value = current + separator + finalTranscript;
+        dictationTarget.dispatchEvent(new Event('input', { bubbles: true }));
+        updateDictStatus(dictationTarget.id, 'OK ✓');
+        appendLog(`Dictée → ${finalTranscript}`);
+      };
+
+      speechRecognition.onerror = (event) => {
+        appendLog(`Erreur dictée: ${event.error || 'inconnue'}`);
+        dictationStopping = true;
+        dictationActive = false;
+        if (dictationTarget) updateDictStatus(dictationTarget.id, `Erreur : ${event.error || 'inconnue'}`);
+        try {
+          speechRecognition.stop();
+        } catch (_) {}
+      };
+
+      speechRecognition.onstart = () => {
+        dictationActive = true;
+        dictationStopping = false;
+        if (dictationButton) {
+          dictationButton.classList.add('is-active');
+          dictationButton.textContent = '🛑 Arrêter';
+        }
+        if (dictationTarget) updateDictStatus(dictationTarget.id, 'Écoute en cours…');
+        appendLog('Dictée vocale démarrée.');
+      };
+
+      speechRecognition.onend = () => {
+        const previousButton = dictationButton;
+        const previousTarget = dictationTarget ? dictationTarget.id : null;
+        if (previousButton) {
+          previousButton.classList.remove('is-active');
+          previousButton.textContent = previousButton.dataset.originalLabel || '🎙️ Dicter';
+        }
+
+        const nextRequest = pendingDictation;
+        pendingDictation = null;
+        dictationActive = false;
+        const wasStopping = dictationStopping;
+        dictationStopping = false;
+
+        if (nextRequest) {
+          dictationTarget = nextRequest.target;
+          dictationButton = nextRequest.button;
+          requestAnimationFrame(() => {
+            try {
+              speechRecognition.start();
+            } catch (err) {
+              appendLog(`Impossible de démarrer la dictée: ${err.message || err}`);
+              updateDictStatus(dictationTarget.id, 'Démarrage impossible.');
+            }
+          });
+          return;
+        }
+
+        if (!wasStopping && previousTarget) {
+          updateDictStatus(previousTarget, 'Prêt.');
+          appendLog('Dictée interrompue.');
+        }
+        dictationTarget = null;
+        dictationButton = null;
+      };
+
+      function requestDictation(target, button) {
+        dictationTarget = target;
+        dictationButton = button;
+        try {
+          speechRecognition.start();
+        } catch (err) {
+          appendLog(`Impossible de démarrer la dictée: ${err.message || err}`);
+          updateDictStatus(dictationTarget.id, 'Démarrage impossible.');
+        }
+      }
+
+      function stopDictation() {
+        if (!speechRecognition) return;
+        dictationStopping = true;
+        if (dictationTarget) updateDictStatus(dictationTarget.id, 'Arrêt en cours…');
+        try {
+          speechRecognition.stop();
+        } catch (_) {}
+      }
+
+      dictationButtons.forEach((button) => {
+        button.addEventListener('click', () => {
+          if (!speechRecognition) return;
+          const target = document.getElementById(button.dataset.dictTarget);
+          if (!target) return;
+
+          if (!dictationActive) {
+            requestDictation(target, button);
+            return;
+          }
+
+          if (dictationButton === button) {
+            stopDictation();
+            appendLog('Dictée arrêtée par l’utilisateur.');
+            return;
+          }
+
+          pendingDictation = { target, button };
+          stopDictation();
+        });
+      });
+
+      resetAllDictStatus();
+      appendLog('Dictée vocale prête.');
+    }
+
+    document.addEventListener('focusin', (event) => {
+      const target = event.target;
+      if (!target || dictationActive) return;
+      if (target.matches('textarea, input[type="text"], input[type="search"], input[type="email"], input[type="tel"], input[type="url"], input[type="number"]')) {
+        dictationTarget = target;
+      }
+    });
+
+    appendLog('Console initialisée.');
+    updatePreview('Prêt à compiler les informations du brief.');
+    updateResultPanel({ state: 'idle', message: 'Prêt pour une nouvelle génération.', recordHistory: false });
+    dictationTarget = $('f_contexte') || null;
+    initSpeechDictation();
+
+    // Gestionnaire de fichiers amélioré (cumulatif)
+    let selectedAttachments = [];
+    const attachmentsInput = $('f_attachments');
+    const attachmentsListEl = $('attachmentsList');
+
+    function renderAttachmentsList() {
+      if (!attachmentsListEl) return;
+      attachmentsListEl.innerHTML = '';
+      selectedAttachments.forEach((file, index) => {
+        const li = document.createElement('li');
+        li.className = 'attachment-item';
+
+        const nameSpan = document.createElement('span');
+        nameSpan.className = 'attachment-name';
+        nameSpan.textContent = file.name;
+
+        const removeBtn = document.createElement('button');
+        removeBtn.className = 'attachment-remove';
+        removeBtn.innerHTML = '&times;';
+        removeBtn.title = 'Supprimer';
+        removeBtn.onclick = () => {
+          selectedAttachments.splice(index, 1);
+          renderAttachmentsList();
+          updateFilesHint(selectedAttachments.length);
+        };
+
+        li.appendChild(nameSpan);
+        li.appendChild(removeBtn);
+        attachmentsListEl.appendChild(li);
+      });
+    }
+
+    let updateFilesHint = (count) => {}; // Placeholder
+
+    if (attachmentsInput) {
+      const configuredMax = parseInt(attachmentsInput.getAttribute('data-max') || '15', 10);
+      const maxFiles = Number.isFinite(configuredMax) ? Math.max(1, configuredMax) : 15;
+
+      updateFilesHint = (count) => {
+        if (!filesHintEl) return;
+        if (!count) {
+          filesHintEl.textContent = `Aucun fichier sélectionné (0/${maxFiles}).`;
+          return;
+        }
+        filesHintEl.textContent = `${count}/${maxFiles} fichier(s) sélectionné(s).`;
+      };
+
+      updateFilesHint(0);
+
+      attachmentsInput.addEventListener('change', () => {
+        const newFiles = Array.from(attachmentsInput.files || []);
+        if (!newFiles.length) return;
+
+        // Vérifier le nombre total
+        if (selectedAttachments.length + newFiles.length > maxFiles) {
+          alert(`Vous ne pouvez pas dépasser ${maxFiles} fichiers au total.`);
+          attachmentsInput.value = ''; // Reset input
+          return;
+        }
+
+        // Ajouter les fichiers
+        let addedCount = 0;
+        newFiles.forEach(f => {
+           // Simple dédoublonnage par nom+taille
+           const exists = selectedAttachments.some(existing => existing.name === f.name && existing.size === f.size);
+           if (!exists) {
+             selectedAttachments.push(f);
+             addedCount++;
+           }
+        });
+
+        if (addedCount > 0) {
+          appendLog(`${addedCount} fichier(s) ajouté(s). Total: ${selectedAttachments.length}`);
+        }
+
+        renderAttachmentsList();
+        updateFilesHint(selectedAttachments.length);
+
+        // Reset input pour permettre de ré-ajouter le même fichier si on l'a supprimé par erreur, ou ajouter d'autres fichiers
+        attachmentsInput.value = '';
+      });
+    }
+
+    const initRunner = getRunner();
+    if (icamLogoEls.length) {
+      const applyLogo = (url) => {
+        if (!url) return;
+        icamLogoEls.forEach((el) => {
+          el.src = url;
+        });
+      };
+      if (initRunner) {
+        initRunner.withSuccessHandler(applyLogo).getIcamLogoDataUrl();
+      } else {
+        icamLogoEls.forEach((el) => {
+          const fallback = el.getAttribute('data-fallback-logo');
+          if (fallback) el.src = fallback;
+        });
+      }
+    }
+    if (costLogLinkEl && initRunner) {
+      initRunner.withSuccessHandler(updateCostLogLink).getCostLogUrl_public();
+    }
+
+    const btnGenerate = $('btnGenerate'); // FIX: Récupère le bouton principal de génération pour gérer la logique avancée.
+    if (retryButton && btnGenerate) { // FIX: Relie le bouton de retry au flux principal.
+      retryButton.addEventListener('click', () => { // FIX: Permet un retry manuel explicite.
+        if (retryButton.disabled) return; // FIX: Empêche les relances pendant le cooldown conseillé.
+        btnGenerate.click(); // FIX: Réutilise la même logique que le bouton principal.
+      });
+    }
+    if (btnGenerate) { // FIX: Vérifie que le bouton existe avant d'ajouter la logique renforcée.
+      const runGeneration = async () => { // FIX: Extrait la logique pour pouvoir la relancer après un avertissement.
+        const fd = collectForm(); // FIX: Capture l'état complet du formulaire avant validations supplémentaires.
+        const missing = []; // FIX: Initialise la liste des champs obligatoires manquants.
+        if (!fd.titre) missing.push('Le titre est obligatoire'); // FIX: Garantit que le titre est fourni avant l'appel API.
+        if (!fd.entrepriseNom) missing.push("Le nom de l’entreprise est obligatoire"); // FIX: Rappelle la contrainte sur le nom client.
+        if (!fd.ia_probleme) missing.push('Le problème principal est obligatoire'); // FIX: Empêche un prompt incomplet côté DeepSeek.
+        if (missing.length) { // FIX: Arrête la génération si des champs critiques sont absents.
+          alert('⚠️ Merci de corriger :\n\n' + missing.join('\n')); // FIX: Affiche la liste des corrections attendues.
+          return; // FIX: Empêche tout appel API tant que le formulaire est incomplet.
+        } // FIX: Renforce la validation et le fallback offline côté interface.
+
+        // Traitement des pièces jointes
+        if (selectedAttachments && selectedAttachments.length > 0) {
+           const readFile = (file) => new Promise((resolve, reject) => {
+              const reader = new FileReader();
+              reader.onload = () => resolve({
+                  name: file.name,
+                  mimeType: file.type,
+                  bytes: reader.result.split(',')[1]
+              });
+              reader.onerror = reject;
+              reader.readAsDataURL(file);
+           });
+
+           try {
+             appendLog('Lecture des pièces jointes...');
+             fd.attachments = await Promise.all(selectedAttachments.map(readFile));
+             appendLog(`${fd.attachments.length} pièce(s) jointe(s) prête(s).`);
+           } catch (e) {
+             alert("Erreur lors de la lecture des fichiers : " + e);
+             return;
+           }
+        }
+
+        // FIX: Séparateur requis pour contextualiser la nouvelle logique UI.
+        // FIX: Sépare les validations du calcul d'estimation de tokens côté client.
+        toggleRetryButton(false); // FIX: Réinitialise l'état du bouton de retry à chaque lancement.
+        const promptStats = computePromptStats(fd); // FIX: Utilise l'estimation locale avant d'appeler Apps Script.
+        if (promptStats.severity === 'block') { // FIX: Bloque si la limite de 100k tokens est dépassée côté client.
+          const overflowMsg = `Brief trop long (~${promptStats.tokens} tokens). Réduisez la saisie avant de relancer.`; // FIX: Message explicite pour l'utilisateur.
+          alert(overflowMsg); // FIX: Met en évidence la contrainte directement côté UI.
+          updateResultPanel({ state: 'error', message: overflowMsg, recordHistory: true }); // FIX: Historise l'échec de validation.
+          appendLog(overflowMsg); // FIX: Ajoute l'incident dans le log texte.
+          return; // FIX: Renforce la validation et le fallback offline côté interface.
+        } else if (promptStats.severity === 'warn') { // FIX: Informe l'utilisateur lorsqu'il s'approche de la limite.
+          appendLog(`⚠️ Brief proche de la limite DeepSeek (~${promptStats.tokens} tokens).`); // FIX: Invite à alléger le brief avant la prochaine génération.
+        } // FIX: Renforce la validation et le fallback offline côté interface.
+        // FIX: Séparateur requis pour contextualiser la nouvelle logique UI.
+        // FIX: Prépare la console pour une nouvelle réponse IA propre.
+        lastLlmConsoleText = ''; // FIX: Efface tout transcript précédent pour éviter les confusions.
+        lastLlmConsoleDocUrl = ''; // FIX: Supprime l'ancien lien de transcript IA.
+        toggleConsoleTriggers(false); // FIX: Désactive l'ouverture de la console tant que rien n'est généré.
+        updateConsoleDocLink(''); // FIX: Nettoie le lien de transcript dans l'UI.
+        hideLlmConsoleOverlay(); // FIX: Ferme la console IA si elle était affichée.
+        generationProgress.start({ message: 'Préparation de la génération…', estimatedMs: 18000 }); // FIX: Relance la barre de progression avec l'ETA.
+        updatePreview(buildFormPreview(fd)); // FIX: Affiche un résumé du brief pendant la préparation.
+        appendLog('Préparation de la génération DeepSeek.'); // FIX: Journalise l'étape courante pour audit.
+        showModal('🚀 Lancement', 'Estimation du coût…', 12); // FIX: Informe l'utilisateur que l'estimation débute.
+        $('progressBar').style.width = '18%'; // FIX: Met à jour la jauge visuelle du modal.
+        updateResultPanel({ state: 'progress', message: 'Estimation du coût…', recordHistory: true }); // FIX: Trace l'état dans le panneau de statut.
+        generationProgress.step({ message: 'Estimation du coût…', pct: 14 }); // FIX: Synchronise la progression interne.
+        // FIX: Séparateur requis pour contextualiser la nouvelle logique UI.
+        const runnerCheck = getRunner(); // FIX: Renforce la validation et le fallback offline côté interface.
+        if (!runnerCheck) { // FIX: Renforce la validation et le fallback offline côté interface.
+          appendLog('google.script.run indisponible (mode hors Apps Script).'); // FIX: Renforce la validation et le fallback offline côté interface.
+          setTimeout(() => { // FIX: Renforce la validation et le fallback offline côté interface.
+            $('modalStatus').textContent = 'Prévisualisation locale (Apps Script requis).'; // FIX: Renforce la validation et le fallback offline côté interface.
+            $('progressBar').style.width = '100%'; // FIX: Renforce la validation et le fallback offline côté interface.
+            $('modalResult').innerHTML = '<p>google.script.run non disponible hors Apps Script.</p>'; // FIX: Renforce la validation et le fallback offline côté interface.
+            $('btnCloseModal').style.display = 'inline-flex'; // FIX: Renforce la validation et le fallback offline côté interface.
+            updateResultPanel({ state: 'error', message: 'Prévisualisation locale uniquement (Apps Script requis).', recordHistory: true }); // FIX: Renforce la validation et le fallback offline côté interface.
+          }, 600); // FIX: Renforce la validation et le fallback offline côté interface.
+          generationProgress.fail({ message: 'Hors Apps Script — progression arrêtée.' }); // FIX: Renforce la validation et le fallback offline côté interface.
+          toggleRetryButton(true, { helperText: 'Relancez depuis Apps Script une fois le déploiement effectué.' }); // FIX: Invite à réessayer après déploiement Apps Script.
+          return; // FIX: Renforce la validation et le fallback offline côté interface.
+        } // FIX: Renforce la validation et le fallback offline côté interface.
+        // FIX: Séparateur requis pour contextualiser la nouvelle logique UI.
+        const launchGeneration = () => { // FIX: Renforce la validation et le fallback offline côté interface.
+          appendLog('Transmission des données à Apps Script.'); // FIX: Renforce la validation et le fallback offline côté interface.
+          generationProgress.step({ message: 'Transmission des données à Apps Script…', pct: 32 }); // FIX: Renforce la validation et le fallback offline côté interface.
+          $('modalStatus').textContent = 'Génération du document…'; // FIX: Renforce la validation et le fallback offline côté interface.
+          $('progressBar').style.width = '55%'; // FIX: Renforce la validation et le fallback offline côté interface.
+          updateResultPanel({ state: 'progress', message: 'Génération du document…', recordHistory: true }); // FIX: Renforce la validation et le fallback offline côté interface.
+          generationProgress.step({ message: 'Génération du document…', pct: 58 }); // FIX: Renforce la validation et le fallback offline côté interface.
+          const runnerGenerate = getRunner(); // FIX: Renforce la validation et le fallback offline côté interface.
+          runnerGenerate // FIX: Renforce la validation et le fallback offline côté interface.
+            .withSuccessHandler(res => { // FIX: Renforce la validation et le fallback offline côté interface.
+              if (res && res.success) { // FIX: Renforce la validation et le fallback offline côté interface.
+                generationProgress.settle({ message: 'Document généré', latencyMs: res.latencyMs }); // FIX: Renforce la validation et le fallback offline côté interface.
+                const docUrl = res.url || ''; // FIX: Renforce la validation et le fallback offline côté interface.
+                const costMessage = (res.cost && typeof res.cost.total === 'number') // FIX: Renforce la validation et le fallback offline côté interface.
+                  ? `Document généré — coût $${res.cost.total.toFixed(4)}` // FIX: Renforce la validation et le fallback offline côté interface.
+                  : 'Document généré'; // FIX: Renforce la validation et le fallback offline côté interface.
+
+                const parsedReport = parseValidationReport(res.validationReport); // FIX: Analyse le rapport de validation provenant du serveur.
+                const hasResidualColors = parsedReport.remainingCount > 0; // FIX: Détecte les zones non remplacées restantes.
+                const modalTitle = hasResidualColors ? '⚠️ Validation partielle' : '🎉 Succès'; // FIX: Ajuste le titre selon l'état de validation.
+                const modalStatus = hasResidualColors
+                  ? `Attention : ${parsedReport.remainingCount} zones n'ont pas été remplacées`
+                  : 'Succès 100% — aucune couleur restante'; // FIX: Informe sur l'état des couleurs résiduelles.
+                const linkHtml = docUrl ? `<p><a href="${docUrl}" target="_blank" rel="noopener">📄 Ouvrir le document</a></p>` : ''; // FIX: Conserve le lien vers le document généré.
+                const validationList = hasResidualColors ? buildValidationAlert(parsedReport.remainingColors) : ''; // FIX: Liste les champs manquants probables.
+                const modalBody = linkHtml + validationList; // FIX: Concatène lien et alertes éventuelles.
+                const statusState = hasResidualColors ? 'warning' : 'success'; // FIX: Modifie la couleur de statut si nécessaire.
+                const statusMessage = hasResidualColors
+                  ? `${costMessage} — ${parsedReport.remainingCount} zone(s) à vérifier`
+                  : `${costMessage} · Validation 100%`; // FIX: Affiche l'état final.
+
+                showModal(modalTitle, modalStatus, hasResidualColors ? 85 : 100); // FIX: Met à jour le modal avec le message adapté.
+                $('modalResult').innerHTML = modalBody || linkHtml; // FIX: Injecte le lien et les alertes éventuelles.
+                updateResultPanel({ state: statusState, message: statusMessage, link: docUrl, linkLabel: 'Ouvrir', recordHistory: true }); // FIX: Met à jour le panneau de statut avec la couleur adéquate.
+                if (res.aiSections) { // FIX: Renforce la validation et le fallback offline côté interface.
+                  updatePreview(buildAiPreview(res.aiSections, docUrl)); // FIX: Renforce la validation et le fallback offline côté interface.
+                } else if (res.llmContent) { // FIX: Renforce la validation et le fallback offline côté interface.
+                  updatePreview(res.llmContent); // FIX: Renforce la validation et le fallback offline côté interface.
+                } // FIX: Renforce la validation et le fallback offline côté interface.
+                if (res.llmContent) { // FIX: Renforce la validation et le fallback offline côté interface.
+                  lastLlmConsoleText = res.llmContent; // FIX: Renforce la validation et le fallback offline côté interface.
+                  lastLlmConsoleDocUrl = res.consoleDocUrl || ''; // FIX: Renforce la validation et le fallback offline côté interface.
+                  toggleConsoleTriggers(true); // FIX: Renforce la validation et le fallback offline côté interface.
+                  showLlmConsole(lastLlmConsoleText, lastLlmConsoleDocUrl); // FIX: Renforce la validation et le fallback offline côté interface.
+                } // FIX: Renforce la validation et le fallback offline côté interface.
+                if (res.consoleDocUrl) { // FIX: Renforce la validation et le fallback offline côté interface.
+                  updateConsoleDocLink(res.consoleDocUrl); // FIX: Renforce la validation et le fallback offline côté interface.
+                } // FIX: Renforce la validation et le fallback offline côté interface.
+                if (res.costLogUrl) updateCostLogLink(res.costLogUrl); // FIX: Renforce la validation et le fallback offline côté interface.
+                appendLog(docUrl ? `Succès génération · Doc: ${docUrl}` : 'Succès génération (URL non transmise).'); // FIX: Renforce la validation et le fallback offline côté interface.
+                if (res.cost && typeof res.cost.total === 'number') { // FIX: Renforce la validation et le fallback offline côté interface.
+                  appendLog(`Coût DeepSeek facturé: $${res.cost.total.toFixed(4)}`); // FIX: Renforce la validation et le fallback offline côté interface.
+                } // FIX: Renforce la validation et le fallback offline côté interface.
+                if (typeof res.promptTokens === 'number' && tokenEstimateBadge) { // FIX: Renforce la validation et le fallback offline côté interface.
+                  tokenEstimateBadge.textContent = `Estimation prompt ≈ ${res.promptTokens} tokens (limite ${PROMPT_TOKEN_LIMIT})`; // FIX: Aligne l'affichage sur la valeur renvoyée par Apps Script.
+                  tokenEstimateBadge.style.color = '#9ae6b4'; // FIX: Colore en vert après succès.
+                } // FIX: Renforce la validation et le fallback offline côté interface.
+                toggleRetryButton(false); // FIX: Masque l'action de retry après un succès.
+              } else { // FIX: Renforce la validation et le fallback offline côté interface.
+                const errorMessage = (res && res.error) || 'Erreur inconnue'; // FIX: Renforce la validation et le fallback offline côté interface.
+                generationProgress.fail({ message: errorMessage }); // FIX: Renforce la validation et le fallback offline côté interface.
+                showModal('❌ Erreur', errorMessage, 0); // FIX: Renforce la validation et le fallback offline côté interface.
+                updateResultPanel({ state: 'error', message: errorMessage, recordHistory: true }); // FIX: Renforce la validation et le fallback offline côté interface.
+                appendLog(`Erreur génération: ${errorMessage}`); // FIX: Renforce la validation et le fallback offline côté interface.
+                toggleConsoleTriggers(false); // FIX: Renforce la validation et le fallback offline côté interface.
+                lastLlmConsoleText = ''; // FIX: Renforce la validation et le fallback offline côté interface.
+                lastLlmConsoleDocUrl = ''; // FIX: Renforce la validation et le fallback offline côté interface.
+                updateConsoleDocLink(''); // FIX: Renforce la validation et le fallback offline côté interface.
+                const shouldOfferRetry = !!(res && (res.code === 'RATE_LIMIT' || res.code === 'OFFLINE')); // FIX: Renforce la validation et le fallback offline côté interface.
+                const retryDelay = res && typeof res.retryAfterMs === 'number' ? Math.max(0, res.retryAfterMs) : 0; // FIX: Renforce la validation et le fallback offline côté interface.
+                toggleRetryButton(shouldOfferRetry, { delayMs: retryDelay, helperText: errorMessage }); // FIX: Informe l'utilisateur d'un retry conseillé.
+              } // FIX: Renforce la validation et le fallback offline côté interface.
+              $('btnCloseModal').style.display = 'inline-flex'; // FIX: Renforce la validation et le fallback offline côté interface.
+            }) // FIX: Renforce la validation et le fallback offline côté interface.
+            .withFailureHandler(err => { // FIX: Renforce la validation et le fallback offline côté interface.
+              const errorText = err && err.message ? err.message : String(err); // FIX: Renforce la validation et le fallback offline côté interface.
+              generationProgress.fail({ message: errorText }); // FIX: Renforce la validation et le fallback offline côté interface.
+              showModal('❌ Erreur', errorText, 0); // FIX: Renforce la validation et le fallback offline côté interface.
+              updateResultPanel({ state: 'error', message: errorText, recordHistory: true }); // FIX: Renforce la validation et le fallback offline côté interface.
+              appendLog(`Erreur technique: ${errorText}`); // FIX: Renforce la validation et le fallback offline côté interface.
+              $('btnCloseModal').style.display = 'inline-flex'; // FIX: Renforce la validation et le fallback offline côté interface.
+              toggleConsoleTriggers(false); // FIX: Renforce la validation et le fallback offline côté interface.
+              lastLlmConsoleText = ''; // FIX: Renforce la validation et le fallback offline côté interface.
+              lastLlmConsoleDocUrl = ''; // FIX: Renforce la validation et le fallback offline côté interface.
+              updateConsoleDocLink(''); // FIX: Renforce la validation et le fallback offline côté interface.
+              toggleRetryButton(true, { helperText: errorText }); // FIX: Offre un retry immédiat après une erreur Apps Script.
+            }) // FIX: Renforce la validation et le fallback offline côté interface.
+            .generateFullProposal(fd); // FIX: Renforce la validation et le fallback offline côté interface.
+        }; // FIX: Renforce la validation et le fallback offline côté interface.
+        // FIX: Séparateur requis pour contextualiser la nouvelle logique UI.
+        getRunner() // FIX: Renforce la validation et le fallback offline côté interface.
+          .withSuccessHandler(res => { // FIX: Renforce la validation et le fallback offline côté interface.
+            if (res && res.est) { // FIX: Renforce la validation et le fallback offline côté interface.
+              const est = res.est; // FIX: Renforce la validation et le fallback offline côté interface.
+              const total = typeof est.total === 'number' ? est.total.toFixed(4) : '—'; // FIX: Renforce la validation et le fallback offline côté interface.
+              const inTok = est.input && typeof est.input.tokens === 'number' ? est.input.tokens : '—'; // FIX: Renforce la validation et le fallback offline côté interface.
+              const outTok = est.output && typeof est.output.tokens === 'number' ? est.output.tokens : '—'; // FIX: Renforce la validation et le fallback offline côté interface.
+              const model = est.model || 'DeepSeek'; // FIX: Renforce la validation et le fallback offline côté interface.
+              const summary = `Estimation coût: $${total} · IN ${inTok} tok · OUT ${outTok} tok · Modèle: ${model}`; // FIX: Renforce la validation et le fallback offline côté interface.
+              $('modalStatus').textContent = summary; // FIX: Renforce la validation et le fallback offline côté interface.
+              $('progressBar').style.width = '38%'; // FIX: Renforce la validation et le fallback offline côté interface.
+              updateResultPanel({ state: 'progress', message: summary, recordHistory: true }); // FIX: Renforce la validation et le fallback offline côté interface.
+              appendLog(summary); // FIX: Renforce la validation et le fallback offline côté interface.
+              const etaMs = res.estimatedDurationMs || est.estimatedDurationMs; // FIX: Renforce la validation et le fallback offline côté interface.
+              generationProgress.step({ message: summary, pct: 28, estimatedMs: etaMs }); // FIX: Renforce la validation et le fallback offline côté interface.
+              if (res.sheetUrl) updateCostLogLink(res.sheetUrl); // FIX: Renforce la validation et le fallback offline côté interface.
+            } // FIX: Renforce la validation et le fallback offline côté interface.
+            launchGeneration(); // FIX: Renforce la validation et le fallback offline côté interface.
+          }) // FIX: Renforce la validation et le fallback offline côté interface.
+          .withFailureHandler(err => { // FIX: Renforce la validation et le fallback offline côté interface.
+            const msg = err && err.message ? err.message : 'Estimation indisponible.'; // FIX: Renforce la validation et le fallback offline côté interface.
+            appendLog(`Estimation indisponible: ${msg}`); // FIX: Renforce la validation et le fallback offline côté interface.
+            $('modalStatus').textContent = 'Estimation indisponible, lancement direct…'; // FIX: Renforce la validation et le fallback offline côté interface.
+            $('progressBar').style.width = '32%'; // FIX: Renforce la validation et le fallback offline côté interface.
+            updateResultPanel({ state: 'progress', message: 'Estimation indisponible, lancement direct…', recordHistory: true }); // FIX: Renforce la validation et le fallback offline côté interface.
+            generationProgress.step({ message: 'Estimation indisponible, lancement direct…', pct: 22 }); // FIX: Renforce la validation et le fallback offline côté interface.
+            launchGeneration(); // FIX: Renforce la validation et le fallback offline côté interface.
+          }) // FIX: Renforce la validation et le fallback offline côté interface.
+          .estimateAndLogCost_public(fd); // FIX: Renforce la validation et le fallback offline côté interface.
+      }; // FIX: Renforce la validation et le fallback offline côté interface.
+
+      btnGenerate.addEventListener('click', async () => { // FIX: Surveille chaque clic pour appliquer les nouvelles validations.
+        pendingGenerationStart = runGeneration; // FIX: Permet de relancer après un avertissement champs manquants.
+        const missingFields = checkMissingFields();
+        if (missingFields.length) {
+          showMissingFieldsModal(missingFields);
+          return;
+        }
+        await runGeneration();
+      });
+    } // FIX: Renforce la validation et le fallback offline côté interface.
+    const closeBtn = $('btnCloseModal');
+    if (closeBtn) {
+      closeBtn.addEventListener('click', hideModal);
+    }
+    const modal = $('modal');
+    if (modal) {
+      modal.addEventListener('click', (e) => { if (e.target === modal) hideModal(); });
+    }
+
+    const missingFieldsModal = $('missingFieldsModal');
+    const btnCloseMissingFields = $('btnCloseMissingFields');
+    const btnFillFields = $('btnFillFields');
+    const btnContinueAnyway = $('btnContinueAnyway');
+
+    if (btnCloseMissingFields) {
+      btnCloseMissingFields.addEventListener('click', () => {
+        hideMissingFieldsModal();
+        pendingGenerationStart = null;
+      });
+    }
+    if (btnFillFields) {
+      btnFillFields.addEventListener('click', () => {
+        hideMissingFieldsModal();
+        focusFirstMissingField();
+      });
+    }
+    if (btnContinueAnyway) {
+      btnContinueAnyway.addEventListener('click', () => {
+        hideMissingFieldsModal();
+        const action = pendingGenerationStart;
+        pendingGenerationStart = null;
+        if (typeof action === 'function') {
+          action();
+        }
+      });
+    }
+    if (missingFieldsModal) {
+      missingFieldsModal.addEventListener('click', (e) => {
+        if (e.target === missingFieldsModal) hideMissingFieldsModal();
+      });
+    }
+  </script>
+</body>
+</html>
