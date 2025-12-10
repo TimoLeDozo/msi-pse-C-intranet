@@ -1,0 +1,144 @@
+:root {
+  --bg: #050505;
+  --glass: rgba(255,255,255,0.05);
+  --border: rgba(255,255,255,0.12);
+
+  --primary: #00ffff;
+  --accent: #ff69b4;
+  --success: #00ff9d;
+
+  --text: #eee;
+  --muted: #777;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: Inter, sans-serif;
+  margin: 0;
+  padding: 20px;
+}
+
+/* HEADER */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 20px;
+}
+
+.brand {
+  font-size: 1.5rem;
+  font-weight: 800;
+}
+
+.brand .neon {
+  color: var(--primary);
+}
+
+.version {
+  background: var(--glass);
+  padding: 4px 8px;
+  font-size: 0.7rem;
+  border-radius: 6px;
+}
+
+/* GRID */
+.grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 25px;
+  margin-top: 20px;
+}
+
+/* PANEL */
+.panel {
+  background: var(--glass);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 25px;
+  backdrop-filter: blur(12px);
+}
+
+.panel h2 {
+  margin-top: 0;
+  font-size: 1.1rem;
+}
+
+/* FORM */
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.form-grid .full {
+  grid-column: span 2;
+}
+
+label {
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-bottom: 4px;
+  display: block;
+}
+
+input,
+textarea {
+  width: 100%;
+  border: 1px solid var(--border);
+  background: rgba(0,0,0,0.3);
+  padding: 10px;
+  border-radius: 8px;
+  color: #fff;
+}
+
+.action-btn {
+  width: 100%;
+  padding: 14px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #2b32b2, var(--primary));
+  border: none;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* CONSOLE */
+.status-bar {
+  height: 4px;
+  background: #222;
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+#statusFill {
+  height: 100%;
+  width: 0%;
+  background: var(--primary);
+  transition: width 0.3s;
+}
+
+#consoleLog {
+  list-style: none;
+  padding: 0;
+  max-height: 150px;
+  overflow-y: auto;
+}
+
+/* MODAL */
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  place-items: center;
+}
+
+.modal-box {
+  background: #111;
+  padding: 30px;
+  border: 1px solid var(--primary);
+  border-radius: 14px;
+}

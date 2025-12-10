@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PSE Neural Engine · B2</title>
+
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap">
+</head>
+
+<body>
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="brand">
+      <span>PSE</span> <span class="neon">NEURAL</span> ENGINE
+      <span class="version">v5.0 PROD</span>
+    </div>
+
+    <a href="#" class="github-btn">
+      <svg width="18" height="18" fill="currentColor">
+        <path d="M8..." />
+      </svg>
+      Repo
+    </a>
+  </header>
+
+  <!-- LAYOUT -->
+  <main class="grid">
+    
+    <!-- LEFT PANEL -->
+    <section>
+      <div class="panel">
+        <h2>1. Identité Projet & Client</h2>
+
+        <div class="form-grid">
+          <div class="full">
+            <label>Titre</label>
+            <input id="titre" placeholder="Transformation Lean...">
+          </div>
+
+          <div>
+            <label>Entreprise</label>
+            <input id="entrepriseNom" placeholder="Nom du client">
+          </div>
+
+          <div>
+            <label>Code Projet</label>
+            <input id="codeProjet">
+          </div>
+
+          <div>
+            <label>Date</label>
+            <input id="dateDebut" placeholder="Février 2026">
+          </div>
+
+          <div>
+            <label>Durée</label>
+            <input id="dureeProjet">
+          </div>
+
+          <div>
+            <label>Équipes</label>
+            <input id="nbEquipes" type="number" value="2">
+          </div>
+
+          <div>
+            <label>Semaines</label>
+            <input id="dureeSemaines" type="number" value="96">
+          </div>
+
+          <div class="full">
+            <label>Logo (URL)</label>
+            <input id="entrepriseLogo" placeholder="https://...">
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>2. Intelligence & Documents</h2>
+
+        <label>ADN / Contexte</label>
+        <textarea id="ia_histoire" rows="2"></textarea>
+
+        <label>Lieux</label>
+        <input id="ia_lieux">
+
+        <label>Fichiers (PDF, Images)</label>
+        <input type="file" id="attachments" multiple>
+
+        <label>Problème</label>
+        <textarea id="ia_probleme" rows="2"></textarea>
+
+        <label>Solution</label>
+        <textarea id="ia_solution" rows="2"></textarea>
+
+        <label>Objectifs</label>
+        <textarea id="ia_objectifs" rows="2"></textarea>
+
+        <button id="btnGenerate" class="action-btn">⚡ Générer</button>
+      </div>
+    </section>
+
+    <!-- RIGHT PANEL -->
+    <aside>
+
+      <div class="panel">
+        <h2>Matrix Protocol</h2>
+
+        <div class="proto">
+          <div><span>Architecture</span><span>B1 → <b>B2</b></span></div>
+          <div><span>Robustesse</span><span>Low → <b>High</b></span></div>
+          <div><span>Sources</span><span>TXT → <b>PPTX/PDF</b></span></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>Console</h2>
+        <div class="status-bar">
+          <div id="statusFill"></div>
+        </div>
+
+        <p id="statusText">En attente…</p>
+        <ul id="consoleLog"></ul>
+      </div>
+
+    </aside>
+  </main>
+
+  <!-- MODAL -->
+  <div class="modal" id="modal">
+    <div class="modal-box">
+      <h3>Génération Terminée</h3>
+      <div id="resultLinks"></div>
+      <button class="close-modal" onclick="closeModal()">Fermer</button>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
