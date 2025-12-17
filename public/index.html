@@ -991,13 +991,27 @@
       document.getElementById('btnGenerate').click();
     });
 
+    // --- FONCTION UTILITAIRE API ---
+    async function callApi(endpoint, data) {
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.error?.message || 'Erreur serveur inconnue');
+      }
+      return result;
+    }
+
     // --- GÉNÉRATION (DOC & PDF) ---
     document.getElementById('btnGenerate').addEventListener('click', async () => {
       const btn = document.getElementById('btnGenerate');
       const statusMain = document.getElementById('statusMain');
       const progressFill = document.getElementById('progressFill');
       const resultLinks = document.getElementById('resultLinks');
-
       const titre = document.getElementById('f_titre').value;
       const entreprise = document.getElementById('f_entrepriseNom').value;
 
@@ -1014,11 +1028,9 @@
       statusMain.textContent = "Initialisation...";
       progressFill.style.width = '10%';
       resultLinks.style.display = 'none';
-      addHistory("Création document B2...");
-      log("Préparation création PDF...");
 
       const data = {
-        titre: titre,
+        titre,
         thematique: document.getElementById('f_thematique').value,
         entrepriseNom: entreprise,
         codeProjet: document.getElementById('f_codeProjet').value,
@@ -1030,13 +1042,11 @@
         clientNom: document.getElementById('f_clientNom').value,
         clientFonction: document.getElementById('f_clientFonction').value,
         clientEmail: document.getElementById('f_clientEmail').value,
-        // V2 SPECIFIC - Données IA déjà intégrées
         ia_histoire: document.getElementById('f_ia_histoire').value,
         ia_lieux: document.getElementById('f_ia_lieux').value,
         ia_probleme: document.getElementById('f_ia_probleme').value,
         ia_solution: document.getElementById('f_ia_solution').value,
         ia_objectifs: document.getElementById('f_ia_objectifs').value,
-        // EDITABLE OUTPUTS (Déjà remplis par preview ou main)
         contexte: document.getElementById('f_contexte').value,
         demarche: document.getElementById('f_demarche').value,
         phases: document.getElementById('f_phases').value,
@@ -1044,32 +1054,12 @@
       };
 
       if (selectedFiles.length > 0) {
-        // --- VÉRIFICATION TAILLE FICHIERS ---
-        // Limite désactivée à la demande de l'utilisateur
-        /*
-        const totalSize = selectedFiles.reduce((acc, file) => acc + file.size, 0);
-        if (totalSize > 5 * 1024 * 1024) { // 5 Mo
-          alert("Le volume total des fichiers dépasse 5 Mo (Limite technique Google). Veuillez réduire le nombre ou la taille des pièces jointes.");
-
-          // Réinitialisation état
-          btn.disabled = false;
-          btn.textContent = "✨ GÉNÉRER LA PROPALE";
-          closeModal();
-          return;
-        }
-        */
-        // ------------------------------------
-
         statusMain.textContent = "Upload...";
         updateModalProgress(15, "Traitement des fichiers...");
-        progressFill.style.width = '20%';
         try {
           data.attachments = await Promise.all(selectedFiles.map(readFile));
-          log(`${selectedFiles.length} fichiers inclus.`);
         } catch (e) {
-          log("Erreur lecture fichier.");
-          document.getElementById('modalErrorText').textContent = "Erreur lecture fichier.";
-          setModalState('error');
+          showModal('Erreur', "Erreur lecture fichier.", 100);
           btn.disabled = false;
           return;
         }
@@ -1077,65 +1067,50 @@
 
       statusMain.textContent = "Génération Document...";
       updateModalProgress(30, "Création Google Doc...");
-      progressFill.style.width = '40%';
 
-      // Simulation progression visuelle
+      // Simulation visuelle
       let p = 40;
       const interval = setInterval(() => {
-        if(p<90) {
+        if(p < 90) {
           p++;
           progressFill.style.width = p+'%';
           updateModalProgress(p, "Export PDF & Finalisation...");
         }
       }, 300);
 
-      google.script.run
-        .withSuccessHandler(res => {
-          clearInterval(interval);
-          progressFill.style.width = '100%';
-          updateModalProgress(100, "Terminé !");
-          btn.disabled = false;
-          btn.textContent = "✨ GÉNÉRER LA PROPALE";
+      try {
+        // REMPLACEMENT DE GOOGLE.SCRIPT.RUN
+        const res = await callApi('/api/proposal/generate', data);
 
-          if (res.success) {
-            statusMain.textContent = "Succès !";
-            statusMain.style.color = "#00ff99";
-            
-            addHistory("Document créé avec succès.");
-            log("Document OK.");
-            
-            document.getElementById('docLink').href = res.url;
-            document.getElementById('pdfLink').href = res.pdfUrl;
-            resultLinks.style.display = 'grid';
+        clearInterval(interval);
+        progressFill.style.width = '100%';
+        updateModalProgress(100, "Terminé !");
+        btn.disabled = false;
+        btn.textContent = "✨ GÉNÉRER LA PROPALE";
 
-            // Modal Success Update
-            document.getElementById('modalDocLink').href = res.url;
-            document.getElementById('modalPdfLink').href = res.pdfUrl;
-            setModalState('success');
+        statusMain.textContent = "Succès !";
+        statusMain.style.color = "#00ff99";
 
-          } else {
-            statusMain.textContent = "Erreur Serveur";
-            statusMain.style.color = "#ff6b6b";
-            log("Erreur: " + res.error);
-            document.getElementById('modalErrorText').textContent = res.error;
-            setModalState('error');
-          }
-        })
-        .withFailureHandler(err => {
-          clearInterval(interval);
-          progressFill.style.background = "red";
-          btn.disabled = false;
-          statusMain.textContent = "Crash Critique";
-          log("Crash: " + err);
-          document.getElementById('modalErrorText').textContent = "Crash critique: " + err;
-          setModalState('error');
-        })
-        .generateFromForm(data); // Appelle maintenant la version sans fallback IA
+        document.getElementById('docLink').href = res.documents.docx.url;
+        if(res.documents.pdf) document.getElementById('pdfLink').href = res.documents.pdf.url;
+        resultLinks.style.display = 'grid';
+
+        document.getElementById('modalDocLink').href = res.documents.docx.url;
+        if(res.documents.pdf) document.getElementById('modalPdfLink').href = res.documents.pdf.url;
+        setModalState('success');
+
+      } catch (err) {
+        clearInterval(interval);
+        progressFill.style.background = "red";
+        btn.disabled = false;
+        statusMain.textContent = "Erreur";
+        document.getElementById('modalErrorText').textContent = err.message;
+        setModalState('error');
+      }
     });
 
     // --- PRÉ-GÉNÉRATION (PREVIEW) ---
     document.getElementById('btnPreview').addEventListener('click', async () => {
-      const btn = document.getElementById('btnPreview');
       const entreprise = document.getElementById('f_entrepriseNom').value;
 
       if (!entreprise) {
@@ -1143,30 +1118,20 @@
         return;
       }
 
-      // Initialisation Modale
       showModal('🧠 Neural Engine', 'Analyse du contexte et rédaction...', 0);
 
-      // Timer Simulation
       let progress = 0;
       const timer = setInterval(() => {
-        // Vitesse : 90% en 40s (soit environ +2.25% par seconde)
-        // On update tous les 200ms => +0.45%
         if (progress < 90) {
           progress += 0.45;
-          // Arrondi pour affichage propre
           updateModalProgress(Math.min(90, Math.round(progress)), 'Analyse du contexte et rédaction...');
         }
       }, 200);
 
-      addHistory("Démarrage pré-génération (Preview)...");
-      log("Pré-génération (Preview) lancée...");
-
-      // Gather Data
       const data = {
         titre: document.getElementById('f_titre').value,
         thematique: document.getElementById('f_thematique').value,
         entrepriseNom: entreprise,
-        // Champs IA Requis
         ia_histoire: document.getElementById('f_ia_histoire').value,
         ia_lieux: document.getElementById('f_ia_lieux').value,
         ia_probleme: document.getElementById('f_ia_probleme').value,
@@ -1175,46 +1140,31 @@
         dureeSemaines: document.getElementById('f_dureeSemaines').value
       };
 
-      // Fichiers
       if (selectedFiles.length > 0) {
-        log("Inclusion fichiers pour preview...");
         try {
           data.attachments = await Promise.all(selectedFiles.map(readFile));
         } catch (e) {
           clearInterval(timer);
-          showModal('❌ Erreur', "Erreur lecture fichier.", 100);
+          showModal('Erreur', "Erreur lecture fichier.", 100);
           return;
         }
       }
 
-      // Appel Backend
-      google.script.run
-        .withSuccessHandler(res => {
-          clearInterval(timer);
+      try {
+        // REMPLACEMENT DE GOOGLE.SCRIPT.RUN
+        const res = await callApi('/api/proposal/preview', data);
 
-          if (res.success) {
-             // Force barre 100%
-             showModal('Terminé', 'Génération réussie !', 100);
+        clearInterval(timer);
+        showModal('Terminé', 'Génération réussie !', 100);
+        setTimeout(() => {
+          hideModal();
+          openPreviewModal(res.aiSections);
+        }, 500);
 
-             // Délai visuel puis ouverture preview
-             setTimeout(() => {
-                hideModal();
-                log(`Preview reçue. Coût: $${res.cost?.totalUsd?.toFixed(4) || 0}`);
-                addHistory("Proposition IA reçue.");
-                openPreviewModal(res.aiSections);
-             }, 500);
-
-          } else {
-            showModal('❌ Erreur', res.error, 100);
-            log("Erreur Preview: " + res.error);
-          }
-        })
-        .withFailureHandler(err => {
-          clearInterval(timer);
-          showModal('❌ Erreur', err.message || err, 100);
-          log("Crash Preview: " + err);
-        })
-        .previewAIContent(data);
+      } catch (err) {
+        clearInterval(timer);
+        showModal('Erreur', err.message, 100);
+      }
     });
 
   </script>
