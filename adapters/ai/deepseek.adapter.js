@@ -9,7 +9,7 @@
 const axios = require('axios');
 
 const DEEPSEEK_API_URL = 'https://api.deepseek.com/v1/chat/completions';
-const MODEL = 'deepseek-reasoner';
+const MODEL = 'deepseek-chat';
 
 class DeepSeekAdapter {
   constructor() {
