@@ -1,0 +1,1222 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MSI Propales · Neural Console B2</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    /* --- DESIGN SYSTEM EXACT V1 --- */
+    :root {
+      color-scheme: dark;
+      --gradient-primary: linear-gradient(135deg, #e0a3ff, #ff69b4, #00ffff);
+      --glass-bg: rgba(255, 255, 255, 0.06);
+      --glass-border: rgba(255, 255, 255, 0.18);
+      --glass-shadow: 0 20px 45px rgba(0, 0, 0, 0.35);
+      --color-border: rgba(255, 255, 255, 0.16);
+      --color-text: rgba(255, 255, 255, 0.94);
+      --color-text-soft: rgba(255, 255, 255, 0.75);
+      --color-text-muted: rgba(255, 255, 255, 0.55);
+      --focus-ring: 0 0 0 3px rgba(0, 255, 255, 0.25);
+      --transition-base: 0.3s ease;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: #050505; color: #f2e7ff;
+      overflow-x: hidden; min-height: 100vh; line-height: 1.6;
+    }
+    a { color: inherit; text-decoration: none; }
+
+    /* --- BACKGROUND ANIMÉ & FORMES (RÉTABLIS) --- */
+    .neural-background {
+      position: fixed; inset: 0; z-index: -3;
+      background: radial-gradient(circle at 15% 85%, rgba(75, 0, 130, 0.7) 0%, transparent 55%),
+        radial-gradient(circle at 85% 15%, rgba(139, 37, 99, 0.8) 0%, transparent 55%),
+        radial-gradient(circle at 50% 50%, rgba(0, 255, 255, 0.22) 0%, transparent 65%),
+        linear-gradient(135deg, #050505 0%, #12051c 100%);
+      animation: backgroundPulse 16s ease-in-out infinite;
+    }
+    @keyframes backgroundPulse {
+      0%, 100% { filter: brightness(0.92) saturate(1.4); }
+      40% { filter: brightness(1.04) saturate(1.55) hue-rotate(10deg); }
+      70% { filter: brightness(0.98) saturate(1.6) hue-rotate(-8deg); }
+    }
+    
+    .geometric-shapes { position: fixed; inset: 0; z-index: -2; overflow: hidden; pointer-events: none; }
+    .shape {
+      position: absolute; border: 1px solid rgba(0, 255, 255, 0.25);
+      animation: floatShape 22s linear infinite; filter: drop-shadow(0 0 18px rgba(224, 163, 255, 0.35));
+    }
+    .shape:nth-child(1) { width: 110px; height: 110px; left: 8%; animation-delay: -2s; border-radius: 28px; }
+    .shape:nth-child(2) { width: 70px; height: 70px; left: 76%; animation-delay: -9s; border-radius: 50%; border-color: rgba(255, 105, 180, 0.35); }
+    .shape:nth-child(3) { width: 90px; height: 90px; left: 30%; animation-delay: -13s; transform: rotate(45deg); }
+    .shape:nth-child(4) { width: 150px; height: 150px; left: 58%; animation-delay: -18s; clip-path: polygon(50% 0%, 0% 100%, 100% 100%); background: linear-gradient(45deg, rgba(255, 0, 128, 0.12), transparent); }
+    @keyframes floatShape {
+      from { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+      15%, 85% { opacity: 1; }
+      to { transform: translateY(-120px) rotate(360deg); opacity: 0; }
+    }
+
+    /* --- HEADER --- */
+    header {
+      position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+      width: min(1200px, 94vw); padding: 18px 30px; border-radius: 28px;
+      display: flex; align-items: center; justify-content: space-between;
+      background: rgba(18, 18, 18, 0.65); border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: var(--glass-shadow); backdrop-filter: blur(26px); z-index: 200;
+      transition: all 0.4s ease;
+    }
+    header.scrolled { background: rgba(12, 12, 12, 0.85); border-color: rgba(224, 163, 255, 0.25); }
+    .logo { display: flex; align-items: center; gap: 12px; font-weight: 700; letter-spacing: 0.28em; font-size: 0.95rem; text-transform: uppercase; color: #fefbff; }
+    .icam-logo-custom { background-color: white; padding: 5px 10px; border-radius: 8px; height: 40px; }
+    .nav-links { list-style: none; display: flex; gap: 10px; align-items: center; }
+    .nav-links a { padding: 12px 18px; border-radius: 18px; font-size: 0.92rem; color: rgba(255, 255, 255, 0.88); transition: 0.3s; position: relative; }
+    .nav-links a:hover, .nav-links a.active { color: #fff; background: rgba(255,255,255,0.1); }
+
+    /* --- NEW HERO SECTION --- */
+    .ops-hero-section {
+      text-align: center;
+      padding: 160px 20px 80px;
+      position: relative;
+    }
+
+    .ops-hero-badge {
+      display: inline-block;
+      padding: 8px 16px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      color: #e0a3ff;
+      margin-bottom: 24px;
+      backdrop-filter: blur(10px);
+    }
+
+    .ops-hero-title {
+      font-size: clamp(3rem, 6vw, 5rem);
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 24px;
+      background: linear-gradient(135deg, #ffffff 0%, #a5a5a5 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.02em;
+    }
+
+    .ops-hero-subtitle {
+      font-size: 1.2rem;
+      color: rgba(255, 255, 255, 0.65);
+      max-width: 700px;
+      margin: 0 auto 60px;
+    }
+
+    .ops-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      max-width: 1000px;
+      margin: 0 auto 60px;
+    }
+
+    .ops-stat-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 24px;
+      border-radius: 20px;
+      backdrop-filter: blur(10px);
+      transition: transform 0.3s ease, border-color 0.3s ease;
+    }
+
+    .ops-stat-card:hover {
+      transform: translateY(-5px);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .ops-stat-value {
+      display: block;
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+
+    .ops-stat-label {
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.5);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .ops-cta-group {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+    }
+
+    .ops-btn-primary {
+      background: #fff;
+      color: #000;
+      padding: 16px 32px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 1rem;
+      transition: transform 0.2s ease;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+      border: none;
+    }
+
+    .ops-btn-secondary {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      padding: 16px 32px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 1rem;
+      backdrop-filter: blur(10px);
+      transition: background 0.2s ease;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+      border: none;
+    }
+
+    .ops-btn-primary:hover, .ops-btn-secondary:hover {
+      transform: scale(1.05);
+    }
+
+    .secondary-button {
+      background: rgba(0, 255, 255, 0.1);
+      border: 1px solid rgba(0, 255, 255, 0.3);
+      color: #00ffff;
+      padding: 14px 24px;
+      border-radius: 999px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      justify-content: center;
+    }
+    .secondary-button:hover {
+      background: rgba(0, 255, 255, 0.2);
+      box-shadow: 0 0 15px rgba(0, 255, 255, 0.2);
+    }
+
+    /* --- LAYOUT GLOBAL --- */
+    main { padding-top: 140px; padding-bottom: 80px; }
+    .console-section { position: relative; padding: 160px 20px 140px; }
+    .console-wrapper { width: min(1100px, 94vw); margin: 0 auto; display: grid; gap: 40px; }
+    
+    .console-header { text-align: center; }
+    .console-header-top { display: flex; align-items: flex-start; justify-content: center; gap: 24px; flex-wrap: wrap; margin-bottom: 18px; }
+    .console-logo-wrapper { padding-top: 10px; }
+    .console-logo { width: 130px; height: 75px; object-fit: contain; filter: drop-shadow(0 0 14px rgba(224, 163, 255, 0.6)); background: #fff; padding: 10px; border-radius: 12px; }
+    .console-header h2 { font-size: clamp(2.2rem, 4vw, 3.1rem); margin-bottom: 16px; letter-spacing: -0.01em; }
+    .console-header p { color: rgba(255, 255, 255, 0.7); max-width: 680px; margin: 0 auto; }
+
+    .console-layout { display: grid; gap: 32px; align-items: start; }
+    @media (min-width: 1100px) {
+      .console-layout { grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr); }
+      .results-column { position: sticky; top: 140px; }
+    }
+
+    /* --- PANELS (GLASSMORPHISM) --- */
+    .form-panels { display: grid; gap: 40px; }
+    .glass-panel {
+      background: var(--glass-bg); border: 1px solid var(--glass-border);
+      border-radius: 28px; padding: 34px; box-shadow: var(--glass-shadow);
+      backdrop-filter: blur(22px);
+    }
+    .panel-title { font-size: 1.3rem; font-weight: 600; margin-bottom: 24px; letter-spacing: 0.04em; display: flex; align-items: center; gap: 10px; color: #fff; }
+    
+    .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px 22px; }
+    .field.grid-span-2 { grid-column: span 2; }
+    
+    .field-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+    .field-actions { display: flex; align-items: center; gap: 10px; }
+    
+    label { display: block; font-size: 0.78rem; letter-spacing: 0.14em; color: rgba(255, 255, 255, 0.65); text-transform: uppercase; }
+    
+    input, textarea, select {
+      width: 100%; padding: 14px 16px; border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.1); background: rgba(6, 6, 6, 0.75);
+      color: #ffffff; font-size: 0.95rem; font-weight: 500; transition: border 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+      min-height: 52px; font-family: inherit;
+    }
+    textarea { resize: vertical; min-height: 120px; }
+    input:focus, textarea:focus {
+      outline: none; border-color: rgba(0, 255, 255, 0.6);
+      box-shadow: 0 0 0 3px rgba(0, 255, 255, 0.25); background: rgba(12, 12, 12, 0.9);
+    }
+
+    /* --- BOUTONS DICTER --- */
+    .dictation-button {
+      display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px;
+      border-radius: 999px; border: 1px solid rgba(0, 255, 255, 0.4);
+      background: rgba(0, 255, 255, 0.12); color: #00ffff; font-size: 0.75rem;
+      font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+      cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    }
+    .dictation-button:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0, 255, 255, 0.25); }
+    .dictation-button.is-active { background: rgba(0, 255, 200, 0.3); color: #041014; border-color: rgba(0, 255, 200, 0.7); }
+    .dict-status { font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(0, 255, 255, 0.75); }
+
+    /* --- UPLOAD ZONE --- */
+    .field input[type="file"] { border-style: dashed; border-color: rgba(255, 255, 255, 0.2); padding: 16px; cursor: pointer; background: rgba(6, 6, 6, 0.7); }
+    .field input[type="file"]::file-selector-button {
+      background: rgba(255, 255, 255, 0.12); border: none; border-radius: 10px; color: #fff;
+      font-weight: 600; padding: 10px 16px; margin-right: 12px; cursor: pointer;
+    }
+    .files-hint { font-size: 0.78rem; color: rgba(255, 255, 255, 0.55); margin-top: 8px; }
+    .attachments-list { list-style: none; margin-top: 12px; display: grid; gap: 8px; padding: 0; }
+    .attachment-item {
+      display: flex; align-items: center; justify-content: space-between;
+      background: rgba(255, 255, 255, 0.08); padding: 8px 12px; border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.1); font-size: 0.85rem; color: rgba(255, 255, 255, 0.9);
+    }
+
+    /* --- BOUTON PRINCIPAL --- */
+    .actions { text-align: center; margin-top: 20px; }
+    .action-buttons { display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; }
+    #btnGenerate {
+      display: none; /* MASQUÉ : Flux obligatoire via Preview */
+      background: var(--gradient-primary); color: #050505; border: none;
+      border-radius: 999px; padding: 18px 34px; font-weight: 700; font-size: 0.95rem;
+      letter-spacing: 0.12em; cursor: pointer; transition: transform 0.3s ease, box-shadow 0.3s ease;
+      box-shadow: 0 22px 50px rgba(0, 0, 0, 0.55);
+    }
+    #btnGenerate:hover { transform: translateY(-5px); box-shadow: 0 32px 60px rgba(0, 0, 0, 0.6); }
+
+    #btnPreview {
+      /* STYLE PRIMAIRE (anciennement btnGenerate) */
+      background: var(--gradient-primary); color: #050505; border: none;
+      border-radius: 999px; padding: 18px 34px; font-weight: 700; font-size: 0.95rem;
+      letter-spacing: 0.12em; cursor: pointer; transition: transform 0.3s ease, background 0.3s ease;
+      display: inline-flex; align-items: center; gap: 10px;
+      box-shadow: 0 22px 50px rgba(0, 0, 0, 0.55);
+    }
+    #btnPreview:hover { filter: brightness(1.1); transform: translateY(-5px); box-shadow: 0 32px 60px rgba(0, 0, 0, 0.6); }
+
+
+    /* --- SIDEBAR INSIGHTS --- */
+    .insights-panel {
+      background: var(--glass-bg); border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 32px; padding: 40px 32px 32px; box-shadow: 0 28px 60px rgba(0, 0, 0, 0.45);
+      backdrop-filter: blur(24px); display: grid; gap: 28px; position: relative;
+    }
+    .insights-pinned-header {
+      position: sticky; top: 80px; z-index: 5; margin: -8px -8px 0; padding: 18px 22px;
+      border-radius: 22px; background: rgba(8, 8, 8, 0.92); border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 18px 38px rgba(0, 0, 0, 0.55); backdrop-filter: blur(18px); display: grid; gap: 6px;
+    }
+    .insights-pinned-header h3 { font-size: 1.2rem; letter-spacing: 0.18em; text-transform: uppercase; color: #fff; margin: 0; }
+    .insights-pinned-header p { color: var(--color-text-muted); font-size: 0.92rem; margin: 0; }
+
+    .result-status {
+      padding: 18px 20px; border-radius: 20px;
+      background: rgba(0, 0, 0, 0.28); border: 1px solid var(--color-border);
+      color: var(--color-text); font-weight: 500; display: flex; flex-direction: column; gap: 10px;
+    }
+    .status-main { font-size: 1rem; font-weight: 600; display: block; margin-bottom: 5px; }
+    .token-est { font-size: 0.8rem; color: #aaa; }
+
+    .generation-progress { display: flex; flex-direction: column; gap: 12px; margin-top: 10px; }
+    .generation-progress-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 0.9rem; letter-spacing: 0.02em; }
+    .generation-progress-bar { position: relative; height: 8px; border-radius: 999px; background: rgba(255, 255, 255, 0.08); overflow: hidden; }
+    .generation-progress-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #e0a3ff, #00ffff); transition: width 0.3s ease; }
+
+    .result-preview {
+      background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 18px; padding: 18px; color: var(--color-text-muted); font-size: 0.92rem;
+      max-height: 200px; overflow-y: auto; font-family: 'Inter', monospace;
+    }
+
+    .cost-log-link {
+      display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px;
+      border-radius: 14px; border: 1px solid rgba(0, 255, 255, 0.25); background: rgba(0, 255, 255, 0.12);
+      color: #00ffff; font-weight: 600; text-decoration: none; width: 100%; justify-content: center;
+    }
+    .cost-log-link:hover { background: rgba(0, 255, 255, 0.2); }
+
+    .result-history { list-style: none; display: grid; gap: 18px; margin: 0; padding-left: 0; position: relative; }
+    .result-item { position: relative; display: grid; gap: 6px; padding: 16px 18px 16px 56px; border-radius: 18px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); color: var(--color-text-soft); font-size: 0.9rem; }
+    .result-item::before { content: ''; position: absolute; top: 20px; left: 10px; width: 16px; height: 16px; border-radius: 50%; border: 2px solid rgba(0, 255, 255, 0.6); background: #050505; }
+
+    /* --- FOOTER MATRIX --- */
+    .showcase { padding: 140px 20px; }
+    .section-title { font-size: clamp(2.2rem, 4vw, 3.2rem); text-align: center; margin-bottom: 80px; letter-spacing: 0.02em; }
+    .hexagon-container { display: flex; flex-wrap: wrap; gap: 28px; justify-content: center; }
+    .hexagon { width: 210px; height: 260px; position: relative; transition: transform 0.8s ease, opacity 0.8s ease; }
+    .hexagon-bg { position: absolute; inset: 0; border-radius: 26px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.18); backdrop-filter: blur(18px); box-shadow: var(--glass-shadow); z-index: 1; }
+    .hexagon-content { position: absolute; inset: 0; padding: 40px 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; text-align: center; z-index: 2; pointer-events: none; }
+    .hexagon:hover { transform: translateY(-10px); z-index: 10; }
+    .hexagon-icon { font-size: 2.6rem; }
+    .hexagon h4 { font-size: 1.2rem; margin: 0; color: #fff; }
+    .hexagon p { color: rgba(255, 255, 255, 0.65); font-size: 0.9rem; margin: 0; }
+
+    footer { padding: 80px 20px; background: rgba(0, 0, 0, 0.5); border-top: 1px solid rgba(255, 255, 255, 0.1); text-align: center; color: rgba(255,255,255,0.6); font-size: 0.9rem; }
+
+    /* --- RESPONSIVE --- */
+    @media (max-width: 1100px) {
+      .console-layout { grid-template-columns: 1fr; }
+      .results-column { position: relative; top: 0; }
+    }
+
+    /* --- MODAL SYSTEM --- */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 1000;
+      background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(8px);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; animation: fadeIn 0.3s forwards;
+    }
+    @keyframes fadeIn { to { opacity: 1; } }
+
+    .modal-content {
+      width: min(500px, 90vw); text-align: center; position: relative;
+      background: #0a0a0a; border: 1px solid rgba(0, 255, 255, 0.3);
+      box-shadow: 0 0 50px rgba(0, 255, 255, 0.15);
+      border-radius: 24px;
+    }
+
+    .modal-close {
+      position: absolute; top: 15px; right: 15px; background: none; border: none;
+      color: rgba(255, 255, 255, 0.5); font-size: 1.5rem; cursor: pointer;
+    }
+    .modal-close:hover { color: #fff; }
+
+    .modal-state { display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 40px; }
+
+    .neural-spinner {
+      width: 60px; height: 60px; border-radius: 50%;
+      border: 3px solid rgba(0, 255, 255, 0.1); border-top-color: #00ffff;
+      animation: spin 1s linear infinite; margin-bottom: 10px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .modal-title { font-size: 1.4rem; letter-spacing: 0.05em; color: #fff; margin: 0; }
+    .modal-status { color: rgba(0, 255, 255, 0.8); font-family: 'Share Tech Mono', monospace; font-size: 0.9rem; }
+
+    .modal-progress-track {
+      width: 100%; height: 6px; background: rgba(255, 255, 255, 0.1);
+      border-radius: 99px; overflow: hidden; margin-top: 10px;
+    }
+    .modal-progress-bar {
+      height: 100%; background: #00ffff; width: 0%;
+      box-shadow: 0 0 10px #00ffff; transition: width 0.3s ease;
+    }
+
+    .success-icon { font-size: 3rem; margin-bottom: 10px; text-shadow: 0 0 20px rgba(0, 255, 153, 0.5); }
+    .error-icon { font-size: 3rem; margin-bottom: 10px; text-shadow: 0 0 20px rgba(255, 50, 50, 0.5); }
+    .modal-desc { color: rgba(255, 255, 255, 0.6); font-size: 0.95rem; margin-bottom: 10px; }
+  </style>
+</head>
+<body>
+
+  <div class="neural-background"></div>
+  <div class="geometric-shapes">
+    <div class="shape"></div><div class="shape"></div><div class="shape"></div><div class="shape"></div>
+  </div>
+
+  <header>
+    <a href="#" class="logo">
+      <img class="icam-logo-custom" src="https://upload.wikimedia.org/wikipedia/fr/thumb/1/1d/Logo_ICAM_-_2008.svg/1200px-Logo_ICAM_-_2008.svg.png" alt="Icam">
+      <span>MSI Propales B2</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#" class="active">Console</a></li>
+      <li><a href="#showcase">Matrix</a></li>
+      <li><a href="https://github.com/TimoLeDozo/PSE-propales-PlaceHolder" target="_blank">GitHub</a></li>
+    </ul>
+  </header>
+
+  <main>
+    <section class="ops-hero-section">
+      <span class="ops-hero-badge">✨ PROPALES INSTANTANÉES</span>
+      <h1 class="ops-hero-title">NEURAL PROPALE<br>ENGINE</h1>
+      <p class="ops-hero-subtitle">Alimentez DeepSeek avec vos contextes clients et générez des propositions commerciales d'une rigueur Icam en quelques secondes.</p>
+
+      <div class="ops-stats-grid">
+        <div class="ops-stat-card">
+          <span class="ops-stat-value">60s</span>
+          <span class="ops-stat-label">/ DOCUMENT PRÊT</span>
+        </div>
+        <div class="ops-stat-card">
+          <span class="ops-stat-value">100%</span>
+          <span class="ops-stat-label">COLOR MAPPING</span>
+        </div>
+        <div class="ops-stat-card">
+          <span class="ops-stat-value">DeepSeek</span>
+          <span class="ops-stat-label">ACCESS V3</span>
+        </div>
+        <div class="ops-stat-card">
+          <span class="ops-stat-value">1 Clic</span>
+          <span class="ops-stat-label">GÉNÉRATION DOC</span>
+        </div>
+      </div>
+
+      <div class="ops-cta-group">
+        <a href="#console" class="ops-btn-primary" onclick="document.querySelector('.console-section').scrollIntoView({behavior: 'smooth'})">INITIER LA CONSOLE</a>
+        <a href="#showcase" class="ops-btn-secondary">DÉCOUVRIR LES FLUX</a>
+      </div>
+    </section>
+
+    <section class="console-section">
+      <div class="console-wrapper">
+        
+        <div class="console-header">
+          <div class="console-header-top">
+            <div class="console-logo-wrapper">
+              <img class="console-logo" src="https://upload.wikimedia.org/wikipedia/fr/thumb/1/1d/Logo_ICAM_-_2008.svg/1200px-Logo_ICAM_-_2008.svg.png" alt="Icam">
+            </div>
+            <div class="console-header-text">
+              <h4 style="margin:0; font-size:0.9rem; color:rgba(255,255,255,0.6); text-transform:uppercase; letter-spacing:2px;">Générateur Propale V2 (Corrigé)</h4>
+              <h2>Console Neural · Génération de propale</h2>
+              <p>Renseignez les zones clés. Toutes les informations sont transmises à Apps Script qui orchestre la copie du template Google Docs, le remplissage des zones et l'appel à DeepSeek.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="console-layout">
+          
+          <div class="form-panels">
+            
+            <div class="glass-panel">
+              <div class="panel-title">📋 Informations projet</div>
+              <div class="form-grid">
+                <div class="field grid-span-2">
+                  <label for="f_titre">TITRE *</label>
+                  <input type="text" id="f_titre" placeholder="Optimisation flux entrepôt" required>
+                </div>
+                <div class="field grid-span-2">
+                  <label for="f_thematique">THÉMATIQUE</label>
+                  <input type="text" id="f_thematique" placeholder="Ex: Logistique, Développement web, Mécanique..." >
+                </div>
+                <div class="field">
+                  <label for="f_codeProjet">CODE PROJET</label>
+                  <input type="text" id="f_codeProjet" placeholder="144-16">
+                </div>
+                <div class="field">
+                  <label for="f_dateDebut">DATE DÉBUT</label>
+                  <input type="date" id="f_dateDebut">
+                </div>
+                <div class="field">
+                  <label for="f_nbEquipes">NB. ÉQUIPES</label>
+                  <input type="number" id="f_nbEquipes" value="1">
+                </div>
+                <div class="field">
+                  <label for="f_dureeSemaines">DURÉE (SEMAINES)</label>
+                  <input type="number" id="f_dureeSemaines" value="24">
+                </div>
+              </div>
+            </div>
+
+            <div class="glass-panel">
+              <div class="panel-title">🏢 Entreprise & Contexte</div>
+              <div class="form-grid">
+                <div class="field">
+                  <label for="f_entrepriseNom">ENTREPRISE *</label>
+                  <input type="text" id="f_entrepriseNom" placeholder="Velibor SA">
+                </div>
+                <div class="field">
+                  <label for="f_entrepriseAdresse">ADRESSE</label>
+                  <input type="text" id="f_entrepriseAdresse" placeholder="49 bis rue Sedaine, 75011 Paris">
+                </div>
+                <div class="field">
+                  <label for="f_entrepriseLogo">LOGO URL (MAPPED #D9D9D9)</label>
+                  <input type="text" id="f_entrepriseLogo" placeholder="https://exemple.com/logo.png">
+                </div>
+                <div class="field">
+                  <label for="f_clientNom">NOM CONTACT</label>
+                  <input type="text" id="f_clientNom" placeholder="Jean Dupont">
+                </div>
+                <div class="field">
+                  <label for="f_clientFonction">FONCTION</label>
+                  <input type="text" id="f_clientFonction" placeholder="Directeur Technique">
+                </div>
+                <div class="field">
+                  <label for="f_clientEmail">EMAIL</label>
+                  <input type="text" id="f_clientEmail" placeholder="jean@exemple.com">
+                </div>
+                
+                <div class="field grid-span-2">
+                  <div class="field-header">
+                    <label>HISTOIRE & ADN CLIENT (CONTEXTE B2)</label>
+                    <div class="field-actions">
+                      <button type="button" class="dictation-button" data-target="f_ia_histoire">🎙️ DICTER</button>
+                      <span class="dict-status" id="status-f_ia_histoire"></span>
+                    </div>
+                  </div>
+                  <textarea id="f_ia_histoire" rows="2" placeholder="Ex: PME familiale créée en 1970, savoir-faire artisanal..."></textarea>
+                </div>
+                <div class="field grid-span-2">
+                  <div class="field-header">
+                    <label>LIEUX / GÉOGRAPHIE (CONTEXTE B2)</label>
+                    <div class="field-actions">
+                      <button type="button" class="dictation-button" data-target="f_ia_lieux">🎙️ DICTER</button>
+                      <span class="dict-status" id="status-f_ia_lieux"></span>
+                    </div>
+                  </div>
+                  <input type="text" id="f_ia_lieux" placeholder="Ex: Déménagement de Brie-Comte-Robert à Moissy">
+                </div>
+              </div>
+            </div>
+
+            <div class="glass-panel">
+              <div class="panel-title">🧠 Brief pour DeepSeek</div>
+              <div class="form-grid">
+                <div class="field grid-span-2">
+                  <div class="field-header">
+                    <label>PROBLÈME PRINCIPAL *</label>
+                    <div class="field-actions">
+                      <button type="button" class="dictation-button" data-target="f_ia_probleme">🎙️ DICTER</button>
+                      <span class="dict-status" id="status-f_ia_probleme">PRÊT.</span>
+                    </div>
+                  </div>
+                  <textarea id="f_ia_probleme" placeholder="Retards de livraison, manque de traçabilité..."></textarea>
+                </div>
+                <div class="field grid-span-2">
+                  <div class="field-header">
+                    <label>SOLUTION PROPOSÉE</label>
+                    <div class="field-actions">
+                      <button type="button" class="dictation-button" data-target="f_ia_solution">🎙️ DICTER</button>
+                      <span class="dict-status" id="status-f_ia_solution">PRÊT.</span>
+                    </div>
+                  </div>
+                  <textarea id="f_ia_solution" placeholder="5S, outil de tracking, formation équipes..."></textarea>
+                </div>
+                <div class="field grid-span-2">
+                  <div class="field-header">
+                    <label>OBJECTIFS CLÉS</label>
+                    <div class="field-actions">
+                      <button type="button" class="dictation-button" data-target="f_ia_objectifs">🎙️ DICTER</button>
+                      <span class="dict-status" id="status-f_ia_objectifs">PRÊT.</span>
+                    </div>
+                  </div>
+                  <textarea id="f_ia_objectifs" placeholder="Réduire de 20% les temps de préparation, etc."></textarea>
+                </div>
+              </div>
+            </div>
+
+            <div class="glass-panel">
+              <div class="panel-title">🤖 Sections générées par DeepSeek</div>
+              <div class="form-grid">
+
+                <!-- SUPPRIMÉ: Ancien bouton pré-génération directe -->
+
+                <div class="field grid-span-2">
+                  <div class="field-header">
+                    <label>CONTEXTE</label>
+                    <div class="field-actions">
+                      <button type="button" class="dictation-button" data-target="f_contexte">🎙️ DICTER</button>
+                      <span class="dict-status" id="status-f_contexte">PRÊT.</span>
+                    </div>
+                  </div>
+                  <textarea id="f_contexte" placeholder="(Généré / Édition manuelle possible)"></textarea>
+                </div>
+                <div class="field grid-span-2">
+                  <div class="field-header">
+                    <label>DÉMARCHE</label>
+                    <div class="field-actions">
+                      <button type="button" class="dictation-button" data-target="f_demarche">🎙️ DICTER</button>
+                      <span class="dict-status" id="status-f_demarche">PRÊT.</span>
+                    </div>
+                  </div>
+                  <textarea id="f_demarche" placeholder="(Généré / Édition manuelle possible)"></textarea>
+                </div>
+                <div class="field grid-span-2">
+                  <div class="field-header">
+                    <label>PHASES</label>
+                    <div class="field-actions">
+                      <button type="button" class="dictation-button" data-target="f_phases">🎙️ DICTER</button>
+                      <span class="dict-status" id="status-f_phases">PRÊT.</span>
+                    </div>
+                  </div>
+                  <textarea id="f_phases" placeholder="(Généré / Édition manuelle possible)"></textarea>
+                </div>
+                <div class="field grid-span-2">
+                  <div class="field-header">
+                    <label>PHRASE DE CLÔTURE</label>
+                    <div class="field-actions">
+                      <button type="button" class="dictation-button" data-target="f_phrase">🎙️ DICTER</button>
+                      <span class="dict-status" id="status-f_phrase">PRÊT.</span>
+                    </div>
+                  </div>
+                  <textarea id="f_phrase" rows="2" placeholder="(Généré / Édition manuelle possible)"></textarea>
+                </div>
+              </div>
+              
+              <div class="actions">
+                <div class="action-buttons">
+                  <button type="button" id="btnPreview" class="ops-btn-primary">✨ Lancer l'IA & Prévisualiser</button>
+                  <button type="button" id="btnGenerate" class="action-buttons">✨ GÉNÉRER LA PROPALE</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="glass-panel">
+              <div class="panel-title">📎 Pièces jointes & outils</div>
+              <div class="form-grid">
+                <div class="field grid-span-2">
+                  <label>AJOUTER DES DOCUMENTS (JUSQU'À 15)</label>
+                  <div class="upload-container" onclick="document.getElementById('f_attachments').click()" style="background:rgba(0,0,0,0.3); padding:20px; border-radius:16px; display:flex; align-items:center; gap:20px; cursor:pointer; border:1px dashed rgba(255,255,255,0.2);">
+                    <div style="background:rgba(255,255,255,0.1); padding:10px 20px; border-radius:8px; font-weight:600;">Sélect. fichiers</div>
+                    <div style="color:rgba(255,255,255,0.6); font-size:0.85rem;" id="fileLabel">Aucun fichier choisi</div>
+                    <input type="file" id="f_attachments" multiple style="display:none">
+                  </div>
+                  <p class="files-hint">Aucun fichier sélectionné (0/15).</p>
+                  <ul id="attachmentsList" class="attachments-list"></ul>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <aside class="results-column">
+            <section class="insights-panel">
+              <div class="insights-pinned-header">
+                <h3>📟 PILOTAGE & JOURNALISATION</h3>
+                <p>Suivez l'état de la génération, le suivi des coûts et les derniers évènements.</p>
+              </div>
+
+              <div class="result-status">
+                <span class="status-main" style="font-size:0.8rem; color:rgba(255,255,255,0.5); letter-spacing:1px;">STATUT EN DIRECT</span>
+                <span class="status-text" id="statusMain" style="font-size:1rem; font-weight:600;">Prêt pour une nouvelle génération.</span>
+                <span class="token-est" id="tokenEstimate">Estimation prompt ≈ 0 tokens (limite 100000)</span>
+                
+                <div class="generation-progress">
+                  <div class="generation-progress-bar"><div class="generation-progress-fill" id="progressFill"></div></div>
+                </div>
+              </div>
+
+              <div style="margin-top:30px;">
+                <h4 style="font-size:0.8rem; color:rgba(255,255,255,0.6); text-transform:uppercase; margin-bottom:10px;">PRÉVISUALISATION</h4>
+                <a href="https://docs.google.com/spreadsheets/d/1OsDoqbwu1zrC0SgaMOwRbOJRTUm0QDsbJMSlpaFUwOk/edit?gid=0#gid=0" class="cost-log-link" id="costLogBtn" target="_blank">📊 Journal des coûts</a>
+                <pre class="result-preview" id="consoleLog">Système prêt.</pre>
+              </div>
+
+              <div style="margin-top:30px;">
+                <h4 style="font-size:0.8rem; color:rgba(255,255,255,0.6); text-transform:uppercase; margin-bottom:10px;">HISTORIQUE DES ACTIONS</h4>
+                <ul class="result-history" id="historyList">
+                  <li class="result-item">Historique vide pour le moment.</li>
+                </ul>
+              </div>
+
+              <div style="margin-top:30px;">
+                <h4 style="font-size:0.8rem; color:rgba(255,255,255,0.6); text-transform:uppercase; margin-bottom:10px;">CONSEILS RAPIDES</h4>
+                <ul style="font-size:0.85rem; color:rgba(255,255,255,0.5); padding-left:20px; line-height:1.5;">
+                  <li>Précisez le problème principal pour guider DeepSeek.</li>
+                  <li>Ajoutez des documents clés pour la mise en contexte.</li>
+                  <li>Consultez le journal Google Sheets pour suivre les coûts.</li>
+                </ul>
+              </div>
+
+              <div id="resultLinks" style="display:none; margin-top:20px;">
+                <a href="#" id="docLink" target="_blank" class="cost-log-link" style="margin-bottom:10px; background:#00ffff; color:#000;">📄 Ouvrir GDoc</a>
+                <a href="#" id="pdfLink" target="_blank" class="cost-log-link">⬇️ Télécharger PDF</a>
+              </div>
+
+            </section>
+          </aside>
+
+        </div>
+      </div>
+    </section>
+
+    <section class="showcase" id="showcase">
+      <h2 class="section-title">Matrix Protocols</h2>
+      <div class="hexagon-container">
+        <div class="hexagon"><div class="hexagon-bg"></div><div class="hexagon-content"><div class="hexagon-icon">🔮</div><h4>Holographic UI</h4><p>Interface monofichier prête pour Apps Script</p></div></div>
+        <div class="hexagon"><div class="hexagon-bg"></div><div class="hexagon-content"><div class="hexagon-icon">🛡️</div><h4>Quantum Security</h4><p>Clé DeepSeek stockée côté serveur</p></div></div>
+        <div class="hexagon"><div class="hexagon-bg"></div><div class="hexagon-content"><div class="hexagon-icon">🚀</div><h4>Speed Navigation</h4><p>Accès direct au document généré</p></div></div>
+        <div class="hexagon"><div class="hexagon-bg"></div><div class="hexagon-content"><div class="hexagon-icon">💎</div><h4>Crystal Storage</h4><p>Copie organisée dans Drive cible</p></div></div>
+        <div class="hexagon"><div class="hexagon-bg"></div><div class="hexagon-content"><div class="hexagon-icon">🎯</div><h4>Neural Targeting</h4><p>Color mapping intelligent</p></div></div>
+        <div class="hexagon"><div class="hexagon-bg"></div><div class="hexagon-content"><div class="hexagon-icon">⭐</div><h4>Stellar Network</h4><p>Workflow collaboratif Icam</p></div></div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <div>&copy; 2025 MSI Propales · Interface Apps Script · Icam</div>
+    <div style="margin-top: 5px;">CAGIN Timothé / VELOSO Toni</div>
+  </footer>
+
+  <div id="generationModal" class="modal-overlay" style="display: none;">
+    <div class="modal-content glass-panel">
+      <button class="modal-close" onclick="closeModal()">×</button>
+
+      <!-- LOADING STATE -->
+      <div id="modalLoading" class="modal-state">
+        <div class="neural-spinner"></div>
+        <h3 class="modal-title">Neural Engine Active</h3>
+        <p class="modal-status" id="modalStatusText">Initialisation du flux...</p>
+        <div id="modalPercentText" style="font-family: 'Share Tech Mono', monospace; color: #00ffff; font-size: 1.2rem; font-weight: bold; margin-bottom: 5px;">0%</div>
+        <div class="modal-progress-track" style="width: 100%;">
+          <div class="modal-progress-bar" id="modalProgressBar"></div>
+        </div>
+      </div>
+
+      <!-- SUCCESS STATE -->
+      <div id="modalSuccess" class="modal-state" style="display: none;">
+        <div class="success-icon">✨</div>
+        <h3 class="modal-title">Propale Générée</h3>
+        <p class="modal-desc">Le document a été créé et stocké avec succès.</p>
+        <div class="modal-actions" style="display: flex; flex-direction: column; gap: 15px; width: 100%;">
+          <a href="#" id="modalDocLink" target="_blank" class="ops-btn-primary">OUVRIR LE DOCUMENT</a>
+          <a href="#" id="modalPdfLink" target="_blank" class="cost-log-link">Télécharger PDF</a>
+        </div>
+      </div>
+
+       <!-- ERROR STATE -->
+      <div id="modalError" class="modal-state" style="display: none;">
+         <div class="error-icon">⚠️</div>
+         <h3 class="modal-title">Erreur Critique</h3>
+         <p class="modal-desc" id="modalErrorText">Une erreur est survenue.</p>
+         <button id="btnCloseModal" onclick="closeModal()" class="ops-btn-secondary">FERMER</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- NOUVELLE MODALE DE PRÉVISUALISATION -->
+  <div id="previewModal" class="modal-overlay" style="display: none;">
+    <div class="modal-content glass-panel" style="width: min(800px, 94vw); text-align: left; max-height: 90vh; overflow-y: auto;">
+      <button class="modal-close" onclick="closePreviewModal()">×</button>
+
+      <h3 class="modal-title" style="text-align: center; margin-bottom: 20px;">Proposition de l'IA</h3>
+
+      <div class="form-grid">
+         <div class="field grid-span-2">
+           <label>Titre</label>
+           <textarea id="p_titre" rows="1"></textarea>
+         </div>
+         <div class="field grid-span-2">
+           <label>Contexte</label>
+           <textarea id="p_contexte"></textarea>
+         </div>
+         <div class="field grid-span-2">
+           <label>Démarche</label>
+           <textarea id="p_demarche"></textarea>
+         </div>
+         <div class="field grid-span-2">
+           <label>Phases</label>
+           <textarea id="p_phases"></textarea>
+         </div>
+         <div class="field grid-span-2">
+           <label>Phrase de conclusion</label>
+           <textarea id="p_phrase" rows="2"></textarea>
+         </div>
+      </div>
+
+      <div class="actions" style="margin-top: 20px; display: flex; justify-content: center; gap: 15px;">
+         <button class="ops-btn-secondary" onclick="closePreviewModal()">❌ Revenir au brief</button>
+         <button class="ops-btn-primary" id="btnValidatePreview">📄 Valider & Générer les documents</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // --- UTILS LOGS ---
+    const logEl = document.getElementById('consoleLog');
+    const historyList = document.getElementById('historyList');
+    
+    function log(msg) {
+      logEl.textContent = msg + "\n" + logEl.textContent;
+    }
+    
+    function addHistory(msg) {
+      const li = document.createElement('li');
+      li.className = 'result-item';
+      li.innerHTML = `<span>${msg}</span><br><small style="color:rgba(255,255,255,0.3); font-size:0.7em;">${new Date().toLocaleTimeString()}</small>`;
+      historyList.prepend(li);
+      if(historyList.children.length > 5) historyList.lastChild.remove();
+    }
+
+    // --- FICHIERS ---
+    const fileInput = document.getElementById('f_attachments');
+    const attachmentsList = document.getElementById('attachmentsList');
+    let selectedFiles = [];
+
+    fileInput.addEventListener('change', (e) => {
+      const newFiles = Array.from(e.target.files);
+      selectedFiles = selectedFiles.concat(newFiles);
+      document.getElementById('fileLabel').textContent = `${selectedFiles.length} fichier(s) choisi(s)`;
+      
+      attachmentsList.innerHTML = '';
+      selectedFiles.forEach(f => {
+        const li = document.createElement('li');
+        li.className = 'attachment-item';
+        li.innerHTML = `<span>${f.name}</span> <span style="opacity:0.5">${(f.size/1024).toFixed(1)} KB</span>`;
+        attachmentsList.appendChild(li);
+      });
+      addHistory(`${newFiles.length} documents ajoutés.`);
+    });
+
+    const readFile = (file) => new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve({ name: file.name, mimeType: file.type, bytes: reader.result.split(',')[1] });
+      reader.readAsDataURL(file);
+    });
+
+    // --- TOKEN ESTIMATION ---
+    document.body.addEventListener('input', () => {
+      let chars = 0;
+      ['f_titre', 'f_ia_histoire', 'f_ia_probleme', 'f_ia_solution', 'f_ia_objectifs'].forEach(id => {
+        const v = document.getElementById(id).value;
+        if(v) chars += v.length;
+      });
+      document.getElementById('tokenEstimate').textContent = `Estimation prompt ≈ ${Math.ceil(chars/4)} tokens (limite 100000)`;
+    });
+
+    // --- DICTÉE VOCALE ---
+    document.querySelectorAll('.dictation-button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const targetId = btn.dataset.target;
+        const targetEl = document.getElementById(targetId);
+        const statusEl = document.getElementById('status-'+targetId);
+        
+        if (!('webkitSpeechRecognition' in window)) {
+          alert("Dictée non supportée par ce navigateur.");
+          return;
+        }
+        
+        const rec = new webkitSpeechRecognition();
+        rec.lang = 'fr-FR';
+        rec.start();
+        
+        btn.classList.add('is-active');
+        if(statusEl) statusEl.textContent = "ÉCOUTE...";
+        
+        rec.onresult = (e) => {
+          const text = e.results[0][0].transcript;
+          targetEl.value += (targetEl.value ? " " : "") + text;
+          if(statusEl) statusEl.textContent = "OK";
+          btn.classList.remove('is-active');
+        };
+        
+        rec.onerror = () => {
+          if(statusEl) statusEl.textContent = "ERREUR";
+          btn.classList.remove('is-active');
+        };
+      });
+    });
+
+    // --- MODAL UTILS (GÉNÉRATION) ---
+    function openModal() {
+      document.getElementById('generationModal').style.display = 'flex';
+      setModalState('loading');
+    }
+
+    function closeModal() {
+      document.getElementById('generationModal').style.display = 'none';
+    }
+
+    function setModalState(state) {
+      document.getElementById('modalLoading').style.display = 'none';
+      document.getElementById('modalSuccess').style.display = 'none';
+      document.getElementById('modalError').style.display = 'none';
+
+      if(state === 'loading') document.getElementById('modalLoading').style.display = 'flex';
+      if(state === 'success') document.getElementById('modalSuccess').style.display = 'flex';
+      if(state === 'error') document.getElementById('modalError').style.display = 'flex';
+    }
+
+    function updateModalProgress(pct, status) {
+      document.getElementById('modalProgressBar').style.width = pct + '%';
+      if(status) document.getElementById('modalStatusText').textContent = status;
+      document.getElementById('modalPercentText').textContent = pct + '%';
+    }
+
+    function showModal(title, message, progress) {
+      const modal = document.getElementById('generationModal');
+      modal.style.display = 'flex';
+
+      if (title.includes('Erreur') || title.includes('Error')) {
+        setModalState('error');
+        const titleEl = document.querySelector('#modalError .modal-title');
+        if(titleEl) titleEl.textContent = title;
+        document.getElementById('modalErrorText').textContent = message;
+      } else {
+        setModalState('loading');
+        const titleEl = document.querySelector('#modalLoading .modal-title');
+        if(titleEl) titleEl.textContent = title;
+        updateModalProgress(progress, message);
+      }
+    }
+
+    function hideModal() {
+      closeModal();
+    }
+
+    // --- MODAL PREVIEW ---
+    function openPreviewModal(aiData) {
+      document.getElementById('previewModal').style.display = 'flex';
+      // Remplir les champs avec les données reçues
+      if (aiData) {
+         document.getElementById('p_titre').value = aiData.titre || "";
+         document.getElementById('p_contexte').value = aiData.contexte || "";
+         document.getElementById('p_demarche').value = aiData.demarche || "";
+         document.getElementById('p_phases').value = aiData.phases || "";
+         document.getElementById('p_phrase').value = aiData.phrase || "";
+      }
+    }
+
+    function closePreviewModal() {
+      document.getElementById('previewModal').style.display = 'none';
+    }
+
+    // --- ACTIONS PREVIEW ---
+    document.getElementById('btnValidatePreview').addEventListener('click', () => {
+      // Copier les valeurs vers le formulaire principal
+      document.getElementById('f_titre').value = document.getElementById('p_titre').value;
+      document.getElementById('f_contexte').value = document.getElementById('p_contexte').value;
+      document.getElementById('f_demarche').value = document.getElementById('p_demarche').value;
+      document.getElementById('f_phases').value = document.getElementById('p_phases').value;
+      document.getElementById('f_phrase').value = document.getElementById('p_phrase').value;
+
+      // Fermer la modale
+      closePreviewModal();
+      log("Contenu IA validé. Lancement génération...");
+      addHistory("Validation IA & Génération...");
+
+      // Déclencher la génération (Click programmé sur le bouton masqué)
+      document.getElementById('btnGenerate').click();
+    });
+
+    // --- GÉNÉRATION (DOC & PDF) ---
+    document.getElementById('btnGenerate').addEventListener('click', async () => {
+      const btn = document.getElementById('btnGenerate');
+      const statusMain = document.getElementById('statusMain');
+      const progressFill = document.getElementById('progressFill');
+      const resultLinks = document.getElementById('resultLinks');
+
+      const titre = document.getElementById('f_titre').value;
+      const entreprise = document.getElementById('f_entrepriseNom').value;
+
+      if (!titre || !entreprise) {
+        alert("Erreur: Titre et Entreprise requis.");
+        return;
+      }
+
+      openModal();
+      updateModalProgress(5, "Validation des données...");
+
+      btn.disabled = true;
+      btn.textContent = "⏳ GÉNÉRATION EN COURS...";
+      statusMain.textContent = "Initialisation...";
+      progressFill.style.width = '10%';
+      resultLinks.style.display = 'none';
+      addHistory("Création document B2...");
+      log("Préparation création PDF...");
+
+      const data = {
+        titre: titre,
+        thematique: document.getElementById('f_thematique').value,
+        entrepriseNom: entreprise,
+        codeProjet: document.getElementById('f_codeProjet').value,
+        dateDebut: document.getElementById('f_dateDebut').value,
+        nbEquipes: document.getElementById('f_nbEquipes').value,
+        dureeSemaines: document.getElementById('f_dureeSemaines').value,
+        entrepriseLogo: document.getElementById('f_entrepriseLogo').value,
+        entrepriseAdresse: document.getElementById('f_entrepriseAdresse').value,
+        clientNom: document.getElementById('f_clientNom').value,
+        clientFonction: document.getElementById('f_clientFonction').value,
+        clientEmail: document.getElementById('f_clientEmail').value,
+        // V2 SPECIFIC - Données IA déjà intégrées
+        ia_histoire: document.getElementById('f_ia_histoire').value,
+        ia_lieux: document.getElementById('f_ia_lieux').value,
+        ia_probleme: document.getElementById('f_ia_probleme').value,
+        ia_solution: document.getElementById('f_ia_solution').value,
+        ia_objectifs: document.getElementById('f_ia_objectifs').value,
+        // EDITABLE OUTPUTS (Déjà remplis par preview ou main)
+        contexte: document.getElementById('f_contexte').value,
+        demarche: document.getElementById('f_demarche').value,
+        phases: document.getElementById('f_phases').value,
+        phrase: document.getElementById('f_phrase').value
+      };
+
+      if (selectedFiles.length > 0) {
+        // --- VÉRIFICATION TAILLE FICHIERS ---
+        // Limite désactivée à la demande de l'utilisateur
+        /*
+        const totalSize = selectedFiles.reduce((acc, file) => acc + file.size, 0);
+        if (totalSize > 5 * 1024 * 1024) { // 5 Mo
+          alert("Le volume total des fichiers dépasse 5 Mo (Limite technique Google). Veuillez réduire le nombre ou la taille des pièces jointes.");
+
+          // Réinitialisation état
+          btn.disabled = false;
+          btn.textContent = "✨ GÉNÉRER LA PROPALE";
+          closeModal();
+          return;
+        }
+        */
+        // ------------------------------------
+
+        statusMain.textContent = "Upload...";
+        updateModalProgress(15, "Traitement des fichiers...");
+        progressFill.style.width = '20%';
+        try {
+          data.attachments = await Promise.all(selectedFiles.map(readFile));
+          log(`${selectedFiles.length} fichiers inclus.`);
+        } catch (e) {
+          log("Erreur lecture fichier.");
+          document.getElementById('modalErrorText').textContent = "Erreur lecture fichier.";
+          setModalState('error');
+          btn.disabled = false;
+          return;
+        }
+      }
+
+      statusMain.textContent = "Génération Document...";
+      updateModalProgress(30, "Création Google Doc...");
+      progressFill.style.width = '40%';
+
+      // Simulation progression visuelle
+      let p = 40;
+      const interval = setInterval(() => {
+        if(p<90) {
+          p++;
+          progressFill.style.width = p+'%';
+          updateModalProgress(p, "Export PDF & Finalisation...");
+        }
+      }, 300);
+
+      google.script.run
+        .withSuccessHandler(res => {
+          clearInterval(interval);
+          progressFill.style.width = '100%';
+          updateModalProgress(100, "Terminé !");
+          btn.disabled = false;
+          btn.textContent = "✨ GÉNÉRER LA PROPALE";
+
+          if (res.success) {
+            statusMain.textContent = "Succès !";
+            statusMain.style.color = "#00ff99";
+            
+            addHistory("Document créé avec succès.");
+            log("Document OK.");
+            
+            document.getElementById('docLink').href = res.url;
+            document.getElementById('pdfLink').href = res.pdfUrl;
+            resultLinks.style.display = 'grid';
+
+            // Modal Success Update
+            document.getElementById('modalDocLink').href = res.url;
+            document.getElementById('modalPdfLink').href = res.pdfUrl;
+            setModalState('success');
+
+          } else {
+            statusMain.textContent = "Erreur Serveur";
+            statusMain.style.color = "#ff6b6b";
+            log("Erreur: " + res.error);
+            document.getElementById('modalErrorText').textContent = res.error;
+            setModalState('error');
+          }
+        })
+        .withFailureHandler(err => {
+          clearInterval(interval);
+          progressFill.style.background = "red";
+          btn.disabled = false;
+          statusMain.textContent = "Crash Critique";
+          log("Crash: " + err);
+          document.getElementById('modalErrorText').textContent = "Crash critique: " + err;
+          setModalState('error');
+        })
+        .generateFromForm(data); // Appelle maintenant la version sans fallback IA
+    });
+
+    // --- PRÉ-GÉNÉRATION (PREVIEW) ---
+    document.getElementById('btnPreview').addEventListener('click', async () => {
+      const btn = document.getElementById('btnPreview');
+      const entreprise = document.getElementById('f_entrepriseNom').value;
+
+      if (!entreprise) {
+        alert("Erreur: Le nom de l'entreprise est requis pour l'IA.");
+        return;
+      }
+
+      // Initialisation Modale
+      showModal('🧠 Neural Engine', 'Analyse du contexte et rédaction...', 0);
+
+      // Timer Simulation
+      let progress = 0;
+      const timer = setInterval(() => {
+        // Vitesse : 90% en 40s (soit environ +2.25% par seconde)
+        // On update tous les 200ms => +0.45%
+        if (progress < 90) {
+          progress += 0.45;
+          // Arrondi pour affichage propre
+          updateModalProgress(Math.min(90, Math.round(progress)), 'Analyse du contexte et rédaction...');
+        }
+      }, 200);
+
+      addHistory("Démarrage pré-génération (Preview)...");
+      log("Pré-génération (Preview) lancée...");
+
+      // Gather Data
+      const data = {
+        titre: document.getElementById('f_titre').value,
+        thematique: document.getElementById('f_thematique').value,
+        entrepriseNom: entreprise,
+        // Champs IA Requis
+        ia_histoire: document.getElementById('f_ia_histoire').value,
+        ia_lieux: document.getElementById('f_ia_lieux').value,
+        ia_probleme: document.getElementById('f_ia_probleme').value,
+        ia_solution: document.getElementById('f_ia_solution').value,
+        ia_objectifs: document.getElementById('f_ia_objectifs').value,
+        dureeSemaines: document.getElementById('f_dureeSemaines').value
+      };
+
+      // Fichiers
+      if (selectedFiles.length > 0) {
+        log("Inclusion fichiers pour preview...");
+        try {
+          data.attachments = await Promise.all(selectedFiles.map(readFile));
+        } catch (e) {
+          clearInterval(timer);
+          showModal('❌ Erreur', "Erreur lecture fichier.", 100);
+          return;
+        }
+      }
+
+      // Appel Backend
+      google.script.run
+        .withSuccessHandler(res => {
+          clearInterval(timer);
+
+          if (res.success) {
+             // Force barre 100%
+             showModal('Terminé', 'Génération réussie !', 100);
+
+             // Délai visuel puis ouverture preview
+             setTimeout(() => {
+                hideModal();
+                log(`Preview reçue. Coût: $${res.cost?.totalUsd?.toFixed(4) || 0}`);
+                addHistory("Proposition IA reçue.");
+                openPreviewModal(res.aiSections);
+             }, 500);
+
+          } else {
+            showModal('❌ Erreur', res.error, 100);
+            log("Erreur Preview: " + res.error);
+          }
+        })
+        .withFailureHandler(err => {
+          clearInterval(timer);
+          showModal('❌ Erreur', err.message || err, 100);
+          log("Crash Preview: " + err);
+        })
+        .previewAIContent(data);
+    });
+
+  </script>
+</body>
+</html>
