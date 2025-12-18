@@ -4,8 +4,8 @@
   // CONFIG
   // =========================
   const API = {
-    preview: "/api/preview",
-    generate: "/api/generate",
+    preview: "/api/proposal/preview",
+    generate: "/api/proposal/generate",
   };
 
   const LIMITS = {
@@ -628,6 +628,7 @@
     initModalButtons();
     initPreviewValidation();
     initButtons();
+    console.log("✅ App.js chargé et initialisé avec les routes corrigées.");
   }
 
   if (document.readyState === "loading") {
