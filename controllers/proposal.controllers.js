@@ -1,24 +1,34 @@
+const deepSeekAdapter = require('../adapters/ai/deepseek.adapter');
+const promptService = require('../prompts/icam.prompt');
+
 exports.preview = async (req, res, next) => {
   try {
     console.log('Preview request received:', req.body);
-    // Mock response for preview
-    const aiSections = {
-      titre: req.body.titre || "Titre Généré",
-      contexte: "Contexte généré par l'IA...",
-      demarche: "Démarche générée par l'IA...",
-      phases: "Phases générées par l'IA...",
-      phrase: "Conclusion générée par l'IA..."
-    };
 
-    // Simulate processing time
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    // Construction du prompt
+    const messages = [
+      { role: 'system', content: promptService.SYSTEM_PROMPT },
+      { role: 'user', content: promptService.buildUserMessage(req.body) }
+    ];
+
+    // Appel à l'IA via l'adapter
+    const aiResponse = await deepSeekAdapter.generateStructuredContent({
+      messages: messages,
+      temperature: 0.7, // Un peu de créativité pour la rédaction
+      maxTokens: 2000
+    });
+
+    // Extraction des sections générées
+    const aiSections = aiResponse.sections;
 
     res.json({
       success: true,
       aiSections: aiSections,
-      cost: { totalUsd: 0.01 }
+      cost: aiResponse.cost
     });
+
   } catch (error) {
+    console.error("Erreur lors de la génération de la prévisualisation:", error);
     next(error);
   }
 };
