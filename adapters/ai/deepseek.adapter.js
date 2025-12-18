@@ -15,7 +15,7 @@ class DeepSeekAdapter {
   constructor() {
     this.apiKey = process.env.DEEPSEEK_API_KEY;
     if (!this.apiKey) {
-      throw new Error('DEEPSEEK_API_KEY manquante');
+      console.warn('⚠️ DEEPSEEK_API_KEY manquante. Mode MOCK activé.');
     }
   }
 
@@ -26,6 +26,28 @@ class DeepSeekAdapter {
    */
   async generateStructuredContent(promptPayload) {
     const startTime = Date.now();
+
+    // Mode MOCK si pas de clé API
+    if (!this.apiKey) {
+      console.log('🔮 Simulation appel IA (Mock)...');
+      await new Promise(resolve => setTimeout(resolve, 1500)); // Latence artificielle
+
+      const mockContent = {
+        titre: "Proposition Commerciale Optimisée (MOCK)",
+        contexte: "Ceci est un contexte généré par le mode mock car la clé API est absente. L'entreprise semble faire face à des défis logistiques importants.",
+        demarche: "Nous proposons une démarche en trois temps : audit approfondi, co-construction de la solution, et déploiement accompagné.",
+        phases: "1. Audit (2 semaines)\n2. Ateliers (1 semaine)\n3. Implémentation (4 semaines)",
+        phrase: "Ensemble, transformons vos défis en opportunités de croissance durable."
+      };
+
+      return {
+        model: 'mock-model',
+        sections: mockContent,
+        usage: { total_tokens: 123, prompt_tokens: 50, completion_tokens: 73 },
+        cost: { totalUsd: 0.000246 },
+        durationMs: Date.now() - startTime
+      };
+    }
 
     try {
       const response = await axios.post(
