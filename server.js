@@ -1,49 +1,47 @@
-require('dotenv').config();
+require("dotenv").config();
 
-const express = require('express');
-const path = require('path');
+const path = require("path");
+const express = require("express");
+const session = require("express-session");
 
-const proposalRoutes = require('./routes/proposal.routes');
-const errorMiddleware = require('./middleware/error.middleware');
+const requireAuth = require("./middleware/requireAuth");
+const authRoutes = require("./routes/auth.routes");
+const proposalRoutes = require("./routes/proposal.routes");
 
 const app = express();
-const PORT = process.env.PORT || 3000;
 
-app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+app.use(express.json({ limit: "2mb" }));
 
-const server = app.listen(PORT, () => {
-  console.log(`✅ Server running on http://localhost:${PORT}`);
+app.use(session({
+  name: "msi.sid",
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    maxAge: 8 * 60 * 60 * 1000
+  }
+}));
+
+// Public
+app.use("/assets", express.static(path.join(__dirname, "public", "assets")));
+app.use("/auth", authRoutes);
+
+app.get("/login", (req, res) => {
+  if (req.session?.user) return res.redirect("/");
+  res.sendFile(path.join(__dirname, "public", "login.html"));
 });
+app.get("/login.html", (req, res) => res.redirect("/login"));
 
-process.on('SIGINT', () => {
-  console.log('🛑 SIGINT received. Shutting down...');
-  server.close(() => {
-    console.log('✅ Server stopped cleanly');
-    process.exit(0);
-  });
+// Protégé
+app.get("/", requireAuth, (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
 });
+app.get("/index.html", requireAuth, (req, res) => res.redirect("/"));
 
-process.on('SIGTERM', () => {
-  console.log('🛑 SIGTERM received. Shutting down...');
-  server.close(() => process.exit(0));
-});
+// API protégée
+app.use("/api/proposal", requireAuth, proposalRoutes);
 
-// Front
-app.use(express.static(path.join(__dirname, 'public')));
-
-// API
-console.log('proposalRoutes type:', typeof proposalRoutes);
-app.use('/api/proposal', proposalRoutes);
-
-// Fichiers générés
-app.use(
-  '/files',
-  express.static(path.join(__dirname, 'storage/outputs'), {
-    index: false
-  })
-);
-
-// ⚠️ DOIT ÊTRE UNE FONCTION
-app.use(errorMiddleware);
-
+module.exports = app;

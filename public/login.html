@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Login · MSI Propales</title>
+  <link rel="stylesheet" href="/assets/css/main.css" />
+</head>
+<body>
+  <div class="login-shell" style="max-width:420px;margin:10vh auto;padding:24px;">
+    <h1 style="margin:0 0 8px 0;">Connexion</h1>
+    <p style="opacity:.8;margin:0 0 16px 0;">Accès réservé.</p>
+
+    <form id="loginForm">
+      <label>Identifiant</label>
+      <input id="username" autocomplete="username" required />
+
+      <label style="margin-top:10px;display:block;">Mot de passe</label>
+      <input id="password" type="password" autocomplete="current-password" required />
+
+      <button type="submit" style="margin-top:16px;width:100%;">Se connecter</button>
+      <div id="error" style="margin-top:12px;color:#ff6b6b;display:none;"></div>
+    </form>
+  </div>
+
+  <script src="/assets/js/login.js"></script>
+</body>
+</html>
