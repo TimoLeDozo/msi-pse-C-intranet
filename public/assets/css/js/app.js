@@ -135,12 +135,14 @@
   function openGenerationModal() {
     if (!generationModal) return;
     generationModal.hidden = false;
+    generationModal.style.display = "flex";
     setModalState("loading");
   }
 
   function closeGenerationModal() {
     if (!generationModal) return;
     generationModal.hidden = true;
+    generationModal.style.display = "none";
   }
 
   function setModalState(state) {
@@ -148,6 +150,7 @@
     const show = (el, yes) => {
       if (!el) return;
       el.hidden = !yes;
+      el.style.display = yes ? "flex" : "none";
     };
 
     show(modalLoading, state === "loading");
@@ -189,6 +192,7 @@
   function openPreviewModal(aiData) {
     if (!previewModal) return;
     previewModal.hidden = false;
+    previewModal.style.display = "flex";
 
     if (aiData) {
       p_titre.value = aiData.titre || "";
@@ -202,6 +206,7 @@
   function closePreviewModal() {
     if (!previewModal) return;
     previewModal.hidden = true;
+    previewModal.style.display = "none";
   }
 
   // =========================

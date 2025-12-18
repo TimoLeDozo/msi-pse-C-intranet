@@ -667,12 +667,12 @@
               <div class="form-grid">
                 <div class="field grid-span-2">
                   <label>AJOUTER DES DOCUMENTS (JUSQU'À 15)</label>
-                  <div class="upload-container" onclick="document.getElementById('f_attachments').click()" style="background:rgba(0,0,0,0.3); padding:20px; border-radius:16px; display:flex; align-items:center; gap:20px; cursor:pointer; border:1px dashed rgba(255,255,255,0.2);">
+                  <div class="upload-container" id="uploadContainer" style="background:rgba(0,0,0,0.3); padding:20px; border-radius:16px; display:flex; align-items:center; gap:20px; cursor:pointer; border:1px dashed rgba(255,255,255,0.2);">
                     <div style="background:rgba(255,255,255,0.1); padding:10px 20px; border-radius:8px; font-weight:600;">Sélect. fichiers</div>
                     <div style="color:rgba(255,255,255,0.6); font-size:0.85rem;" id="fileLabel">Aucun fichier choisi</div>
                     <input type="file" id="f_attachments" multiple style="display:none">
                   </div>
-                  <p class="files-hint">Aucun fichier sélectionné (0/15).</p>
+                  <p class="files-hint" id="filesHint">Aucun fichier sélectionné (0/15).</p>
                   <ul id="attachmentsList" class="attachments-list"></ul>
                 </div>
               </div>
@@ -752,7 +752,7 @@
 
   <div id="generationModal" class="modal-overlay" style="display: none;">
     <div class="modal-content glass-panel">
-      <button class="modal-close" onclick="closeModal()">×</button>
+      <button class="modal-close" id="btnCloseGenerationModal">×</button>
 
       <!-- LOADING STATE -->
       <div id="modalLoading" class="modal-state">
@@ -781,7 +781,7 @@
          <div class="error-icon">⚠️</div>
          <h3 class="modal-title">Erreur Critique</h3>
          <p class="modal-desc" id="modalErrorText">Une erreur est survenue.</p>
-         <button id="btnCloseModal" onclick="closeModal()" class="ops-btn-secondary">FERMER</button>
+         <button id="btnCloseModalError" class="ops-btn-secondary">FERMER</button>
       </div>
     </div>
   </div>
@@ -789,7 +789,7 @@
   <!-- NOUVELLE MODALE DE PRÉVISUALISATION -->
   <div id="previewModal" class="modal-overlay" style="display: none;">
     <div class="modal-content glass-panel" style="width: min(800px, 94vw); text-align: left; max-height: 90vh; overflow-y: auto;">
-      <button class="modal-close" onclick="closePreviewModal()">×</button>
+      <button class="modal-close" id="btnClosePreviewModal">×</button>
 
       <h3 class="modal-title" style="text-align: center; margin-bottom: 20px;">Proposition de l'IA</h3>
 
@@ -817,7 +817,7 @@
       </div>
 
       <div class="actions" style="margin-top: 20px; display: flex; justify-content: center; gap: 15px;">
-         <button class="ops-btn-secondary" onclick="closePreviewModal()">❌ Revenir au brief</button>
+         <button class="ops-btn-secondary" id="btnBackToBrief">❌ Revenir au brief</button>
          <button class="ops-btn-primary" id="btnValidatePreview">📄 Valider & Générer les documents</button>
       </div>
     </div>
