@@ -15,11 +15,8 @@
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
-<<<<<<< HEAD
 html { scroll-behavior: smooth; }
 
-=======
->>>>>>> feat/frontend-fetch
 body {
   font-family: 'Inter', system-ui, sans-serif;
   background: #050505;
@@ -33,13 +30,9 @@ a { color: inherit; text-decoration: none; }
 
 /* --- BACKGROUND ANIMÉ & FORMES --- */
 .neural-background {
-<<<<<<< HEAD
   position: fixed;
   inset: 0;
   z-index: -3;
-=======
-  position: fixed; inset: 0; z-index: -3;
->>>>>>> feat/frontend-fetch
   background:
     radial-gradient(circle at 15% 85%, rgba(75, 0, 130, 0.7) 0%, transparent 55%),
     radial-gradient(circle at 85% 15%, rgba(139, 37, 99, 0.8) 0%, transparent 55%),
@@ -54,7 +47,6 @@ a { color: inherit; text-decoration: none; }
   70% { filter: brightness(0.98) saturate(1.6) hue-rotate(-8deg); }
 }
 
-<<<<<<< HEAD
 .geometric-shapes {
   position: fixed;
   inset: 0;
@@ -62,9 +54,6 @@ a { color: inherit; text-decoration: none; }
   overflow: hidden;
   pointer-events: none;
 }
-=======
-.geometric-shapes { position: fixed; inset: 0; z-index: -2; overflow: hidden; pointer-events: none; }
->>>>>>> feat/frontend-fetch
 
 .shape {
   position: absolute;
@@ -73,20 +62,11 @@ a { color: inherit; text-decoration: none; }
   filter: drop-shadow(0 0 18px rgba(224, 163, 255, 0.35));
 }
 
-<<<<<<< HEAD
 .shape:nth-child(1) { width: 110px; height: 110px; left: 8%;  animation-delay: -2s;  border-radius: 28px; }
 .shape:nth-child(2) { width: 70px;  height: 70px;  left: 76%; animation-delay: -9s;  border-radius: 50%; border-color: rgba(255, 105, 180, 0.35); }
 .shape:nth-child(3) { width: 90px;  height: 90px;  left: 30%; animation-delay: -13s; transform: rotate(45deg); }
 .shape:nth-child(4) {
   width: 150px; height: 150px; left: 58%; animation-delay: -18s;
-=======
-.shape:nth-child(1) { width: 110px; height: 110px; left: 8%; animation-delay: -2s; border-radius: 28px; }
-.shape:nth-child(2) { width: 70px; height: 70px; left: 76%; animation-delay: -9s; border-radius: 50%; border-color: rgba(255, 105, 180, 0.35); }
-.shape:nth-child(3) { width: 90px; height: 90px; left: 30%; animation-delay: -13s; transform: rotate(45deg); }
-.shape:nth-child(4) {
-  width: 150px; height: 150px; left: 58%;
-  animation-delay: -18s;
->>>>>>> feat/frontend-fetch
   clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
   background: linear-gradient(45deg, rgba(255, 0, 128, 0.12), transparent);
 }
@@ -99,14 +79,10 @@ a { color: inherit; text-decoration: none; }
 
 /* --- HEADER --- */
 header {
-<<<<<<< HEAD
   position: fixed;
   top: 20px;
   left: 50%;
   transform: translateX(-50%);
-=======
-  position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
->>>>>>> feat/frontend-fetch
   width: min(1200px, 94vw);
   padding: 18px 30px;
   border-radius: 28px;
@@ -145,10 +121,6 @@ header.scrolled {
 }
 
 .nav-links { list-style: none; display: flex; gap: 10px; align-items: center; }
-<<<<<<< HEAD
-=======
-
->>>>>>> feat/frontend-fetch
 .nav-links a {
   padding: 12px 18px;
   border-radius: 18px;
@@ -157,7 +129,6 @@ header.scrolled {
   transition: 0.3s;
   position: relative;
 }
-<<<<<<< HEAD
 .nav-links a:hover, .nav-links a.active { color: #fff; background: rgba(255,255,255,0.1); }
 
 /* --- HERO --- */
@@ -166,17 +137,6 @@ header.scrolled {
   padding: 160px 20px 80px;
   position: relative;
 }
-=======
-
-.nav-links a:hover,
-.nav-links a.active {
-  color: #fff;
-  background: rgba(255,255,255,0.1);
-}
-
-/* --- HERO --- */
-.ops-hero-section { text-align: center; padding: 160px 20px 80px; position: relative; }
->>>>>>> feat/frontend-fetch
 
 .ops-hero-badge {
   display: inline-block;
@@ -226,7 +186,6 @@ header.scrolled {
   backdrop-filter: blur(10px);
   transition: transform 0.3s ease, border-color 0.3s ease;
 }
-<<<<<<< HEAD
 .ops-stat-card:hover { transform: translateY(-5px); border-color: rgba(255, 255, 255, 0.2); }
 
 .ops-stat-value {
@@ -236,12 +195,6 @@ header.scrolled {
   color: #fff;
   margin-bottom: 8px;
 }
-=======
-
-.ops-stat-card:hover { transform: translateY(-5px); border-color: rgba(255, 255, 255, 0.2); }
-
-.ops-stat-value { display: block; font-size: 2.5rem; font-weight: 700; color: #fff; margin-bottom: 8px; }
->>>>>>> feat/frontend-fetch
 
 .ops-stat-label {
   font-size: 0.9rem;
@@ -281,14 +234,9 @@ header.scrolled {
   border: none;
 }
 
-<<<<<<< HEAD
 .ops-btn-primary:hover, .ops-btn-secondary:hover { transform: scale(1.05); }
 
 .is-hidden { display: none !important; }
-=======
-.ops-btn-primary:hover,
-.ops-btn-secondary:hover { transform: scale(1.05); }
->>>>>>> feat/frontend-fetch
 
 /* --- LAYOUT GLOBAL --- */
 main { padding-top: 140px; padding-bottom: 80px; }
@@ -297,7 +245,6 @@ main { padding-top: 140px; padding-bottom: 80px; }
 .console-wrapper { width: min(1100px, 94vw); margin: 0 auto; display: grid; gap: 40px; }
 
 .console-header { text-align: center; }
-<<<<<<< HEAD
 .console-header-top {
   display: flex;
   align-items: flex-start;
@@ -318,15 +265,6 @@ main { padding-top: 140px; padding-bottom: 80px; }
   border-radius: 12px;
 }
 
-=======
-.console-header-top { display: flex; align-items: flex-start; justify-content: center; gap: 24px; flex-wrap: wrap; margin-bottom: 18px; }
-.console-logo-wrapper { padding-top: 10px; }
-.console-logo {
-  width: 130px; height: 75px; object-fit: contain;
-  filter: drop-shadow(0 0 14px rgba(224, 163, 255, 0.6));
-  background: #fff; padding: 10px; border-radius: 12px;
-}
->>>>>>> feat/frontend-fetch
 .console-kicker {
   margin: 0;
   font-size: 0.9rem;
@@ -335,16 +273,12 @@ main { padding-top: 140px; padding-bottom: 80px; }
   letter-spacing: 2px;
 }
 
-<<<<<<< HEAD
 .console-header h2 {
   font-size: clamp(2.2rem, 4vw, 3.1rem);
   margin-bottom: 16px;
   letter-spacing: -0.01em;
 }
 
-=======
-.console-header h2 { font-size: clamp(2.2rem, 4vw, 3.1rem); margin-bottom: 16px; letter-spacing: -0.01em; }
->>>>>>> feat/frontend-fetch
 .console-header p { color: rgba(255, 255, 255, 0.7); max-width: 680px; margin: 0 auto; }
 
 .console-layout { display: grid; gap: 32px; align-items: start; }
@@ -354,11 +288,7 @@ main { padding-top: 140px; padding-bottom: 80px; }
   .results-column { position: sticky; top: 140px; }
 }
 
-<<<<<<< HEAD
 /* --- PANELS (GLASSMORPHISM) --- */
-=======
-/* --- PANELS --- */
->>>>>>> feat/frontend-fetch
 .form-panels { display: grid; gap: 40px; }
 
 .glass-panel {
@@ -384,11 +314,7 @@ main { padding-top: 140px; padding-bottom: 80px; }
 .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px 22px; }
 .field.grid-span-2 { grid-column: span 2; }
 
-<<<<<<< HEAD
 .field-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
-=======
-.field-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; gap: 12px; }
->>>>>>> feat/frontend-fetch
 .field-actions { display: flex; align-items: center; gap: 10px; }
 
 label {
@@ -439,10 +365,6 @@ input:focus, textarea:focus {
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
-<<<<<<< HEAD
-=======
-
->>>>>>> feat/frontend-fetch
 .dictation-button:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0, 255, 255, 0.25); }
 .dictation-button.is-active { background: rgba(0, 255, 200, 0.3); color: #041014; border-color: rgba(0, 255, 200, 0.7); }
 
@@ -457,44 +379,6 @@ input:focus, textarea:focus {
 .actions { text-align: center; margin-top: 20px; }
 .action-buttons { display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; }
 
-<<<<<<< HEAD
-=======
-#btnGenerate {
-  background: var(--gradient-primary);
-  color: #050505;
-  border: none;
-  border-radius: 999px;
-  padding: 18px 34px;
-  font-weight: 700;
-  font-size: 0.95rem;
-  letter-spacing: 0.12em;
-  cursor: pointer;
-  transition: transform 0.3s ease, box-shadow 0.3s ease, filter 0.3s ease;
-  box-shadow: 0 22px 50px rgba(0, 0, 0, 0.55);
-}
-
-#btnGenerate:hover { filter: brightness(1.1); transform: translateY(-5px); box-shadow: 0 32px 60px rgba(0, 0, 0, 0.6); }
-
-#btnPreview {
-  background: var(--gradient-primary);
-  color: #050505;
-  border: none;
-  border-radius: 999px;
-  padding: 18px 34px;
-  font-weight: 700;
-  font-size: 0.95rem;
-  letter-spacing: 0.12em;
-  cursor: pointer;
-  transition: transform 0.3s ease, box-shadow 0.3s ease, filter 0.3s ease;
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  box-shadow: 0 22px 50px rgba(0, 0, 0, 0.55);
-}
-
-#btnPreview:hover { filter: brightness(1.1); transform: translateY(-5px); box-shadow: 0 32px 60px rgba(0, 0, 0, 0.6); }
-
->>>>>>> feat/frontend-fetch
 /* --- UPLOAD --- */
 .upload-container {
   background: rgba(0,0,0,0.3);
@@ -505,7 +389,6 @@ input:focus, textarea:focus {
   gap: 20px;
   cursor: pointer;
   border: 1px dashed rgba(255,255,255,0.2);
-<<<<<<< HEAD
   position: relative;
 }
 
@@ -516,38 +399,25 @@ input:focus, textarea:focus {
 }
 
 .upload-cta {
-=======
-}
-
-.upload-button {
->>>>>>> feat/frontend-fetch
   background: rgba(255,255,255,0.1);
   padding: 10px 20px;
   border-radius: 8px;
   font-weight: 600;
 }
 
-<<<<<<< HEAD
 .upload-label {
   color: rgba(255,255,255,0.6);
   font-size: 0.85rem;
 }
-=======
-.upload-label { color: rgba(255,255,255,0.6); font-size: 0.85rem; }
->>>>>>> feat/frontend-fetch
 
 .files-hint { font-size: 0.78rem; color: rgba(255, 255, 255, 0.55); margin-top: 8px; }
 
 .attachments-list { list-style: none; margin-top: 12px; display: grid; gap: 8px; padding: 0; }
 
 .attachment-item {
-<<<<<<< HEAD
   display: flex;
   align-items: center;
   justify-content: space-between;
-=======
-  display: flex; align-items: center; justify-content: space-between;
->>>>>>> feat/frontend-fetch
   background: rgba(255, 255, 255, 0.08);
   padding: 8px 12px;
   border-radius: 8px;
@@ -556,11 +426,7 @@ input:focus, textarea:focus {
   color: rgba(255, 255, 255, 0.9);
 }
 
-<<<<<<< HEAD
 /* --- INSIGHTS --- */
-=======
-/* --- SIDEBAR INSIGHTS --- */
->>>>>>> feat/frontend-fetch
 .insights-panel {
   background: var(--glass-bg);
   border: 1px solid rgba(255, 255, 255, 0.18);
@@ -588,7 +454,6 @@ input:focus, textarea:focus {
   gap: 6px;
 }
 
-<<<<<<< HEAD
 .insights-pinned-header h3 {
   font-size: 1.2rem;
   letter-spacing: 0.18em;
@@ -597,9 +462,6 @@ input:focus, textarea:focus {
   margin: 0;
 }
 
-=======
-.insights-pinned-header h3 { font-size: 1.2rem; letter-spacing: 0.18em; text-transform: uppercase; color: #fff; margin: 0; }
->>>>>>> feat/frontend-fetch
 .insights-pinned-header p { color: var(--color-text-muted); font-size: 0.92rem; margin: 0; }
 
 .result-status {
@@ -614,11 +476,7 @@ input:focus, textarea:focus {
   gap: 10px;
 }
 
-<<<<<<< HEAD
 .status-label {
-=======
-.status-main.meta {
->>>>>>> feat/frontend-fetch
   font-size: 0.8rem;
   color: rgba(255,255,255,0.5);
   letter-spacing: 1px;
@@ -631,7 +489,6 @@ input:focus, textarea:focus {
 .generation-progress-bar { position: relative; height: 8px; border-radius: 999px; background: rgba(255, 255, 255, 0.08); overflow: hidden; }
 .generation-progress-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #e0a3ff, #00ffff); transition: width 0.3s ease; }
 
-<<<<<<< HEAD
 .insights-block { margin-top: 30px; }
 .insights-title {
   font-size: 0.8rem;
@@ -640,8 +497,6 @@ input:focus, textarea:focus {
   margin-bottom: 10px;
 }
 
-=======
->>>>>>> feat/frontend-fetch
 .result-preview {
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -668,7 +523,6 @@ input:focus, textarea:focus {
   width: 100%;
   justify-content: center;
 }
-<<<<<<< HEAD
 .cost-log-link:hover { background: rgba(0, 255, 255, 0.2); }
 
 .cost-log-link--primary {
@@ -676,10 +530,6 @@ input:focus, textarea:focus {
   color: #000;
   border-color: rgba(0,255,255,0.35);
 }
-=======
-
-.cost-log-link:hover { background: rgba(0, 255, 255, 0.2); }
->>>>>>> feat/frontend-fetch
 
 .result-history { list-style: none; display: grid; gap: 18px; margin: 0; padding-left: 0; position: relative; }
 
@@ -707,7 +557,6 @@ input:focus, textarea:focus {
   background: #050505;
 }
 
-<<<<<<< HEAD
 .result-item.is-placeholder::before { opacity: 0.25; }
 
 .tips {
@@ -721,37 +570,14 @@ input:focus, textarea:focus {
 .result-links.is-visible { display: grid; }
 
 /* --- MATRIX --- */
-=======
-.insight-block { margin-top: 4px; }
-.insight-title {
-  font-size: 0.8rem;
-  color: rgba(255,255,255,0.6);
-  text-transform: uppercase;
-  margin-bottom: 10px;
-}
-
-.tips { font-size: 0.85rem; color: rgba(255,255,255,0.5); padding-left: 20px; line-height: 1.5; }
-
-.result-links { display: grid; gap: 10px; margin-top: 10px; }
-.result-doc { margin-bottom: 10px; background: #00ffff; color: #000; }
-
-/* --- SHOWCASE --- */
->>>>>>> feat/frontend-fetch
 .showcase { padding: 140px 20px; }
 .section-title { font-size: clamp(2.2rem, 4vw, 3.2rem); text-align: center; margin-bottom: 80px; letter-spacing: 0.02em; }
 
 .hexagon-container { display: flex; flex-wrap: wrap; gap: 28px; justify-content: center; }
-<<<<<<< HEAD
 .hexagon { width: 210px; height: 260px; position: relative; transition: transform 0.8s ease, opacity 0.8s ease; }
 .hexagon-bg {
   position: absolute;
   inset: 0;
-=======
-
-.hexagon { width: 210px; height: 260px; position: relative; transition: transform 0.8s ease, opacity 0.8s ease; }
-.hexagon-bg {
-  position: absolute; inset: 0;
->>>>>>> feat/frontend-fetch
   border-radius: 26px;
   background: rgba(255,255,255,0.08);
   border: 1px solid rgba(255,255,255,0.18);
@@ -760,12 +586,8 @@ input:focus, textarea:focus {
   z-index: 1;
 }
 .hexagon-content {
-<<<<<<< HEAD
   position: absolute;
   inset: 0;
-=======
-  position: absolute; inset: 0;
->>>>>>> feat/frontend-fetch
   padding: 40px 24px;
   display: flex;
   flex-direction: column;
@@ -781,10 +603,7 @@ input:focus, textarea:focus {
 .hexagon h4 { font-size: 1.2rem; margin: 0; color: #fff; }
 .hexagon p { color: rgba(255, 255, 255, 0.65); font-size: 0.9rem; margin: 0; }
 
-<<<<<<< HEAD
 /* --- FOOTER --- */
-=======
->>>>>>> feat/frontend-fetch
 footer {
   padding: 80px 20px;
   background: rgba(0, 0, 0, 0.5);
@@ -793,10 +612,7 @@ footer {
   color: rgba(255,255,255,0.6);
   font-size: 0.9rem;
 }
-<<<<<<< HEAD
 .footer-sub { margin-top: 5px; }
-=======
->>>>>>> feat/frontend-fetch
 
 /* --- RESPONSIVE --- */
 @media (max-width: 1100px) {
@@ -804,17 +620,11 @@ footer {
   .results-column { position: relative; top: 0; }
 }
 
-<<<<<<< HEAD
 /* --- MODALES --- */
 .modal-overlay {
   position: fixed;
   inset: 0;
   z-index: 1000;
-=======
-/* --- MODAL SYSTEM --- */
-.modal-overlay {
-  position: fixed; inset: 0; z-index: 1000;
->>>>>>> feat/frontend-fetch
   background: rgba(0, 0, 0, 0.7);
   backdrop-filter: blur(8px);
   display: flex;
@@ -836,34 +646,16 @@ footer {
   border-radius: 24px;
 }
 
-<<<<<<< HEAD
 .modal-close {
   position: absolute;
   top: 15px;
   right: 15px;
   background: none;
   border: none;
-=======
-.preview-modal {
-  width: min(800px, 94vw);
-  text-align: left;
-  max-height: 90vh;
-  overflow-y: auto;
-}
-
-.preview-title { text-align: center; margin-bottom: 20px; }
-.preview-actions { margin-top: 20px; display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; }
-
-.modal-close {
-  position: absolute;
-  top: 15px; right: 15px;
-  background: none; border: none;
->>>>>>> feat/frontend-fetch
   color: rgba(255, 255, 255, 0.5);
   font-size: 1.5rem;
   cursor: pointer;
 }
-<<<<<<< HEAD
 .modal-close:hover { color: #fff; }
 
 .modal-state {
@@ -877,38 +669,16 @@ footer {
 .neural-spinner {
   width: 60px;
   height: 60px;
-=======
-
-.modal-close:hover { color: #fff; }
-
-.modal-state { display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 40px; }
-
-.neural-spinner {
-  width: 60px; height: 60px;
->>>>>>> feat/frontend-fetch
   border-radius: 50%;
   border: 3px solid rgba(0, 255, 255, 0.1);
   border-top-color: #00ffff;
   animation: spin 1s linear infinite;
   margin-bottom: 10px;
 }
-<<<<<<< HEAD
 @keyframes spin { to { transform: rotate(360deg); } }
 
 .modal-title { font-size: 1.4rem; letter-spacing: 0.05em; color: #fff; margin: 0; }
 .modal-status { color: rgba(0, 255, 255, 0.8); font-family: 'Share Tech Mono', monospace; font-size: 0.9rem; }
-=======
-
-@keyframes spin { to { transform: rotate(360deg); } }
-
-.modal-title { font-size: 1.4rem; letter-spacing: 0.05em; color: #fff; margin: 0; }
-
-.modal-status {
-  color: rgba(0, 255, 255, 0.8);
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 0.9rem;
-}
->>>>>>> feat/frontend-fetch
 
 .modal-percent {
   font-family: 'Share Tech Mono', monospace;
@@ -937,10 +707,6 @@ footer {
 
 .success-icon { font-size: 3rem; margin-bottom: 10px; text-shadow: 0 0 20px rgba(0, 255, 153, 0.5); }
 .error-icon { font-size: 3rem; margin-bottom: 10px; text-shadow: 0 0 20px rgba(255, 50, 50, 0.5); }
-<<<<<<< HEAD
-=======
-
->>>>>>> feat/frontend-fetch
 .modal-desc { color: rgba(255, 255, 255, 0.6); font-size: 0.95rem; margin-bottom: 10px; }
 
 .modal-actions {
@@ -949,7 +715,6 @@ footer {
   gap: 15px;
   width: 100%;
 }
-<<<<<<< HEAD
 
 /* Preview modal layout */
 .preview-modal {
@@ -968,5 +733,3 @@ footer {
   gap: 15px;
   flex-wrap: wrap;
 }
-=======
->>>>>>> feat/frontend-fetch

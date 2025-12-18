@@ -8,13 +8,11 @@
 
 const axios = require('axios');
 
-const DEEPSEEK_API_URL = 'https://api.deepseek.com/v1/chat/completions';
-<<<<<<< HEAD
-const MODEL = 'deepseek-chat';
-=======
-const MODEL = 'deepseek-reasoner';
-const API_KEY = process.env.DEEPSEEK_API_KEY;
->>>>>>> feat/frontend-fetch
+const BASE_URL = (process.env.DEEPSEEK_BASE_URL || 'https://api.deepseek.com').replace(/\/$/, '');
+const CHAT_COMPLETIONS_URL = `${BASE_URL}/chat/completions`;
+
+const MODEL = process.env.DEEPSEEK_MODEL || 'deepseek-chat'; // ou 'deepseek-reasoner'
+const TIMEOUT_MS = Number(process.env.DEEPSEEK_TIMEOUT_MS || 120000);
 
 class DeepSeekAdapter {
   constructor() {
@@ -26,77 +24,104 @@ class DeepSeekAdapter {
 
   /**
    * Appel IA structuré
-   * @param {Object} promptPayload - prompt déjà construit
-   * @returns {Promise<Object>}
+   * @param {Object} promptPayload
+   * @param {Array}  promptPayload.messages
+   * @param {number} [promptPayload.temperature]
+   * @param {number} [promptPayload.maxTokens]
+   * @param {boolean} [promptPayload.forceJson]
    */
-  async generateStructuredContent(promptPayload) {
+  async generateStructuredContent(promptPayload = {}) {
     const startTime = Date.now();
 
-    try {
-      const response = await axios.post(
-        DEEPSEEK_API_URL,
-        {
-          model: MODEL,
-          messages: promptPayload.messages,
-          temperature: promptPayload.temperature ?? 0.2,
-          max_tokens: promptPayload.maxTokens ?? 4000
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${this.apiKey}`,
-            'Content-Type': 'application/json'
-          },
-          timeout: 120000
-        }
-      );
+    const messages = promptPayload.messages;
+    if (!Array.isArray(messages) || messages.length === 0) {
+      throw new Error('DeepSeekAdapter: promptPayload.messages requis');
+    }
 
-      const choice = response.data.choices?.[0];
-      if (!choice?.message?.content) {
+    const payload = {
+      model: MODEL,
+      messages,
+      temperature: promptPayload.temperature ?? 0.2,
+      max_tokens: promptPayload.maxTokens ?? 4000,
+      stream: false
+    };
+
+    // Optionnel : forcer une sortie JSON (OpenAI-compatible)
+    if (promptPayload.forceJson) {
+      payload.response_format = { type: 'json_object' };
+    }
+
+    try {
+      const response = await axios.post(CHAT_COMPLETIONS_URL, payload, {
+        headers: {
+          Authorization: `Bearer ${this.apiKey}`,
+          'Content-Type': 'application/json'
+        },
+        timeout: TIMEOUT_MS
+      });
+
+      const content = response?.data?.choices?.[0]?.message?.content;
+      if (!content) {
         throw new Error('Réponse IA vide');
       }
 
-      // 🔐 Parsing JSON sécurisé (B2-like)
-      const parsed = this.safeJsonParse(choice.message.content);
+      const parsed = this.safeJsonParse(content);
+      const usage = response.data?.usage || null;
 
       return {
         model: MODEL,
         sections: parsed,
-        usage: response.data.usage || null,
-        cost: this.estimateCost(response.data.usage),
+        usage,
+        cost: this.estimateCostUsd(usage),
         durationMs: Date.now() - startTime
       };
-
     } catch (error) {
-      throw new Error(`DeepSeekAdapter error: ${error.message}`);
+      const apiErr = error?.response?.data ? JSON.stringify(error.response.data) : null;
+      throw new Error(`DeepSeekAdapter error: ${apiErr || error.message}`);
     }
   }
 
   /**
-   * Parsing JSON tolérant (copié conceptuellement de B2)
+   * Parsing JSON tolérant
    */
   safeJsonParse(rawContent) {
+    const raw = String(rawContent ?? '').trim();
+
     try {
-      return JSON.parse(rawContent);
+      return JSON.parse(raw);
     } catch {
-      const match = rawContent.match(/\{[\s\S]*\}/);
-      if (!match) {
-        throw new Error('JSON IA introuvable');
+      const obj = raw.match(/\{[\s\S]*\}/)?.[0];
+      const arr = raw.match(/\[[\s\S]*\]/)?.[0];
+      const candidate = obj || arr;
+
+      if (!candidate) throw new Error('JSON IA introuvable');
+
+      try {
+        return JSON.parse(candidate);
+      } catch (e) {
+        throw new Error(`JSON IA invalide: ${e.message}`);
       }
-      return JSON.parse(match[0]);
     }
   }
 
   /**
-   * Estimation coût (alignée MSI / B2)
+   * Estimation coût (USD) à partir du pricing officiel (ordre de grandeur)
+   * - input: $0.28 / 1M tokens (cache miss)
+   * - output: $0.42 / 1M tokens
    */
-  estimateCost(usage) {
+  estimateCostUsd(usage) {
     if (!usage) return null;
 
-    const COST_PER_1K_TOKENS = 0.002; // ajustable
-    const totalTokens = usage.total_tokens || 0;
+    const promptTokens = usage.prompt_tokens ?? 0;
+    const completionTokens = usage.completion_tokens ?? 0;
+
+    const inputUsd = (promptTokens / 1_000_000) * 0.28;
+    const outputUsd = (completionTokens / 1_000_000) * 0.42;
 
     return {
-      totalUsd: Number(((totalTokens / 1000) * COST_PER_1K_TOKENS).toFixed(6))
+      inputUsd: Number(inputUsd.toFixed(6)),
+      outputUsd: Number(outputUsd.toFixed(6)),
+      totalUsd: Number((inputUsd + outputUsd).toFixed(6))
     };
   }
 }
