@@ -860,10 +860,16 @@
       addHistory(`${newFiles.length} documents ajoutés.`);
     });
 
-    const readFile = (file) => new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve({ name: file.name, mimeType: file.type, bytes: reader.result.split(',')[1] });
-      reader.readAsDataURL(file);
+    // Fonction pour lire les fichiers en Base64
+    const readFile = (file) => new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve({
+            name: file.name,
+            mimeType: file.type,
+            content: reader.result.split(',')[1]
+        });
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
     });
 
     // --- TOKEN ESTIMATION ---
@@ -991,180 +997,116 @@
       document.getElementById('btnGenerate').click();
     });
 
-    // --- FONCTION UTILITAIRE API ---
+    // --- FONCTION API STANDARD (Remplacement de google.script.run) ---
     async function callApi(endpoint, data) {
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-      });
+        const response = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
 
-      const result = await response.json();
-      if (!response.ok) {
-        throw new Error(result.error?.message || 'Erreur serveur inconnue');
-      }
-      return result;
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.message || result.error || 'Erreur serveur');
+        return result;
     }
 
-    // --- GÉNÉRATION (DOC & PDF) ---
-    document.getElementById('btnGenerate').addEventListener('click', async () => {
-      const btn = document.getElementById('btnGenerate');
-      const statusMain = document.getElementById('statusMain');
-      const progressFill = document.getElementById('progressFill');
-      const resultLinks = document.getElementById('resultLinks');
-      const titre = document.getElementById('f_titre').value;
-      const entreprise = document.getElementById('f_entrepriseNom').value;
+    // --- BOUTON : PRÉVISUALISER (IA) ---
+    document.getElementById('btnPreview').addEventListener('click', async () => {
+        const entreprise = document.getElementById('f_entrepriseNom').value;
+        if (!entreprise) return alert("Le nom de l'entreprise est requis !");
 
-      if (!titre || !entreprise) {
-        alert("Erreur: Titre et Entreprise requis.");
-        return;
-      }
+        showModal('🧠 Neural Engine', 'Analyse du contexte...', 0);
 
-      openModal();
-      updateModalProgress(5, "Validation des données...");
+        // Simulation de progression visuelle
+        let p = 0;
+        const t = setInterval(() => { if(p<90) updateModalProgress(++p, 'Rédaction...'); }, 100);
 
-      btn.disabled = true;
-      btn.textContent = "⏳ GÉNÉRATION EN COURS...";
-      statusMain.textContent = "Initialisation...";
-      progressFill.style.width = '10%';
-      resultLinks.style.display = 'none';
-
-      const data = {
-        titre,
-        thematique: document.getElementById('f_thematique').value,
-        entrepriseNom: entreprise,
-        codeProjet: document.getElementById('f_codeProjet').value,
-        dateDebut: document.getElementById('f_dateDebut').value,
-        nbEquipes: document.getElementById('f_nbEquipes').value,
-        dureeSemaines: document.getElementById('f_dureeSemaines').value,
-        entrepriseLogo: document.getElementById('f_entrepriseLogo').value,
-        entrepriseAdresse: document.getElementById('f_entrepriseAdresse').value,
-        clientNom: document.getElementById('f_clientNom').value,
-        clientFonction: document.getElementById('f_clientFonction').value,
-        clientEmail: document.getElementById('f_clientEmail').value,
-        ia_histoire: document.getElementById('f_ia_histoire').value,
-        ia_lieux: document.getElementById('f_ia_lieux').value,
-        ia_probleme: document.getElementById('f_ia_probleme').value,
-        ia_solution: document.getElementById('f_ia_solution').value,
-        ia_objectifs: document.getElementById('f_ia_objectifs').value,
-        contexte: document.getElementById('f_contexte').value,
-        demarche: document.getElementById('f_demarche').value,
-        phases: document.getElementById('f_phases').value,
-        phrase: document.getElementById('f_phrase').value
-      };
-
-      if (selectedFiles.length > 0) {
-        statusMain.textContent = "Upload...";
-        updateModalProgress(15, "Traitement des fichiers...");
         try {
-          data.attachments = await Promise.all(selectedFiles.map(readFile));
-        } catch (e) {
-          showModal('Erreur', "Erreur lecture fichier.", 100);
-          btn.disabled = false;
-          return;
+            const data = {
+                entrepriseNom: entreprise,
+                titre: document.getElementById('f_titre').value,
+                thematique: document.getElementById('f_thematique').value,
+                ia_histoire: document.getElementById('f_ia_histoire').value,
+                ia_lieux: document.getElementById('f_ia_lieux').value,
+                ia_probleme: document.getElementById('f_ia_probleme').value,
+                ia_solution: document.getElementById('f_ia_solution').value,
+                ia_objectifs: document.getElementById('f_ia_objectifs').value,
+                dureeSemaines: document.getElementById('f_dureeSemaines').value
+            };
+
+            if (selectedFiles.length > 0) {
+                data.attachments = await Promise.all(selectedFiles.map(readFile));
+            }
+
+            // Appel réel au serveur
+            const response = await callApi('/api/proposal/preview', data);
+
+            clearInterval(t);
+            updateModalProgress(100, 'Terminé !');
+            setTimeout(() => {
+                hideModal();
+                if(response.aiSections) openPreviewModal(response.aiSections);
+            }, 500);
+
+        } catch (err) {
+            clearInterval(t);
+            showModal('Erreur', err.message, 100);
         }
-      }
-
-      statusMain.textContent = "Génération Document...";
-      updateModalProgress(30, "Création Google Doc...");
-
-      // Simulation visuelle
-      let p = 40;
-      const interval = setInterval(() => {
-        if(p < 90) {
-          p++;
-          progressFill.style.width = p+'%';
-          updateModalProgress(p, "Export PDF & Finalisation...");
-        }
-      }, 300);
-
-      try {
-        // REMPLACEMENT DE GOOGLE.SCRIPT.RUN
-        const res = await callApi('/api/proposal/generate', data);
-
-        clearInterval(interval);
-        progressFill.style.width = '100%';
-        updateModalProgress(100, "Terminé !");
-        btn.disabled = false;
-        btn.textContent = "✨ GÉNÉRER LA PROPALE";
-
-        statusMain.textContent = "Succès !";
-        statusMain.style.color = "#00ff99";
-
-        document.getElementById('docLink').href = res.documents.docx.url;
-        if(res.documents.pdf) document.getElementById('pdfLink').href = res.documents.pdf.url;
-        resultLinks.style.display = 'grid';
-
-        document.getElementById('modalDocLink').href = res.documents.docx.url;
-        if(res.documents.pdf) document.getElementById('modalPdfLink').href = res.documents.pdf.url;
-        setModalState('success');
-
-      } catch (err) {
-        clearInterval(interval);
-        progressFill.style.background = "red";
-        btn.disabled = false;
-        statusMain.textContent = "Erreur";
-        document.getElementById('modalErrorText').textContent = err.message;
-        setModalState('error');
-      }
     });
 
-    // --- PRÉ-GÉNÉRATION (PREVIEW) ---
-    document.getElementById('btnPreview').addEventListener('click', async () => {
-      const entreprise = document.getElementById('f_entrepriseNom').value;
+    // --- BOUTON : GÉNÉRER LE DOCUMENT ---
+    document.getElementById('btnGenerate').addEventListener('click', async () => {
+        const btn = document.getElementById('btnGenerate');
+        if (!document.getElementById('f_entrepriseNom').value) return alert("L'entreprise est manquante");
 
-      if (!entreprise) {
-        alert("Erreur: Le nom de l'entreprise est requis pour l'IA.");
-        return;
-      }
+        openModal();
+        updateModalProgress(10, "Initialisation...");
+        btn.disabled = true;
 
-      showModal('🧠 Neural Engine', 'Analyse du contexte et rédaction...', 0);
-
-      let progress = 0;
-      const timer = setInterval(() => {
-        if (progress < 90) {
-          progress += 0.45;
-          updateModalProgress(Math.min(90, Math.round(progress)), 'Analyse du contexte et rédaction...');
-        }
-      }, 200);
-
-      const data = {
-        titre: document.getElementById('f_titre').value,
-        thematique: document.getElementById('f_thematique').value,
-        entrepriseNom: entreprise,
-        ia_histoire: document.getElementById('f_ia_histoire').value,
-        ia_lieux: document.getElementById('f_ia_lieux').value,
-        ia_probleme: document.getElementById('f_ia_probleme').value,
-        ia_solution: document.getElementById('f_ia_solution').value,
-        ia_objectifs: document.getElementById('f_ia_objectifs').value,
-        dureeSemaines: document.getElementById('f_dureeSemaines').value
-      };
-
-      if (selectedFiles.length > 0) {
         try {
-          data.attachments = await Promise.all(selectedFiles.map(readFile));
-        } catch (e) {
-          clearInterval(timer);
-          showModal('Erreur', "Erreur lecture fichier.", 100);
-          return;
+            const data = {
+                // Récupération de tous les champs
+                titre: document.getElementById('f_titre').value,
+                thematique: document.getElementById('f_thematique').value,
+                entrepriseNom: document.getElementById('f_entrepriseNom').value,
+                codeProjet: document.getElementById('f_codeProjet').value,
+                dateDebut: document.getElementById('f_dateDebut').value,
+                nbEquipes: document.getElementById('f_nbEquipes').value,
+                dureeSemaines: document.getElementById('f_dureeSemaines').value,
+                entrepriseLogo: document.getElementById('f_entrepriseLogo').value,
+                entrepriseAdresse: document.getElementById('f_entrepriseAdresse').value,
+                clientNom: document.getElementById('f_clientNom').value,
+                clientFonction: document.getElementById('f_clientFonction').value,
+                clientEmail: document.getElementById('f_clientEmail').value,
+                contexte: document.getElementById('f_contexte').value,
+                demarche: document.getElementById('f_demarche').value,
+                phases: document.getElementById('f_phases').value,
+                phrase: document.getElementById('f_phrase').value
+            };
+
+            updateModalProgress(50, "Génération...");
+            const response = await callApi('/api/proposal/generate', data);
+
+            updateModalProgress(100, "Succès !");
+            btn.disabled = false;
+            setModalState('success');
+
+            // Affichage des liens
+            document.getElementById('resultLinks').style.display = 'grid';
+            if(response.documents.docx) {
+                document.getElementById('docLink').href = response.documents.docx.url;
+                document.getElementById('modalDocLink').href = response.documents.docx.url;
+            }
+            if(response.documents.pdf) {
+                document.getElementById('pdfLink').href = response.documents.pdf.url;
+                document.getElementById('modalPdfLink').href = response.documents.pdf.url;
+            }
+
+        } catch (err) {
+            btn.disabled = false;
+            document.getElementById('modalErrorText').textContent = err.message;
+            setModalState('error');
         }
-      }
-
-      try {
-        // REMPLACEMENT DE GOOGLE.SCRIPT.RUN
-        const res = await callApi('/api/proposal/preview', data);
-
-        clearInterval(timer);
-        showModal('Terminé', 'Génération réussie !', 100);
-        setTimeout(() => {
-          hideModal();
-          openPreviewModal(res.aiSections);
-        }, 500);
-
-      } catch (err) {
-        clearInterval(timer);
-        showModal('Erreur', err.message, 100);
-      }
     });
 
   </script>
