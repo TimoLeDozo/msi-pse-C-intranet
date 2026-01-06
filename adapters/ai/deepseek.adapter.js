@@ -76,8 +76,21 @@ class DeepSeekAdapter {
         durationMs: Date.now() - startTime
       };
     } catch (error) {
+      // Amélioration de la gestion d'erreur pour diagnostiquer les problèmes 401
+      if (error?.response?.status === 401) {
+        const apiErr = error?.response?.data ? JSON.stringify(error.response.data) : 'Unauthorized';
+        const hasApiKey = !!this.apiKey;
+        const apiKeyPrefix = this.apiKey ? this.apiKey.substring(0, 7) + '...' : 'MANQUANTE';
+        throw new Error(
+          `DeepSeekAdapter 401 Unauthorized: ${apiErr}. ` +
+          `Clé API: ${apiKeyPrefix} (présente: ${hasApiKey}). ` +
+          `Vérifiez que DEEPSEEK_API_KEY est définie dans .env et qu'elle est valide.`
+        );
+      }
+      
       const apiErr = error?.response?.data ? JSON.stringify(error.response.data) : null;
-      throw new Error(`DeepSeekAdapter error: ${apiErr || error.message}`);
+      const statusCode = error?.response?.status ? ` (HTTP ${error.response.status})` : '';
+      throw new Error(`DeepSeekAdapter error${statusCode}: ${apiErr || error.message}`);
     }
   }
 

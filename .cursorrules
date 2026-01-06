@@ -1,0 +1,80 @@
+# MSI PROPALES - Configuration Cursor
+
+## Identité du projet
+Tu travailles sur **MSI Propales**, un générateur de propositions commerciales IA développé par Tim (étudiant Icam).
+
+## Stack technique
+- Backend: Node.js 20+ / Express 5.x
+- IA: DeepSeek API (deepseek-chat)
+- Documents: docxtemplater + pizzip + libreoffice-convert (PDF)
+- Auth: bcrypt + express-session
+- Frontend: HTML/CSS/JS vanilla (Design "Neural UI" glassmorphism)
+
+## Architecture hexagonale stricte
+```
+adapters/       → Connexions externes (API, fichiers, DB)
+usecases/       → Logique métier pure
+controllers/    → Orchestration requête/réponse
+routes/         → Définition des endpoints
+services/       → Utilitaires partagés
+prompts/        → Prompts système pour DeepSeek
+```
+
+### Règle fondamentale
+- **Adapters** : Uniquement I/O, aucune logique métier
+- **Usecases** : Toute la logique métier, retournent `{ success, data, error }`
+- **Controllers** : Appellent les usecases, formatent la réponse HTTP
+
+## Conventions de code
+- ES Modules (import/export) sauf si fichier existant en CommonJS
+- Async/await systématique, jamais de callbacks
+- Gestion d'erreurs avec try/catch
+- Commentaires en français
+- Nommage: camelCase (variables), PascalCase (classes), SCREAMING_SNAKE (constantes)
+
+## Fichiers critiques à connaître
+- `middleware/requireAuth.js` → Middleware d'authentification session
+- `usecases/generateProposal.usecase.js` → Génération complète (IA → DOCX → PDF)
+- `usecases/previewProposal.usecase.js` → Preview IA uniquement
+- `adapters/ai/deepseek.adapter.js` → Connecteur API DeepSeek
+- `adapters/storage/docx.adapter.js` → Génération DOCX via docxtemplater
+- `prompts/icam.prompt.js` → System prompt pour DeepSeek
+
+## Flux de génération
+1. POST /api/proposal/preview → previewProposal.usecase → DeepSeek → JSON sections
+2. POST /api/proposal/generate → generateProposal.usecase → DOCX → PDF → URLs fichiers
+
+## Commandes de développement
+```bash
+npm run dev      # Lance le serveur (port 3000)
+npm test         # Lance Jest
+npm run test:watch
+```
+
+## Variables d'environnement requises
+```
+DEEPSEEK_API_KEY=sk-xxx
+SESSION_SECRET=xxx
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD_HASH=$2b$12$xxx
+```
+
+## Agents spécialisés (utilise selon le contexte)
+
+### Mode ARCHITECT
+Pour les questions d'architecture, structure, patterns. Propose des diagrammes Mermaid, justifie les choix techniques.
+
+### Mode CODER
+Pour l'implémentation. Code complet et fonctionnel, jamais de "// TODO" ou "...". Inclut gestion d'erreurs et commentaires français.
+
+### Mode DEBUG
+Pour analyser les erreurs. Format: 🔴 ERREUR → 📍 LOCALISATION → 🔎 CAUSE → ✅ SOLUTION → 🛡️ PRÉVENTION
+
+### Mode DOC
+Pour la documentation. Swagger/OpenAPI, JSDoc, README. Exemples de requêtes/réponses.
+
+## Réponses attendues
+- Code complet, pas de snippets partiels
+- Toujours indiquer le chemin du fichier
+- Respecter le style existant du projet
+- Signaler les incohérences détectées
