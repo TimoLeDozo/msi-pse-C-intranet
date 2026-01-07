@@ -1,80 +1,135 @@
-# MSI PROPALES - Configuration Cursor
+# ═══════════════════════════════════════════════════════════════
+# MSI PROPALES - Configuration Cursor + BMAD + Swagger
+# ═══════════════════════════════════════════════════════════════
 
-## Identité du projet
-Tu travailles sur **MSI Propales**, un générateur de propositions commerciales IA développé par Tim (étudiant Icam).
+## IDENTITÉ PROJET
+**MSI Propales** - Générateur de propositions commerciales IA
+Développé par Tim (Icam) | Deadline : Jury MSI
 
-## Stack technique
+## STACK
 - Backend: Node.js 20+ / Express 5.x
 - IA: DeepSeek API (deepseek-chat)
-- Documents: docxtemplater + pizzip + libreoffice-convert (PDF)
+- Documents: docxtemplater + pizzip + libreoffice-convert
 - Auth: bcrypt + express-session
-- Frontend: HTML/CSS/JS vanilla (Design "Neural UI" glassmorphism)
+- Frontend: HTML/CSS/JS vanilla (Neural UI)
 
-## Architecture hexagonale stricte
+## ARCHITECTURE HEXAGONALE
 ```
-adapters/       → Connexions externes (API, fichiers, DB)
-usecases/       → Logique métier pure
-controllers/    → Orchestration requête/réponse
-routes/         → Définition des endpoints
-services/       → Utilitaires partagés
-prompts/        → Prompts système pour DeepSeek
-```
-
-### Règle fondamentale
-- **Adapters** : Uniquement I/O, aucune logique métier
-- **Usecases** : Toute la logique métier, retournent `{ success, data, error }`
-- **Controllers** : Appellent les usecases, formatent la réponse HTTP
-
-## Conventions de code
-- ES Modules (import/export) sauf si fichier existant en CommonJS
-- Async/await systématique, jamais de callbacks
-- Gestion d'erreurs avec try/catch
-- Commentaires en français
-- Nommage: camelCase (variables), PascalCase (classes), SCREAMING_SNAKE (constantes)
-
-## Fichiers critiques à connaître
-- `middleware/requireAuth.js` → Middleware d'authentification session
-- `usecases/generateProposal.usecase.js` → Génération complète (IA → DOCX → PDF)
-- `usecases/previewProposal.usecase.js` → Preview IA uniquement
-- `adapters/ai/deepseek.adapter.js` → Connecteur API DeepSeek
-- `adapters/storage/docx.adapter.js` → Génération DOCX via docxtemplater
-- `prompts/icam.prompt.js` → System prompt pour DeepSeek
-
-## Flux de génération
-1. POST /api/proposal/preview → previewProposal.usecase → DeepSeek → JSON sections
-2. POST /api/proposal/generate → generateProposal.usecase → DOCX → PDF → URLs fichiers
-
-## Commandes de développement
-```bash
-npm run dev      # Lance le serveur (port 3000)
-npm test         # Lance Jest
-npm run test:watch
+adapters/    → I/O uniquement (API, fichiers)
+usecases/    → Logique métier pure
+controllers/ → Orchestration HTTP
+routes/      → Définition endpoints
+services/    → Utilitaires partagés
+prompts/     → Prompts DeepSeek
 ```
 
-## Variables d'environnement requises
+# ═══════════════════════════════════════════════════════════════
+# PROTOCOLE BMAD (Brainstorm → Manage → Architect → Develop)
+# ═══════════════════════════════════════════════════════════════
+
+## Commandes BMAD
+
+| Commande | Phase | Action |
+|----------|-------|--------|
+| `[BMAD:1]` | Analyst | Explorer une idée → BRAINSTORM.md |
+| `[BMAD:2]` | PM | Structurer en Epics/Stories → PRD.md |
+| `[BMAD:3]` | Architect | Définir la technique → ARCHITECTURE.md |
+| `[BMAD:4]` | Developer | Implémenter UNE Story → Code + Tests |
+
+## Règles BMAD
+1. **Une phase à la fois** - Ne jamais mélanger
+2. **Output = fichier .md** - Toujours générer un artefact
+3. **Reset entre phases** - Recharger le .md, pas la mémoire
+4. **Story par Story** - En phase 4, une seule User Story à la fois
+
+## Pour projet existant (MSI Propales)
+- Sauter phases 1-2 si feature simple
+- Utiliser `[BMAD:3]` pour définir l'architecture d'une nouvelle feature
+- Utiliser `[BMAD:4]` pour implémenter
+
+# ═══════════════════════════════════════════════════════════════
+# AGENTS SPÉCIALISÉS
+# ═══════════════════════════════════════════════════════════════
+
+## `[AGENT:ARCHITECT]`
+Vision & Structure. Diagrammes Mermaid, justification technique.
+Output: ARCHITECTURE.md ou réponse structurée.
+
+## `[AGENT:CODER]`
+Implémentation. Code COMPLET, jamais de "// TODO".
+ES Modules, async/await, try/catch, commentaires français.
+
+## `[AGENT:DEBUG]`
+Format: 🔴 ERREUR → 📍 LOCALISATION → 🔎 CAUSE → ✅ SOLUTION → 🛡️ PRÉVENTION
+
+## `[AGENT:DOC]`
+Documentation Swagger, JSDoc, README.
+Exemples requêtes/réponses obligatoires.
+
+## `[AGENT:TEST]`
+Tests Jest + Supertest. Mocks pour APIs externes.
+Coverage > 70%.
+
+# ═══════════════════════════════════════════════════════════════
+# DOCUMENTATION SWAGGER
+# ═══════════════════════════════════════════════════════════════
+
+## Commandes Swagger
+
+| Commande | Action |
+|----------|--------|
+| `[DOC:swagger-setup]` | Configurer Swagger complet |
+| `[DOC:endpoint:XXX]` | Documenter l'endpoint XXX |
+| `[DOC:schema:XXX]` | Créer le schéma OpenAPI XXX |
+| `[DOC:swagger-sync]` | Synchroniser doc avec le code |
+
+## Format JSDoc Swagger
+```javascript
+/**
+ * @swagger
+ * /api/xxx:
+ *   post:
+ *     summary: Description courte
+ *     tags: [TagName]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/SchemaName'
+ *     responses:
+ *       200:
+ *         description: Succès
+ */
 ```
-DEEPSEEK_API_KEY=sk-xxx
-SESSION_SECRET=xxx
-ADMIN_USERNAME=admin
-ADMIN_PASSWORD_HASH=$2b$12$xxx
-```
 
-## Agents spécialisés (utilise selon le contexte)
+# ═══════════════════════════════════════════════════════════════
+# COMMANDES RAPIDES
+# ═══════════════════════════════════════════════════════════════
 
-### Mode ARCHITECT
-Pour les questions d'architecture, structure, patterns. Propose des diagrammes Mermaid, justifie les choix techniques.
+| Commande | Action |
+|----------|--------|
+| `[STATUS]` | Diagnostic complet du projet |
+| `[FIX:fichier]` | Corriger le fichier spécifié |
+| `[IMPL:feature]` | Implémenter la feature |
+| `[TEST:fichier]` | Générer les tests pour le fichier |
 
-### Mode CODER
-Pour l'implémentation. Code complet et fonctionnel, jamais de "// TODO" ou "...". Inclut gestion d'erreurs et commentaires français.
+# ═══════════════════════════════════════════════════════════════
+# CONVENTIONS
+# ═══════════════════════════════════════════════════════════════
 
-### Mode DEBUG
-Pour analyser les erreurs. Format: 🔴 ERREUR → 📍 LOCALISATION → 🔎 CAUSE → ✅ SOLUTION → 🛡️ PRÉVENTION
-
-### Mode DOC
-Pour la documentation. Swagger/OpenAPI, JSDoc, README. Exemples de requêtes/réponses.
-
-## Réponses attendues
-- Code complet, pas de snippets partiels
+- Code complet, jamais de snippets partiels
 - Toujours indiquer le chemin du fichier
-- Respecter le style existant du projet
+- Commentaires en français
+- Respecter le style existant
 - Signaler les incohérences détectées
+
+# ═══════════════════════════════════════════════════════════════
+# FICHIERS CRITIQUES
+# ═══════════════════════════════════════════════════════════════
+
+- `middleware/requireAuth.js` → Auth session
+- `usecases/generateProposal.usecase.js` → Cœur métier
+- `usecases/previewProposal.usecase.js` → Preview IA
+- `adapters/ai/deepseek.adapter.js` → Connecteur IA
+- `config/swagger.config.js` → Config Swagger

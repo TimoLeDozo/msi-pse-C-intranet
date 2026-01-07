@@ -57,3 +57,53 @@ module.exports = app;
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`http://localhost:${PORT}`));
+
+// === SWAGGER ===
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpec = require('./config/swagger.config');
+
+// Documentation API - accessible sans auth pour le jury
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+  customCss: '.swagger-ui .topbar { display: none }',
+  customSiteTitle: 'MSI Propales API'
+}));
+
+// Endpoint JSON OpenAPI (pour Postman, etc.)
+app.get('/api-docs.json', (req, res) => {
+  res.setHeader('Content-Type', 'application/json');
+  res.send(swaggerSpec);
+});
+
+/**
+ * @swagger
+ * /files/{filename}:
+ *   get:
+ *     summary: Télécharger un document généré
+ *     tags: [Files]
+ *     security:
+ *       - sessionAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: filename
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Nom du fichier (ex: propale_1704067200000.docx)
+ *     responses:
+ *       200:
+ *         description: Fichier téléchargé
+ *         content:
+ *           application/vnd.openxmlformats-officedocument.wordprocessingml.document:
+ *             schema:
+ *               type: string
+ *               format: binary
+ *           application/pdf:
+ *             schema:
+ *               type: string
+ *               format: binary
+ *       404:
+ *         description: Fichier non trouvé
+ *       401:
+ *         description: Non authentifié
+ */
+

@@ -122,7 +122,7 @@ describe('previewProposal.usecase', () => {
       const proposalDraft = { titre: '' };
       const validationError = new Error('Validation failed: titre is required');
 
-      validationService.validateProposalDraft.mockImplementation(() => {
+      validationService.validateProposalDraft.mockImplementationOnce(() => {
         throw validationError;
       });
 
