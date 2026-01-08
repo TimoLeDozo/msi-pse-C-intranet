@@ -104,6 +104,7 @@
       margin-bottom: 24px;
       background: linear-gradient(135deg, #ffffff 0%, #a5a5a5 100%);
       -webkit-background-clip: text;
+      background-clip: text;
       -webkit-text-fill-color: transparent;
       letter-spacing: -0.02em;
     }
@@ -258,6 +259,108 @@
       box-shadow: 0 0 0 3px rgba(0, 255, 255, 0.25); background: rgba(12, 12, 12, 0.9);
     }
 
+    /* --- VALIDATION STYLES --- */
+    input.invalid, textarea.invalid {
+      border-color: rgba(255, 107, 107, 0.8) !important;
+      box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.25) !important;
+      animation: shake 0.4s ease;
+    }
+    input.valid, textarea.valid {
+      border-color: rgba(0, 255, 153, 0.6);
+    }
+    .validation-error {
+      color: #ff6b6b;
+      font-size: 0.78rem;
+      margin-top: 6px;
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+    .validation-error.visible {
+      display: block;
+    }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-6px); }
+      40%, 80% { transform: translateX(6px); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .field label .required-star {
+      color: #ff6b6b;
+      margin-left: 2px;
+    }
+
+    /* --- TOOLTIPS --- */
+    .tooltip-wrapper {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .tooltip-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: rgba(0, 255, 255, 0.15);
+      color: #00ffff;
+      font-size: 0.7rem;
+      font-weight: 700;
+      cursor: help;
+      transition: all 0.2s ease;
+      border: 1px solid rgba(0, 255, 255, 0.3);
+    }
+    .tooltip-icon:hover {
+      background: rgba(0, 255, 255, 0.3);
+      transform: scale(1.1);
+    }
+    .tooltip-content {
+      position: absolute;
+      bottom: calc(100% + 10px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(15, 15, 20, 0.98);
+      border: 1px solid rgba(0, 255, 255, 0.3);
+      border-radius: 12px;
+      padding: 12px 16px;
+      min-width: 250px;
+      max-width: 320px;
+      font-size: 0.82rem;
+      color: rgba(255, 255, 255, 0.9);
+      line-height: 1.5;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.25s ease;
+      z-index: 100;
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.5);
+      pointer-events: none;
+    }
+    .tooltip-content::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 8px solid transparent;
+      border-top-color: rgba(0, 255, 255, 0.3);
+    }
+    .tooltip-icon:hover + .tooltip-content,
+    .tooltip-content:hover {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
+    .tooltip-title {
+      font-weight: 600;
+      color: #00ffff;
+      margin-bottom: 6px;
+      font-size: 0.85rem;
+    }
+
     /* --- BOUTONS DICTER --- */
     .dictation-button {
       display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px;
@@ -304,8 +407,47 @@
       display: inline-flex; align-items: center; gap: 10px;
       box-shadow: 0 22px 50px rgba(0, 0, 0, 0.55);
     }
-    #btnPreview:hover { filter: brightness(1.1); transform: translateY(-5px); box-shadow: 0 32px 60px rgba(0, 0, 0, 0.6); }
+    #btnPreview:hover:not(.loading) { filter: brightness(1.1); transform: translateY(-5px); box-shadow: 0 32px 60px rgba(0, 0, 0, 0.6); }
 
+    /* --- BUTTON LOADING STATES --- */
+    .btn-loading {
+      position: relative;
+      pointer-events: none;
+      opacity: 0.85;
+    }
+    .btn-loading::after {
+      content: '';
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      border: 3px solid transparent;
+      border-top-color: currentColor;
+      border-radius: 50%;
+      animation: btnSpin 0.8s linear infinite;
+      right: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+    .btn-loading.loading {
+      background: linear-gradient(135deg, #666 0%, #444 100%);
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+    @keyframes btnSpin {
+      to { transform: translateY(-50%) rotate(360deg); }
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 0.85; }
+      50% { opacity: 0.95; }
+    }
+    .btn-success {
+      background: linear-gradient(135deg, #00ff88 0%, #00cc66 100%) !important;
+      animation: successPop 0.4s ease;
+    }
+    @keyframes successPop {
+      0% { transform: scale(0.95); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
 
     /* --- SIDEBAR INSIGHTS --- */
     .insights-panel {
@@ -493,28 +635,29 @@
               <div class="panel-title">📋 Informations projet</div>
               <div class="form-grid">
                 <div class="field grid-span-2">
-                  <label for="f_titre">TITRE *</label>
-                  <input type="text" id="f_titre" placeholder="Optimisation flux entrepôt" required>
+                  <label for="f_titre">TITRE <span class="required-star">*</span></label>
+                  <input type="text" id="f_titre" name="titre" placeholder="Optimisation flux entrepôt" required>
+                  <div class="validation-error" id="error-f_titre">Le titre du projet est requis</div>
                 </div>
                 <div class="field grid-span-2">
                   <label for="f_thematique">THÉMATIQUE</label>
-                  <input type="text" id="f_thematique" placeholder="Ex: Logistique, Développement web, Mécanique..." >
+                  <input type="text" id="f_thematique" name="thematique" placeholder="Ex: Logistique, Développement web, Mécanique..." >
                 </div>
                 <div class="field">
                   <label for="f_codeProjet">CODE PROJET</label>
-                  <input type="text" id="f_codeProjet" placeholder="144-16">
+                  <input type="text" id="f_codeProjet" name="codeProjet" placeholder="144-16">
                 </div>
                 <div class="field">
                   <label for="f_dateDebut">DATE DÉBUT</label>
-                  <input type="date" id="f_dateDebut">
+                  <input type="date" id="f_dateDebut" name="dateDebut">
                 </div>
                 <div class="field">
                   <label for="f_nbEquipes">NB. ÉQUIPES</label>
-                  <input type="number" id="f_nbEquipes" value="1">
+                  <input type="number" id="f_nbEquipes" name="nbEquipes" value="1">
                 </div>
                 <div class="field">
                   <label for="f_dureeSemaines">DURÉE (SEMAINES)</label>
-                  <input type="number" id="f_dureeSemaines" value="24">
+                  <input type="number" id="f_dureeSemaines" name="dureeSemaines" value="24">
                 </div>
               </div>
             </div>
@@ -523,28 +666,29 @@
               <div class="panel-title">🏢 Entreprise & Contexte</div>
               <div class="form-grid">
                 <div class="field">
-                  <label for="f_entrepriseNom">ENTREPRISE *</label>
-                  <input type="text" id="f_entrepriseNom" placeholder="Velibor SA">
+                  <label for="f_entrepriseNom">ENTREPRISE <span class="required-star">*</span></label>
+                  <input type="text" id="f_entrepriseNom" name="entrepriseNom" placeholder="Velibor SA" required>
+                  <div class="validation-error" id="error-f_entrepriseNom">Le nom de l'entreprise est requis</div>
                 </div>
                 <div class="field">
                   <label for="f_entrepriseAdresse">ADRESSE</label>
-                  <input type="text" id="f_entrepriseAdresse" placeholder="49 bis rue Sedaine, 75011 Paris">
+                  <input type="text" id="f_entrepriseAdresse" name="entrepriseAdresse" placeholder="49 bis rue Sedaine, 75011 Paris">
                 </div>
                 <div class="field">
                   <label for="f_entrepriseLogo">LOGO URL (MAPPED #D9D9D9)</label>
-                  <input type="text" id="f_entrepriseLogo" placeholder="https://exemple.com/logo.png">
+                  <input type="text" id="f_entrepriseLogo" name="entrepriseLogo" placeholder="https://exemple.com/logo.png">
                 </div>
                 <div class="field">
                   <label for="f_clientNom">NOM CONTACT</label>
-                  <input type="text" id="f_clientNom" placeholder="Jean Dupont">
+                  <input type="text" id="f_clientNom" name="clientNom" placeholder="Jean Dupont">
                 </div>
                 <div class="field">
                   <label for="f_clientFonction">FONCTION</label>
-                  <input type="text" id="f_clientFonction" placeholder="Directeur Technique">
+                  <input type="text" id="f_clientFonction" name="clientFonction" placeholder="Directeur Technique">
                 </div>
                 <div class="field">
                   <label for="f_clientEmail">EMAIL</label>
-                  <input type="text" id="f_clientEmail" placeholder="jean@exemple.com">
+                  <input type="text" id="f_clientEmail" name="clientEmail" placeholder="jean@exemple.com">
                 </div>
                 
                 <div class="field grid-span-2">
@@ -555,7 +699,7 @@
                       <span class="dict-status" id="status-f_ia_histoire"></span>
                     </div>
                   </div>
-                  <textarea id="f_ia_histoire" rows="2" placeholder="Ex: PME familiale créée en 1970, savoir-faire artisanal..."></textarea>
+                  <textarea id="f_ia_histoire" name="ia_histoire" rows="2" placeholder="Ex: PME familiale créée en 1970, savoir-faire artisanal..."></textarea>
                 </div>
                 <div class="field grid-span-2">
                   <div class="field-header">
@@ -565,7 +709,7 @@
                       <span class="dict-status" id="status-f_ia_lieux"></span>
                     </div>
                   </div>
-                  <input type="text" id="f_ia_lieux" placeholder="Ex: Déménagement de Brie-Comte-Robert à Moissy">
+                  <input type="text" id="f_ia_lieux" name="ia_lieux" placeholder="Ex: Déménagement de Brie-Comte-Robert à Moissy">
                 </div>
               </div>
             </div>
@@ -575,33 +719,58 @@
               <div class="form-grid">
                 <div class="field grid-span-2">
                   <div class="field-header">
-                    <label>PROBLÈME PRINCIPAL *</label>
+                    <label class="tooltip-wrapper">
+                      PROBLÈME PRINCIPAL <span class="required-star">*</span>
+                      <span class="tooltip-icon">?</span>
+                      <div class="tooltip-content">
+                        <div class="tooltip-title">💡 Conseil pour l'IA</div>
+                        Décrivez les difficultés rencontrées par l'entreprise. Plus vous êtes précis, plus l'IA génèrera un contenu pertinent.
+                        <br><em>Ex: "Retards de livraison de 15%, traçabilité insuffisante des colis"</em>
+                      </div>
+                    </label>
                     <div class="field-actions">
                       <button type="button" class="dictation-button" data-target="f_ia_probleme">🎙️ DICTER</button>
                       <span class="dict-status" id="status-f_ia_probleme">PRÊT.</span>
                     </div>
                   </div>
-                  <textarea id="f_ia_probleme" placeholder="Retards de livraison, manque de traçabilité..."></textarea>
+                  <textarea id="f_ia_probleme" name="ia_probleme" placeholder="Retards de livraison, manque de traçabilité..." required></textarea>
+                  <div class="validation-error" id="error-f_ia_probleme">Décrivez le problème principal à résoudre</div>
                 </div>
                 <div class="field grid-span-2">
                   <div class="field-header">
-                    <label>SOLUTION PROPOSÉE</label>
+                    <label class="tooltip-wrapper">
+                      SOLUTION PROPOSÉE
+                      <span class="tooltip-icon">?</span>
+                      <div class="tooltip-content">
+                        <div class="tooltip-title">🛠️ Méthodologies suggérées</div>
+                        Indiquez les outils ou méthodes Lean/5S que vous proposez. L'IA les intégrera à la proposition.
+                        <br><em>Ex: "WMS, 5S, formation opérateurs, VSM"</em>
+                      </div>
+                    </label>
                     <div class="field-actions">
                       <button type="button" class="dictation-button" data-target="f_ia_solution">🎙️ DICTER</button>
                       <span class="dict-status" id="status-f_ia_solution">PRÊT.</span>
                     </div>
                   </div>
-                  <textarea id="f_ia_solution" placeholder="5S, outil de tracking, formation équipes..."></textarea>
+                  <textarea id="f_ia_solution" name="ia_solution" placeholder="5S, outil de tracking, formation équipes..."></textarea>
                 </div>
                 <div class="field grid-span-2">
                   <div class="field-header">
-                    <label>OBJECTIFS CLÉS</label>
+                    <label class="tooltip-wrapper">
+                      OBJECTIFS CLÉS
+                      <span class="tooltip-icon">?</span>
+                      <div class="tooltip-content">
+                        <div class="tooltip-title">🎯 Objectifs SMART</div>
+                        Définissez des objectifs mesurables. L'IA les mettra en valeur dans la proposition.
+                        <br><em>Ex: "Réduire de 20% les temps de préparation d'ici 3 mois"</em>
+                      </div>
+                    </label>
                     <div class="field-actions">
                       <button type="button" class="dictation-button" data-target="f_ia_objectifs">🎙️ DICTER</button>
                       <span class="dict-status" id="status-f_ia_objectifs">PRÊT.</span>
                     </div>
                   </div>
-                  <textarea id="f_ia_objectifs" placeholder="Réduire de 20% les temps de préparation, etc."></textarea>
+                  <textarea id="f_ia_objectifs" name="ia_objectifs" placeholder="Réduire de 20% les temps de préparation, etc."></textarea>
                 </div>
               </div>
             </div>
@@ -620,7 +789,7 @@
                       <span class="dict-status" id="status-f_contexte">PRÊT.</span>
                     </div>
                   </div>
-                  <textarea id="f_contexte" placeholder="(Généré / Édition manuelle possible)"></textarea>
+                  <textarea id="f_contexte" name="contexte" placeholder="(Généré / Édition manuelle possible)"></textarea>
                 </div>
                 <div class="field grid-span-2">
                   <div class="field-header">
@@ -630,7 +799,7 @@
                       <span class="dict-status" id="status-f_demarche">PRÊT.</span>
                     </div>
                   </div>
-                  <textarea id="f_demarche" placeholder="(Généré / Édition manuelle possible)"></textarea>
+                  <textarea id="f_demarche" name="demarche" placeholder="(Généré / Édition manuelle possible)"></textarea>
                 </div>
                 <div class="field grid-span-2">
                   <div class="field-header">
@@ -640,7 +809,7 @@
                       <span class="dict-status" id="status-f_phases">PRÊT.</span>
                     </div>
                   </div>
-                  <textarea id="f_phases" placeholder="(Généré / Édition manuelle possible)"></textarea>
+                  <textarea id="f_phases" name="phases" placeholder="(Généré / Édition manuelle possible)"></textarea>
                 </div>
                 <div class="field grid-span-2">
                   <div class="field-header">
@@ -650,7 +819,7 @@
                       <span class="dict-status" id="status-f_phrase">PRÊT.</span>
                     </div>
                   </div>
-                  <textarea id="f_phrase" rows="2" placeholder="(Généré / Édition manuelle possible)"></textarea>
+                  <textarea id="f_phrase" name="phrase" rows="2" placeholder="(Généré / Édition manuelle possible)"></textarea>
                 </div>
               </div>
               
@@ -779,9 +948,13 @@
        <!-- ERROR STATE -->
       <div id="modalError" class="modal-state" style="display: none;">
          <div class="error-icon">⚠️</div>
-         <h3 class="modal-title">Erreur Critique</h3>
-         <p class="modal-desc" id="modalErrorText">Une erreur est survenue.</p>
-         <button id="btnCloseModalError" class="ops-btn-secondary">FERMER</button>
+         <h3 class="modal-title">Une erreur est survenue</h3>
+         <p class="modal-desc" id="modalErrorText">Une erreur est survenue lors de la génération.</p>
+         <p style="color: rgba(255,255,255,0.5); font-size: 0.8rem; margin-bottom: 15px;">Si le problème persiste, vérifiez votre connexion ou contactez le support.</p>
+         <div style="display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;">
+           <button id="btnRetryGeneration" class="ops-btn-primary">🔄 Réessayer</button>
+           <button id="btnCloseModalError" class="ops-btn-secondary">Fermer</button>
+         </div>
       </div>
     </div>
   </div>

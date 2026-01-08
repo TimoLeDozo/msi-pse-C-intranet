@@ -4,20 +4,32 @@ const rateLimit = require("express-rate-limit");
 
 const router = express.Router();
 
+// Rate limiting - désactivé en développement pour les tests E2E
+const isProduction = process.env.NODE_ENV === 'production';
 const loginLimiter = rateLimit({
   windowMs: 10 * 60 * 1000,
-  max: 5,
+  max: isProduction ? 5 : 100, // 5 en prod, 100 en dev/test
   standardHeaders: true,
-  legacyHeaders: false
+  legacyHeaders: false,
+  skip: () => !isProduction // Skip complètement en dev
 });
 
-function getAdminConfig() {
-  const username = process.env.ADMIN_USERNAME;
-  const passwordHash = process.env.ADMIN_PASSWORD_HASH;
-  if (!username || !passwordHash) {
-    throw new Error("ADMIN_USERNAME / ADMIN_PASSWORD_HASH manquants (voir .env.example)");
-  }
-  return { username, passwordHash };
+// Liste des utilisateurs autorisés (chargés depuis .env)
+const users = [
+  { 
+    username: process.env.ADMIN_USERNAME, 
+    hash: process.env.ADMIN_PASSWORD_HASH, 
+    role: "admin" 
+  },
+  { 
+    username: process.env.MSI_USERNAME, 
+    hash: process.env.MSI_PASSWORD_HASH, 
+    role: "msi" 
+  },
+].filter(u => u.username && u.hash);
+
+if (users.length === 0) {
+  console.warn("⚠️  Aucun utilisateur configuré dans .env (voir .env.example)");
 }
 
 router.post("/login", loginLimiter, async (req, res) => {
@@ -27,11 +39,13 @@ router.post("/login", loginLimiter, async (req, res) => {
     return res.status(400).json({ success: false, error: "BAD_REQUEST" });
   }
 
-  const admin = getAdminConfig();
+  // Recherche de l'utilisateur (case-sensitive)
+  const user = users.find(u => u.username === username);
+  if (!user) {
+    return res.status(401).json({ success: false, error: "INVALID_CREDENTIALS" });
+  }
 
-  const okUser = username === admin.username;
-  const okPass = okUser ? await bcrypt.compare(password, admin.passwordHash) : false;
-
+  const okPass = await bcrypt.compare(password, user.hash);
   if (!okPass) {
     return res.status(401).json({ success: false, error: "INVALID_CREDENTIALS" });
   }
@@ -40,7 +54,7 @@ router.post("/login", loginLimiter, async (req, res) => {
   req.session.regenerate((err) => {
     if (err) return res.status(500).json({ success: false, error: "SESSION_ERROR" });
 
-    req.session.user = { username, role: "admin" };
+    req.session.user = { username: user.username, role: user.role };
     return res.json({ success: true, user: req.session.user });
   });
 });

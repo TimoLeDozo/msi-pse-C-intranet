@@ -15,6 +15,7 @@ const proposalRoutes = require("./routes/proposal.routes");
 
 const app = express();
 
+app.use(express.urlencoded({ extended: false }));
 app.use(express.json({ limit: "2mb" }));
 
 app.use(session({
@@ -86,9 +87,9 @@ app.get('/api-docs.json', (req, res) => {
  *       - in: path
  *         name: filename
  *         required: true
+ *         description: "Nom du fichier (ex: propale_1704067200000.docx)"
  *         schema:
  *           type: string
- *         description: Nom du fichier (ex: propale_1704067200000.docx)
  *     responses:
  *       200:
  *         description: Fichier téléchargé

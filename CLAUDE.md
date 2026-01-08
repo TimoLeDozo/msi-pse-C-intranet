@@ -7,6 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 **MSI Propal Generator** (Hypothesis C) - Node.js commercial proposal generation system.
 
 This is a POC-to-production architecture that generates commercial proposals using:
+
 - Structured client brief input
 - AI-powered content generation (DeepSeek)
 - Template-based document generation (DOCX/PDF)
@@ -33,9 +34,10 @@ npm run dev
    - `FILE_BASE_URL`: Base URL for file access
 
 To generate a password hash for ADMIN_PASSWORD_HASH:
+
 ```javascript
-const bcrypt = require('bcrypt');
-bcrypt.hash('your-password', 12).then(console.log);
+const bcrypt = require("bcrypt");
+bcrypt.hash("your-password", 12).then(console.log);
 ```
 
 ## Architecture
@@ -51,6 +53,7 @@ HTTP Request → Routes → Controllers → Use Cases → Adapters
 ```
 
 **Key principles:**
+
 1. **Use Cases** (`usecases/`) contain ALL business logic
 2. **Adapters** (`adapters/`) are pure technical connectors (NO business logic)
 3. **Controllers** (`controllers/`) are thin HTTP adapters that delegate to use cases
@@ -85,6 +88,7 @@ HTTP Request → Routes → Controllers → Use Cases → Adapters
 ### Authentication Flow
 
 Session-based authentication with bcrypt password hashing:
+
 - Public routes: `/login`, `/assets/*`, `/auth/*`
 - Protected routes: `/` (index.html), `/api/proposal/*`
 - Session cookie: `msi.sid` (httpOnly, sameSite: lax, 8h max age)
@@ -94,6 +98,7 @@ Session-based authentication with bcrypt password hashing:
 ### Proposal Generation Flow
 
 1. **Preview** (`POST /api/proposal/preview`):
+
    - Input: `proposalDraft` JSON (client context + project brief)
    - Process: `previewProposal.usecase` → `deepseek.adapter` → `icam.prompt`
    - Output: AI-generated sections (titre, contexte, demarche, phases, phrase)
@@ -134,6 +139,7 @@ Session-based authentication with bcrypt password hashing:
 ### Testing Strategy
 
 When implementing tests:
+
 - Test use cases with mocked adapters (business logic validation)
 - Test adapters in isolation (technical integration validation)
 - Controllers can be tested via supertest (HTTP contract validation)
@@ -148,8 +154,53 @@ When implementing tests:
 ## Migration Context (Hypothesis B → C)
 
 This codebase maintains 100% functional parity with "Hypothesis B" (Google Apps Script version) while providing:
+
 - Clean, testable architecture
 - Portable deployment (no Google Workspace dependency)
 - Production-ready patterns (session auth, rate limiting, error handling)
 
 When comparing with previous implementations, focus on architectural improvements, not functional changes.
+
+---
+
+## 🎯 Roadmap - Finalisation Projet
+
+### Phase 1 - UX Polish ✅
+
+- [x] Tooltips sur les champs IA (Problème, Solution, Objectifs)
+- [x] Améliorer modales d'erreur (retry, message clair)
+
+### Phase 2 - Documentation ✅
+
+- [x] CLAUDE.md nettoyé et à jour
+
+### Phase 3 - Swagger API
+
+- [ ] Valider annotations routes
+- [ ] Tester endpoints via UI
+
+### Phase 4 - GitHub Push
+
+- [ ] Vérifier .gitignore
+- [ ] Commit & Push
+
+### Phase 5 - UI Final
+
+- [ ] Corriger orthographe
+- [ ] Effets boutons/touches
+
+---
+
+## ✅ Problèmes résolus
+
+| Date       | Problème                    | Solution                                           |
+| ---------- | --------------------------- | -------------------------------------------------- |
+| 2026-01-08 | Attributs `name` manquants  | Ajouté sur tous les inputs login + console         |
+| 2026-01-08 | Sélecteurs E2E incorrects   | Corrigés dans `msi-propales.spec.js`               |
+| 2026-01-08 | Playwright sans navigateur  | Installé Chromium via `npx playwright install`     |
+| 2026-01-08 | CSS lint `background-clip`  | Ajouté propriété standard                          |
+| 2026-01-08 | Tests E2E échouaient (8/15) | Rate limiting désactivé en dev + waits robustes    |
+| 2026-01-08 | Validation côté client      | Inline errors, scroll-to-error, real-time feedback |
+| 2026-01-08 | États de loading boutons    | Spinner CSS, classes btn-loading, disabled state   |
+| 2026-01-08 | Tooltips champs IA          | 3 tooltips avec conseils pour l'utilisateur        |
+| 2026-01-08 | Modale erreur basique       | Bouton Réessayer + message d'aide                  |

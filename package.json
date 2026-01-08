@@ -29,6 +29,7 @@
     "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
+    "@playwright/test": "^1.57.0",
     "jest": "^30.2.0"
   }
 }

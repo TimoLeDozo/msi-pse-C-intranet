@@ -289,13 +289,131 @@
     return { ...data, attachments };
   }
 
+  // ---------- Validation Helper ----------
+  const REQUIRED_FIELDS = [
+    { id: 'f_titre', message: 'Le titre du projet est requis' },
+    { id: 'f_entrepriseNom', message: "Le nom de l'entreprise est requis" },
+    { id: 'f_ia_probleme', message: 'Décrivez le problème principal à résoudre' }
+  ];
+
+  function clearValidationErrors() {
+    REQUIRED_FIELDS.forEach(({ id }) => {
+      const field = $(id);
+      const errorEl = $(`error-${id}`);
+      if (field) {
+        field.classList.remove('invalid', 'valid');
+      }
+      if (errorEl) {
+        errorEl.classList.remove('visible');
+      }
+    });
+  }
+
+  function showFieldError(fieldId, message) {
+    const field = $(fieldId);
+    const errorEl = $(`error-${fieldId}`);
+    if (field) {
+      field.classList.add('invalid');
+      field.classList.remove('valid');
+      field.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      field.focus();
+    }
+    if (errorEl) {
+      errorEl.textContent = message;
+      errorEl.classList.add('visible');
+    }
+  }
+
+  function validateForm() {
+    clearValidationErrors();
+    
+    for (const { id, message } of REQUIRED_FIELDS) {
+      const field = $(id);
+      const value = field?.value?.trim();
+      
+      if (!value) {
+        showFieldError(id, message);
+        log(`Validation: ${message}`);
+        return false;
+      } else {
+        field.classList.add('valid');
+      }
+    }
+    
+    return true;
+  }
+
+  // Add real-time validation on blur
+  function setupRealTimeValidation() {
+    REQUIRED_FIELDS.forEach(({ id, message }) => {
+      const field = $(id);
+      if (!field) return;
+      
+      field.addEventListener('blur', () => {
+        const value = field.value?.trim();
+        const errorEl = $(`error-${id}`);
+        
+        if (!value) {
+          field.classList.add('invalid');
+          field.classList.remove('valid');
+          if (errorEl) errorEl.classList.add('visible');
+        } else {
+          field.classList.remove('invalid');
+          field.classList.add('valid');
+          if (errorEl) errorEl.classList.remove('visible');
+        }
+      });
+      
+      // Clear error on input
+      field.addEventListener('input', () => {
+        const value = field.value?.trim();
+        const errorEl = $(`error-${id}`);
+        
+        if (value) {
+          field.classList.remove('invalid');
+          if (errorEl) errorEl.classList.remove('visible');
+        }
+      });
+    });
+  }
+
+  // ---------- Button Loading States ----------
+  function setButtonLoading(btn, isLoading, originalText = null) {
+    if (!btn) return;
+    
+    if (isLoading) {
+      btn._originalText = btn.textContent;
+      btn.classList.add('btn-loading', 'loading');
+      btn.disabled = true;
+      btn.textContent = '⏳ Génération...';
+    } else {
+      btn.classList.remove('btn-loading', 'loading');
+      btn.disabled = false;
+      btn.textContent = originalText || btn._originalText || btn.textContent;
+    }
+  }
+
+  function setButtonSuccess(btn) {
+    if (!btn) return;
+    btn.classList.remove('btn-loading', 'loading');
+    btn.classList.add('btn-success');
+    btn.textContent = '✓ Terminé !';
+    
+    setTimeout(() => {
+      btn.classList.remove('btn-success');
+      btn.disabled = false;
+      btn.textContent = btn._originalText || '✨ Lancer l\'IA & Prévisualiser';
+    }, 2000);
+  }
+
   // ---------- Preview flow ----------
   async function onPreview() {
-    const entreprise = $("f_entrepriseNom").value;
-    if (!entreprise) {
-      alert("Erreur: Le nom de l'entreprise est requis pour l'IA.");
+    if (!validateForm()) {
       return;
     }
+
+    const btn = $("btnPreview");
+    setButtonLoading(btn, true);
 
     showModal("🧠 Neural Engine", "Analyse du contexte et rédaction...", 0);
 
@@ -342,15 +460,18 @@
         else log("Preview reçue.");
 
         addHistory("Proposition IA reçue.");
+        setButtonSuccess(btn);
         openPreviewModal(res.aiSections || {});
       } else {
         showModal("❌ Erreur", res?.error || "Erreur inconnue.", 100);
         log("Erreur Preview: " + (res?.error || "Erreur inconnue."));
+        setButtonLoading(btn, false);
       }
     } catch (err) {
       clearInterval(timer);
       showModal("❌ Erreur", err?.message || String(err), 100);
       log("Crash Preview: " + (err?.message || String(err)));
+      setButtonLoading(btn, false);
     }
   }
 
@@ -361,11 +482,7 @@
     const progressFill = $("progressFill");
     const resultLinks = $("resultLinks");
 
-    const titre = $("f_titre").value;
-    const entreprise = $("f_entrepriseNom").value;
-
-    if (!titre || !entreprise) {
-      alert("Erreur: Titre et Entreprise requis.");
+    if (!validateForm()) {
       return;
     }
 
@@ -468,9 +585,21 @@
     $("btnBackToBrief")?.addEventListener("click", closePreviewModal);
 
     $("btnClosePreview")?.addEventListener("click", closePreviewModal);
+    $("btnClosePreviewModal")?.addEventListener("click", closePreviewModal);
 
     $("btnCloseGeneration")?.addEventListener("click", closeModal);
     $("btnCloseModal")?.addEventListener("click", closeModal);
+    $("btnCloseGenerationModal")?.addEventListener("click", closeModal);
+    $("btnCloseModalError")?.addEventListener("click", closeModal);
+
+    // Bouton Réessayer dans la modale d'erreur
+    $("btnRetryGeneration")?.addEventListener("click", () => {
+      closeModal();
+      log("Nouvelle tentative de génération...");
+      addHistory("Réessai de génération...");
+      // Petit délai pour laisser la modale se fermer
+      setTimeout(() => onPreview(), 300);
+    });
 
     // UX: bouton init console
     $("btnInitConsole")?.addEventListener("click", (e) => {
@@ -485,6 +614,7 @@
     setupUpload();
     setupTokenEstimation();
     setupDictation();
+    setupRealTimeValidation();
     setupButtons();
     refreshFilesUI();
     log("Front chargé. Endpoints attendus: POST /api/proposal/preview & /api/proposal/generate");
