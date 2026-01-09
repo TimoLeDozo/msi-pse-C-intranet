@@ -184,10 +184,10 @@ When comparing with previous implementations, focus on architectural improvement
 - [x] Vérifier .gitignore
 - [x] Commit & Push
 
-### Phase 5 - UI Final
+### Phase 5 - UI Final ✅
 
-- [ ] Corriger orthographe
-- [ ] Effets boutons/touches
+- [x] Corriger orthographe
+- [x] Effets boutons/touches
 
 ---
 

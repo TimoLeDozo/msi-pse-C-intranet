@@ -191,6 +191,13 @@
     .ops-btn-primary:hover, .ops-btn-secondary:hover {
       transform: scale(1.05);
     }
+    .ops-btn-primary:focus, .ops-btn-secondary:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(0, 255, 255, 0.4);
+    }
+    .ops-btn-primary:active, .ops-btn-secondary:active {
+      transform: scale(0.98);
+    }
 
     .secondary-button {
       background: rgba(0, 255, 255, 0.1);
@@ -593,7 +600,7 @@
         </div>
         <div class="ops-stat-card">
           <span class="ops-stat-value">100%</span>
-          <span class="ops-stat-label">PLACE HOLDER</span>
+          <span class="ops-stat-label">PRÉCISION IA</span>
         </div>
         <div class="ops-stat-card">
           <span class="ops-stat-value">DeepSeek</span>
@@ -622,7 +629,7 @@
             <div class="console-header-text">
               <h4 style="margin:0; font-size:0.9rem; color:rgba(255,255,255,0.6); text-transform:uppercase; letter-spacing:2px;">Générateur Propale V2 (Corrigé)</h4>
               <h2>Console Neural · Génération de propale</h2>
-              <p>Renseignez les zones clés. Toutes les informations sont transmises à Apps Script qui orchestre la copie du template Google Docs, le remplissage des zones et l'appel à l'IA.</p>
+              <p>Renseignez les zones clés. Toutes les informations sont transmises au serveur Node.js qui génère le document DOCX via l'IA DeepSeek.</p>
             </div>
           </div>
         </div>
@@ -903,11 +910,11 @@
     <section class="showcase" id="showcase">
       <h2 class="section-title">Matrix Protocols</h2>
       <div class="hexagon-container">
-        <div class="hexagon"><div class="hexagon-bg"></div><div class="hexagon-content"><div class="hexagon-icon">🔮</div><h4>Holographic UI</h4><p>Interface monofichier prête pour Apps Script</p></div></div>
+        <div class="hexagon"><div class="hexagon-bg"></div><div class="hexagon-content"><div class="hexagon-icon">🔮</div><h4>Holographic UI</h4><p>Interface moderne avec architecture modulaire</p></div></div>
         <div class="hexagon"><div class="hexagon-bg"></div><div class="hexagon-content"><div class="hexagon-icon">🛡️</div><h4>Quantum Security</h4><p>Clé IA stockée côté serveur</p></div></div>
         <div class="hexagon"><div class="hexagon-bg"></div><div class="hexagon-content"><div class="hexagon-icon">🚀</div><h4>Speed Navigation</h4><p>Accès direct au document généré</p></div></div>
         <div class="hexagon"><div class="hexagon-bg"></div><div class="hexagon-content"><div class="hexagon-icon">💎</div><h4>Crystal Storage</h4><p>Copie organisée dans Drive cible</p></div></div>
-        <div class="hexagon"><div class="hexagon-bg"></div><div class="hexagon-content"><div class="hexagon-icon">🎯</div><h4>Neural Targeting</h4><p>Remplacement de texte par Place holder</p></div></div>
+        <div class="hexagon"><div class="hexagon-bg"></div><div class="hexagon-content"><div class="hexagon-icon">🎯</div><h4>Neural Targeting</h4><p>Remplacement de texte via placeholders</p></div></div>
         <div class="hexagon"><div class="hexagon-bg"></div><div class="hexagon-content"><div class="hexagon-icon">⭐</div><h4>Stellar Network</h4><p>Workflow collaboratif Icam</p></div></div>
       </div>
     </section>
@@ -915,7 +922,7 @@
   </main>
 
   <footer>
-    <div>&copy; 2025 MSI Propales · Interface Apps Script · Icam</div>
+    <div>&copy; 2026 MSI Propales · Node.js Architecture · Icam</div>
     <div style="margin-top: 5px;">CAGIN Timothé / VELOSO Toni</div>
   </footer>
 
