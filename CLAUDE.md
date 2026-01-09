@@ -174,10 +174,10 @@ When comparing with previous implementations, focus on architectural improvement
 
 - [x] CLAUDE.md nettoyé et à jour
 
-### Phase 3 - Swagger API
+### Phase 3 - Swagger API ✅
 
-- [ ] Valider annotations routes
-- [ ] Tester endpoints via UI
+- [x] Valider annotations routes
+- [x] Tester endpoints via UI
 
 ### Phase 4 - GitHub Push
 
