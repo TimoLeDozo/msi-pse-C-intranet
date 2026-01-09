@@ -179,10 +179,10 @@ When comparing with previous implementations, focus on architectural improvement
 - [x] Valider annotations routes
 - [x] Tester endpoints via UI
 
-### Phase 4 - GitHub Push
+### Phase 4 - GitHub Push ✅
 
-- [ ] Vérifier .gitignore
-- [ ] Commit & Push
+- [x] Vérifier .gitignore
+- [x] Commit & Push
 
 ### Phase 5 - UI Final
 
