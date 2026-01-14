@@ -3,7 +3,7 @@
  * Rôle : transformer un draft → sections IA
  */
 
-const deepSeekAdapter = require('../adapters/ai/deepseek.adapter');
+const aiAdapter = require('../adapters/ai'); // Charge index.js automatiquement
 const promptService = require('../prompts/icam.prompt');
 
 // Optionnel : validation si ton service existe
@@ -23,7 +23,7 @@ module.exports = {
       { role: 'user', content: promptService.buildUserMessage(proposalDraft) }
     ];
 
-    const aiResponse = await deepSeekAdapter.generateStructuredContent({
+    const aiResponse = await aiAdapter.generateStructuredContent({
       messages,
       temperature: 0.7,
       maxTokens: 2000

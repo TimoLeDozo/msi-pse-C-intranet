@@ -1,6 +1,0 @@
-
-> msi-propal-generator@1.0.0 start
-> node server.js
-
-proposalRoutes type: function
-✅ Server running on http://localhost:3000

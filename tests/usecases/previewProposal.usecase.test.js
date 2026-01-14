@@ -4,14 +4,14 @@
  */
 
 // Mock adapters before requiring the use case
-jest.mock('../../adapters/ai/deepseek.adapter');
+jest.mock('../../adapters/ai');
 jest.mock('../../prompts/icam.prompt');
 jest.mock('../../services/validation.service', () => ({
   validateProposalDraft: jest.fn()
 }));
 
 const previewProposalUseCase = require('../../usecases/previewProposal.usecase');
-const deepSeekAdapter = require('../../adapters/ai/deepseek.adapter');
+const aiAdapter = require('../../adapters/ai');
 const promptService = require('../../prompts/icam.prompt');
 const validationService = require('../../services/validation.service');
 
@@ -54,7 +54,7 @@ describe('previewProposal.usecase', () => {
         durationMs: 1500
       };
 
-      deepSeekAdapter.generateStructuredContent.mockResolvedValue(mockAiResponse);
+      aiAdapter.generateStructuredContent.mockResolvedValue(mockAiResponse);
 
       // Act
       const result = await previewProposalUseCase.execute(proposalDraft);
@@ -69,8 +69,8 @@ describe('previewProposal.usecase', () => {
       });
 
       // Verify adapter was called with correct parameters
-      expect(deepSeekAdapter.generateStructuredContent).toHaveBeenCalledTimes(1);
-      expect(deepSeekAdapter.generateStructuredContent).toHaveBeenCalledWith({
+      expect(aiAdapter.generateStructuredContent).toHaveBeenCalledTimes(1);
+      expect(aiAdapter.generateStructuredContent).toHaveBeenCalledWith({
         messages: [
           { role: 'system', content: promptService.SYSTEM_PROMPT },
           { role: 'user', content: expect.any(String) }
@@ -90,7 +90,7 @@ describe('previewProposal.usecase', () => {
         entrepriseNom: 'Test Company'
       };
 
-      deepSeekAdapter.generateStructuredContent.mockResolvedValue({
+      aiAdapter.generateStructuredContent.mockResolvedValue({
         sections: {},
         cost: {},
         model: 'deepseek-chat',
@@ -109,7 +109,7 @@ describe('previewProposal.usecase', () => {
       const proposalDraft = { titre: 'Test' };
       const error = new Error('DeepSeek API error: Rate limit exceeded');
 
-      deepSeekAdapter.generateStructuredContent.mockRejectedValue(error);
+      aiAdapter.generateStructuredContent.mockRejectedValue(error);
 
       // Act & Assert
       await expect(previewProposalUseCase.execute(proposalDraft)).rejects.toThrow(
@@ -132,7 +132,7 @@ describe('previewProposal.usecase', () => {
       );
 
       // Adapter should not be called if validation fails
-      expect(deepSeekAdapter.generateStructuredContent).not.toHaveBeenCalled();
+      expect(aiAdapter.generateStructuredContent).not.toHaveBeenCalled();
     });
 
     it('should handle missing optional fields in proposal draft', async () => {
@@ -155,7 +155,7 @@ describe('previewProposal.usecase', () => {
         durationMs: 1000
       };
 
-      deepSeekAdapter.generateStructuredContent.mockResolvedValue(mockAiResponse);
+      aiAdapter.generateStructuredContent.mockResolvedValue(mockAiResponse);
 
       // Act
       const result = await previewProposalUseCase.execute(minimalDraft);
@@ -169,7 +169,7 @@ describe('previewProposal.usecase', () => {
       // Arrange
       const proposalDraft = { titre: 'Test' };
 
-      deepSeekAdapter.generateStructuredContent.mockResolvedValue({
+      aiAdapter.generateStructuredContent.mockResolvedValue({
         sections: {},
         cost: {},
         model: 'deepseek-chat',
@@ -180,7 +180,7 @@ describe('previewProposal.usecase', () => {
       await previewProposalUseCase.execute(proposalDraft);
 
       // Assert
-      const callArgs = deepSeekAdapter.generateStructuredContent.mock.calls[0][0];
+      const callArgs = aiAdapter.generateStructuredContent.mock.calls[0][0];
       expect(callArgs.temperature).toBe(0.7);
       expect(callArgs.maxTokens).toBe(2000);
     });
@@ -192,7 +192,7 @@ describe('previewProposal.usecase', () => {
 
       promptService.buildUserMessage.mockReturnValue(expectedUserMessage);
 
-      deepSeekAdapter.generateStructuredContent.mockResolvedValue({
+      aiAdapter.generateStructuredContent.mockResolvedValue({
         sections: {},
         cost: {},
         model: 'deepseek-chat',
@@ -203,7 +203,7 @@ describe('previewProposal.usecase', () => {
       await previewProposalUseCase.execute(proposalDraft);
 
       // Assert
-      const callArgs = deepSeekAdapter.generateStructuredContent.mock.calls[0][0];
+      const callArgs = aiAdapter.generateStructuredContent.mock.calls[0][0];
       expect(callArgs.messages).toEqual([
         { role: 'system', content: 'System prompt for testing' },
         { role: 'user', content: expectedUserMessage }
@@ -220,7 +220,7 @@ describe('previewProposal.usecase', () => {
         durationMs: 2000
       };
 
-      deepSeekAdapter.generateStructuredContent.mockResolvedValue(mockAiResponse);
+      aiAdapter.generateStructuredContent.mockResolvedValue(mockAiResponse);
 
       // Act
       const result = await previewProposalUseCase.execute(proposalDraft);
