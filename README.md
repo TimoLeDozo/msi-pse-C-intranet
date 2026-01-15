@@ -1,27 +1,54 @@
-1. Contexte du projet (MSI – 4 mois)
+# MSI Propales - Intranet Edition
 
-Ce projet s’inscrit dans le cadre de mon MSI (Mission de Semestre Industriel).
-L’objectif est d’industrialiser la génération de propositions commerciales à partir :
+> **Plateforme web de génération de contrats R&D Icam, sécurisée, multi-utilisateurs et souveraine.**
 
-d’un brouillon structuré
+![Status](https://img.shields.io/badge/Status-Beta-orange)
+![Stack](https://img.shields.io/badge/Node.js-Express-green)
+![AI](https://img.shields.io/badge/AI-Ollama%20%2F%20DeepSeek-blue)
 
-d’un template contractuel
+Ce projet est la **version (Production/Intranet)** du générateur de propositions commerciales MSI. Il offre une alternative aux solutions précédentes en offrant une architecture serveur robuste, capable de fonctionner totalement hors-ligne (Air-gapped) ou connectée, avec une gestion fine des utilisateurs.
 
-d’un moteur IA
+## 🔄 Évolution & Comparatif
 
-avec un résultat exploitable immédiatement (DOCX / PDF)
+Pourquoi cette version Node.js plutôt que les précédentes ?
 
-Le projet est volontairement mené en plusieurs hypothèses techniques, correspondant à des paliers de maturité et à des contraintes réelles d’entreprise.
+| Version | Technologie | Architecture | Avantages | Limites |
+| :--- | :--- | :--- | :--- | :--- |
+| **V1 (Google)** | AppScript | Cloud (Google) | Rapide à faire | Données non souveraines, IA faible, maintenance complexe. |
+| **V2 (Local)** | Python/Streamlit | Monoposte | Puissant & Local | Difficile à déployer pour plusieurs utilisateurs (il faut installer Python partout). |
+| **V3 (Actuelle)** | **Node.js/Express** | **Client-Serveur** | **Multi-utilisateurs, API REST, Architecture "Adapter" (IA interchangeable), Intranet.** | Nécessite un serveur d'hébergement. |
 
-2. Hypothèse C — Node.js (POC industrialisable)
-   Objectif
+## ✨ Fonctionnalités Clés
 
-Construire une architecture propre, testable et portable, tout en conservant 100 % du comportement fonctionnel validé en Hypothèse B.
+- **🛡️ Souveraineté des Données** : Conçu pour tourner sur un intranet. Aucune donnée client ne transite sur le cloud public si le mode Local est activé.
+- **🧠 IA Hybride (Adapter Pattern)** :
+    - **Mode Local (Ollama)** : Gratuit, confidentiel, utilise le CPU/GPU du serveur.
+    - **Mode Cloud (DeepSeek)** : Pour des besoins de puissance ponctuels (via API).
+- **📝 Génération Word Native** : Utilisation de `docxtemplater` pour remplir fidèlement le template institutionnel (`contrat_rnd_icam.docx`).
+- **🔐 Authentification** : Système de login avec session sécurisée (`express-session`).
+- **📚 Documentation API** : Swagger UI intégré pour faciliter l'interconnexion avec d'autres outils SI.
+- **🧪 Qualité Industrielle** : Tests unitaires (Jest) et E2E (Playwright) intégrés.
 
-Cette hypothèse correspond à :
+## 🛠️ Stack Technique
 
-un POC présentable à l’IT
+- **Backend** : Node.js, Express.js.
+- **Architecture** : MVC + Clean Architecture (Use Cases & Adapters).
+- **IA** : Ollama (Local) ou DeepSeek (Cloud) via le pattern Adapter.
+- **Frontend** : HTML5/CSS3/JS Vanilla (Léger et rapide).
+- **Moteur Doc** : `docxtemplater` (Génération .docx), `libreoffice-convert` (PDF).
 
-une base crédible pour un futur intranet
+## 🚀 Installation & Démarrage
 
-une démonstration de maturité d’ingénierie
+### 1. Prérequis
+- Node.js v18+
+- [Ollama](https://ollama.com/) installé (pour le mode local).
+- LibreOffice (optionnel, pour la conversion PDF).
+
+### 2. Installation
+```bash
+# Cloner le dépôt
+git clone [https://github.com/votre-repo/msi-pse-c-intranet.git](https://github.com/votre-repo/msi-pse-c-intranet.git)
+cd msi-pse-c-intranet
+
+# Installer les dépendances
+npm install
