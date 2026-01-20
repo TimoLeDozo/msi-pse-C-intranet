@@ -10,5 +10,12 @@ storage/outputs/
 playwright-report/
 test-results/
 
+# Jest
+coverage/
+reports/
+
+# Temp files
+storage/temp/
+
 # OS files
 Thumbs.db
