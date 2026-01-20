@@ -1,0 +1,441 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contrat - {{entrepriseNom}}</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 20mm;
+    }
+
+    html, body {
+      font-family: Calibri, "Segoe UI", Arial, sans-serif;
+      font-size: 11pt;
+      line-height: 1.4;
+      color: #000;
+      margin: 0;
+      padding: 0;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    .page {
+      width: 210mm;
+      min-height: 297mm;
+      margin: 0 auto;
+      background: #fff;
+    }
+
+    .block { margin-bottom: 6mm; }
+    .tight { margin-bottom: 2mm; }
+
+    .title {
+      font-size: 14pt;
+      font-weight: bold;
+      text-align: center;
+      margin: 6mm 0 2mm 0;
+      text-transform: uppercase;
+    }
+
+    .subtitle {
+      font-size: 12pt;
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 6mm;
+    }
+
+    .section-title {
+      font-size: 12pt;
+      font-weight: bold;
+      margin: 8mm 0 3mm 0;
+      text-transform: uppercase;
+    }
+
+    .pre {
+      white-space: pre-wrap;
+    }
+
+    .toc {
+      white-space: pre-line;
+    }
+
+    .address {
+      margin-left: 0;
+    }
+
+    .signature-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12mm;
+      margin-top: 8mm;
+    }
+
+    .signature-box {
+      min-height: 35mm;
+    }
+
+    .page-break {
+      page-break-before: always;
+    }
+
+    .muted {
+      color: #444;
+    }
+
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 4mm 0;
+    }
+
+    .table th,
+    .table td {
+      border: 1px solid #000;
+      padding: 2mm 3mm;
+      vertical-align: top;
+    }
+
+    .table th {
+      font-weight: bold;
+      background: #f2f2f2;
+    }
+
+    .logo {
+      max-height: 30mm;
+      max-width: 60mm;
+    }
+
+    .logo-placeholder {
+      font-size: 9pt;
+      color: #666;
+      margin-top: 2mm;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="block">
+      <div class="tight"><strong>Contrat R&amp;D : {{entrepriseNom}}</strong></div>
+      <div class="tight"><strong>Objet : {{titre}}</strong></div>
+    </div>
+
+    <div class="block">
+      <div>Site de Grand Paris Sud</div>
+      <div>34, Points de vue</div>
+      <div>77127 LIEUSAINT</div>
+      <div>Tél. : 33 (0)1 81 14 10 00</div>
+      <div>contact.grandparissud@Icam.fr</div>
+      <div>www.Icam.fr</div>
+    </div>
+
+    <div class="title">{{typeContrat}}</div>
+    <div class="subtitle">{{titre}}</div>
+
+    <div class="block">
+      <div>Référence n° : {{codeProjet}}_{{entrepriseNom}}</div>
+    </div>
+
+    <div class="block">
+      <div><strong>Rédigé par :</strong></div>
+      <div>Lovasoa RAFALIMANANA Chargé d’affaires - Pôle Services aux entreprises</div>
+      <div>Icam Site de Grand Paris Sud</div>
+      <div>34 Points de Vue</div>
+      <div>77127 LIEUSAINT</div>
+      <div>Mob : 06 74 16 63 12</div>
+    </div>
+
+    <div class="block">
+      <div><strong>À l’attention de :</strong></div>
+      <div class="address">
+        {{clientNom}}<br>
+        {{clientFonction}}<br>
+        {{entrepriseNom}}<br>
+        {{entrepriseAdresse}}<br>
+        {{clientTelephone}} {{clientEmail}}
+      </div>
+      <div class="block">
+        <img class="logo" src="{{entrepriseLogo}}" alt="Logo entreprise" onerror="this.style.display='none';">
+        <div class="logo-placeholder">{{entrepriseLogo}}</div>
+      </div>
+    </div>
+
+    <div class="block">
+      <div>Fait à : Lieusaint le : {{DateDuJour}}</div>
+      <div>Version du : {{dateDebut}}</div>
+    </div>
+
+    <div class="section-title">SOMMAIRE</div>
+    <div class="toc muted">
+Contexte et objectifs
+Démarche proposée
+Equipe projet et Coordination
+Confidentialité
+Limites du projet - Responsabilités
+Propriété des travaux
+Juridiction et litiges
+Durée de l’étude
+Validité
+Chiffrage de la proposition
+Conditions de paiement
+Annexe
+    </div>
+
+    <div class="section-title">Contexte et objectifs</div>
+    <div class="pre block">{{contexte}}</div>
+    <div class="block">
+      C'est dans le cadre de ce projet que {{entrepriseNom}} souhaite se faire accompagner par l’Icam pour sa réalisation.
+      Thématique : {{thematique}}
+    </div>
+    <div class="block">
+      L’Icam, école d’ingénieur généraliste depuis 1898, souhaite promouvoir au travers de ses activités d’enseignement et de recherche,
+      des liens étroits avec le milieu industriel et la société dans son ensemble, dans un souci d’efficacité et de pertinence pédagogique,
+      en restant en permanence à l’écoute des besoins et de l’évolution des technologies. L’Icam veut aussi développer auprès de ses élèves
+      ingénieurs l’esprit d’innovation et d’entreprenariat.
+    </div>
+    <div class="block">
+      L’Icam de Grand Paris Sud possède des compétences et des moyens en matière de recherche et développement qui l’amènent à jouer un rôle
+      de conseil, d’étude et de transfert de technologie auprès de sociétés régionales, nationales ou internationales en tant qu’opérateur
+      scientifique, technique ou méthodologique, dans l’esprit de la promotion du rapprochement entreprises – écoles d’ingénieurs ou centres de recherche.
+    </div>
+    <div class="block">
+      Cette étude s’inscrit dans les compétences de l’Icam et plus particulièrement dans son domaine “{{thematique}}”.
+    </div>
+
+    <div class="section-title">Démarche proposée</div>
+    <div class="pre block">{{demarche}}</div>
+    <div class="block">La démarche se déroule selon les différentes phases ci-dessous :</div>
+    <div class="pre block">{{phases}}</div>
+    <div class="block">À la fin du projet, le comité de pilotage fera une réunion finale de validation du projet sera réalisée.</div>
+
+    <div class="section-title">Equipe projet et Coordination</div>
+    <div class="block"><strong>Equipe de projet :</strong></div>
+    <div class="block"><strong>Pour l’Icam :</strong></div>
+    <div class="pre block">
+Un chargé d’affaires ;
+Un chef de projet, ingénieur permanent de l’Icam, mobilisant l’ensemble des moyens techniques et humains nécessaires au projet ;
+Deux (02) Ingénieur(s)-projets (étudiant(s) en dernière année) ;
+L’équipe projet pourra solliciter un ou plusieurs référent(s) technique(s) du site de Paris Grand Paris Sud et éventuellement d’autres sites Icam qui sont nos enseignants chercheurs.
+    </div>
+    <div class="block"><strong>Pour le partenaire, {{entrepriseNom}} :</strong></div>
+    <div class="pre block">
+Pour mener à bien ce projet, l’entreprise mettra à la disposition de l'équipe projet Icam :
+Un interlocuteur interne pour faciliter les échanges, la réception et la validation des étapes du projet, l'accès à l'entreprise et la machine.
+Les documents et données internes de l’entreprise sous couverture de la déclaration de confidentialité pour permettre à l’équipe projet de réaliser le projet dans les meilleures conditions.
+    </div>
+    <div class="block"><strong>Coordination :</strong></div>
+    <div class="pre block">
+Pour l’Icam, pour les aspects commerciaux et administratifs, le chargé d’affaires sera votre contact sur ce projet. Pour les aspects techniques, le chef de projet sera votre interlocuteur.
+Des réunions opérationnelles de travail seront effectuées pour le bon déroulement du projet.
+Un compte-rendu de suivi des activités sera partagé par mail entre les acteurs du projet.
+Des réunions régulières de suivi d’avancement seront planifiées.
+Un comité de pilotage réunissant l’équipe projet Icam et les interlocuteurs de l'entreprise se tiendra pour la validation des phases et la réception des livrables.
+Lors de leur présence sur le site, l'équipe projet de l'Icam devra se conformer strictement au règlement intérieur et aux règles de sécurité de l’entreprise.
+Les comptes rendus de réunion approuvés par les deux parties pourront faire office de modification du présent contrat en matière de coût, qualité et délais de réalisation.
+    </div>
+
+    <div class="section-title">Confidentialité</div>
+    <div class="block">
+      L'Icam, les responsables scientifiques des travaux et les personnes relevant de leur autorité s'engagent à observer le secret sur l'ensemble
+      de cette étude pendant cinq ans à partir du début des études. À votre demande, chaque personne signera un document formalisant cet engagement (en annexe).
+      Ils s'engagent à ne publier ou à ne faire publier aucun rapport de communication concernant l'objet de cette étude sans l'autorisation écrite de l'entreprise.
+      Tout manquement à ces engagements, dûment constaté, pourra donner lieu à des poursuites à l'encontre de son auteur. En contrepartie, {{entrepriseNom}} s'engage
+      à citer l'Icam comme partenaire de recherche et l'Icam pourra citer {{entrepriseNom}} comme référence.
+    </div>
+
+    <div class="section-title">Limites du projet - Responsabilités</div>
+    <div class="block">
+      Le présent projet concerne des opérations d’étude et de suivi nécessaires au développement de celui-ci. Les coûts éventuels d’achat ou de location de logiciels ou de matériels,
+      les coûts de réalisation ou de sous-traitance de prototypes, d’outillages, de bancs d’essai, ou de modifications de systèmes existants, les coûts de transport de matériels ou
+      les coûts de déplacement ou les interventions complémentaires du personnel de l’Icam non mentionnées dans la présente proposition, ne sont pas inclus dans le cadre de cette convention.
+      Si des actions complémentaires apparaissent nécessaires au cours des travaux, elles feront l’objet d’une proposition ultérieure spécifique et seront engagées après accord écrit de l'entreprise.
+      L’Icam ne saurait être tenu responsable de dégradations, pertes d’exploitation, accidents, frais de remise en état, résultant des modifications apportées à des dispositifs actuellement en service au sein de l'entreprise
+      ou consécutifs à des essais réalisés sur prototype ou en exploitation future. Il est à préciser qu’aucune manipulation ou intervention de l’Icam sur les installations techniques de l'entreprise ne sera autorisée.
+      L’Icam ne saurait être tenu responsable des éventuels documents officiels transmis par {{entrepriseNom}} à l’administration française en lien avec ce projet. Les notes de calcul réalisées par l’Icam sont à usage interne du client
+      et ne peuvent être utilisées à des fins juridiques sans avoir été au préalable validées par un organisme de contrôle accrédité.
+    </div>
+
+    <div class="section-title">Propriété des travaux</div>
+    <div class="block">
+      {{entrepriseNom}} conservera le bénéfice exclusif des travaux et services décrits ci-dessus. Tous les droits de propriété industrielle qui pourraient être acquis en conséquence de ces travaux seront la pleine et entière propriété de l'entreprise.
+      Toutefois, les résultats demeurent l'entière propriété de l'Icam jusqu'au paiement intégral des travaux engagés.
+    </div>
+
+    <div class="section-title">Juridiction et litiges</div>
+    <div class="block">
+      En cas de litige sur l’interprétation et/ou l’exécution du présent contrat, les parties s’engagent à se réunir pour trouver une solution amiable à leur différend. Cette réunion aura lieu à l’initiative de l’une des parties dans un lieu déterminé d’un commun accord,
+      dans les trois semaines suivant une notification faite par L.R.A.R. Si un constat de désaccord subsiste à l’issue de cette première réunion, les parties s’engagent à tout mettre en œuvre pour trouver dans le mois suivant cette réunion une solution acceptable pour les deux parties
+      et s’engagent à se réunir à nouveau dans ce délai d’un mois. À défaut d’accord, ou en cas d’impossibilité de tenir cette deuxième réunion, la partie diligente sera fondée à saisir le Tribunal de Commerce de Melun qui se devra d’appliquer la loi française.
+    </div>
+
+    <div class="section-title">Durée de l’étude</div>
+    <div class="block">
+      L’offre est conclue pour une durée globale de réalisation est de {{dureeSemaines}} semaines répartie comme suit :
+    </div>
+    <div class="pre block">{{phases}}</div>
+    <div class="block">
+      Une note de cadrage du projet sera établie et validée entre l’équipe projet et {{entrepriseNom}} au démarrage du projet, incluant un planning prévisionnel détaillé.
+      Le début du projet sera organisé en accord avec {{entrepriseNom}} dès la signature du contrat pour septembre 2025.
+    </div>
+
+    <div class="section-title">Validité</div>
+    <div class="block">La validité de l’offre est de 1 mois.</div>
+
+    <div class="section-title">Chiffrage de la proposition</div>
+    <div class="block">
+      Les coûts associés à la réalisation de l'étude sont les suivants (hors frais annexes), ce coût de prestation comprenant :
+    </div>
+    <div class="pre block">
+L’intervention du Chef de projet ;
+L’intervention du Chargé d’affaires ;
+Le(s) intervention(s) du/des référent(s)-technique ;
+La mise à disposition des moyens utiles à la bonne exécution du projet ;
+Pour les besoins de l’étude, des achats de matériels, des frais de logement, de restauration (20€/pers au maximum), de déplacement (0,60€/km), autres frais de prestation et/ou de logiciels pour la réalisation sont à prévoir. Ils seront facturés et majorés de 20% à l’entreprise accompagnée des factures justificatives. Les frais seront engagés seulement après un accord préalable de {{entrepriseNom}}.
+Le Pôle Services aux Entreprises de l’Icam intervient en allouant les moyens nécessaires à la bonne réalisation du projet.
+    </div>
+
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Nom</th>
+          <th>Dates</th>
+          <th>Coût (HT)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Projet de {{dureeSemaines}} semaines</td>
+          <td>à partir du {{dateDebut}}</td>
+          <td>{{budget_texte}}</td>
+        </tr>
+        <tr>
+          <td colspan="3" class="pre">{{echeancier}}</td>
+        </tr>
+        <tr>
+          <td colspan="3" class="pre">{{echeancier2}}</td>
+        </tr>
+        <tr>
+          <td colspan="3">TOTAL prestation de l’Icam hors frais annexes*</td>
+        </tr>
+        <tr>
+          <td colspan="3">{{budget_texte}}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="block">
+      Le coût global de la prestation est de {{budget}} ({{budgetEnLettres}} euros hors taxes) hors frais annexes.
+      Tout au long du projet, l’entreprise {{entrepriseNom}} conserve la possibilité de mettre fin à cette étude à la fin de chaque phase après la signature du PV de réception des livrables.
+    </div>
+    <div class="block">
+      {{eligibiliteCII}} “L’Icam est agréé au CIR (Crédit Impôt Recherche) et au CII (Crédit Impôt Innovation) par le Ministère de l’Enseignement supérieur, de la Recherche et de l’Innovation (MESRI),
+      en tant qu’établissement d'enseignement supérieur privé d'intérêt général (EESPIG) exécutant des travaux de recherche et développement (R&amp;D) pour le compte d’entreprises.”
+    </div>
+
+    <div class="section-title">Conditions de paiement</div>
+    <div class="block"><strong>Pour l’étude :</strong></div>
+    <div class="block">
+      Les factures de la prestation hors frais annexes seront émises par l’Icam selon l’échéancier ci-dessous :
+      une facture de 30% après 3 semaines du démarrage du projet, soit 6 750€ HT, payable à la réception. Le paiement effectif de la facture conditionne tout envoi du premier livrable,
+      40% à la réception des livrables de la phase 2, soit 9 000€ HT, payable à la réception. Le paiement effectif de la facture intermédiaire conditionne l'envoi des livrables finaux du projet.
+      solde à la réception des livrables à la fin du projet (soit 6 750 €HT) + frais annexes éventuels, payable à la réception.
+    </div>
+    <div class="block">{{entrepriseNom}} conserve la possibilité de mettre fin à cette étude à la fin de chaque phase.</div>
+    <div class="block">
+      Le paiement sera effectué à réception de la facture selon les modalités ci-dessous :
+      Par chèque à l’ordre de : Icam Site de Grand Paris Sud
+      Par virement sur le compte :
+      Caisse d’épargne, CE Hauts de France
+      Banque : 16275, Guichet 00600, Compte : 08000862417, Clé RIB : 37
+      N° IBAN : FR76 1627 5006 0008 0008 6241 737
+    </div>
+
+    <div class="signature-row">
+      <div class="signature-box">
+        <div><strong>Pour L’Icam site de Grand Paris Sud</strong></div>
+        <div>Christophe PENNEL</div>
+        <div>Directeur</div>
+        <div class="muted">(signature)</div>
+      </div>
+      <div class="signature-box">
+        <div><strong>Pour {{entrepriseNom}}</strong></div>
+        <div>{{clientNom}}</div>
+        <div>{{clientFonction}}</div>
+        <div class="muted">(signature)</div>
+      </div>
+    </div>
+
+    <div class="page-break"></div>
+
+    <div class="section-title">Annexe</div>
+    <div class="block"><strong>Engagement de confidentialité</strong></div>
+    <div class="block">
+      Je soussigné(e) : ____________________________________________________________________________
+      étudiant(e) en mémoire scientifique à l’Icam site de Grand Paris Sud, m’engage à observer le secret quant aux informations dont j’aurai connaissance en raison
+      ou à l’occasion de mon intervention dans le cadre du projet : {{titre}} lié à {{entrepriseNom}}.
+    </div>
+    <div class="block">
+      Je m’engage à ne divulguer à qui que ce soit, tant pendant l’exécution de ma mission qu’après sa fin et pour une durée de cinq (5) ans,
+      et pour quelque cause que ce soit, aucun des documents, des plans, conceptions, projets, réalisations... étudiés dans le cadre de ce projet.
+      Je sais que les travaux que je mène sont la propriété de l’Icam ou de l'entreprise.
+      Je m’engage à ne pas utiliser personnellement ces informations et notamment à ne pas déposer de brevet en mon nom propre.
+      Je sais que l’Icam se réserve le droit, en cas de violation du présent contrat, d’entreprendre toutes les démarches judiciaires qui seraient nécessaires pour assurer le respect de cet engagement
+      ou pour obtenir réparation du préjudice résultant d’une utilisation ou d’une transmission d’une information sur le projet.
+    </div>
+    <div class="block">Fait à Lieusaint, en 2 exemplaires originaux, le ______________________________</div>
+    <div class="block">L’étudiant(e)</div>
+
+    <div class="block"><strong>Engagement de confidentialité</strong></div>
+    <div class="block">
+      Je soussigné(e) : ____________________________________________________________________________
+      Chef de projet à l’Icam site de Grand Paris Sud, m’engage à observer le secret quant aux informations dont j’aurai connaissance en raison
+      ou à l’occasion de mon intervention dans le cadre du projet : {{titre}} lié à {{entrepriseNom}}.
+    </div>
+    <div class="block">
+      Je m’engage à ne divulguer à qui que ce soit, tant pendant l’exécution de ma mission qu’après sa fin et pour une durée de cinq (5) ans,
+      et pour quelque cause que ce soit, aucun des documents, des plans, conceptions, projets, réalisations... étudiés dans le cadre de ce projet.
+      Je sais que les travaux que je mène sont la propriété de l’Icam ou de l'entreprise.
+      Je m’engage à ne pas utiliser personnellement ces informations et notamment à ne pas déposer de brevet en mon nom propre.
+      Je sais que l’Icam se réserve le droit, en cas de violation du présent contrat, d’entreprendre toutes les démarches judiciaires qui seraient nécessaires pour assurer le respect de cet engagement
+      ou pour obtenir réparation du préjudice résultant d’une utilisation ou d’une transmission d’une information sur le projet.
+    </div>
+    <div class="block">Fait à Lieusaint, en 2 exemplaires originaux, le ______________________________</div>
+    <div class="block">Le Chef de projet</div>
+
+    <div class="block"><strong>Engagement de confidentialité</strong></div>
+    <div class="block">
+      Je soussigné(e) : ____________________________________________________________________________
+      Enseignant(e) chercheur à l’Icam site de Grand Paris Sud, m’engage à observer le secret quant aux informations dont j’aurai connaissance en raison
+      ou à l’occasion de mon intervention dans le cadre du projet : {{titre}} lié à {{entrepriseNom}}.
+    </div>
+    <div class="block">
+      Je m’engage à ne divulguer à qui que ce soit, tant pendant l’exécution de ma mission qu’après sa fin et pour une durée de cinq (5) ans,
+      et pour quelque cause que ce soit, aucun des documents, des plans, conceptions, projets, réalisations... étudiés dans le cadre de ce projet.
+      Je sais que les travaux que je mène sont la propriété de l’Icam ou de l'entreprise.
+      Je m’engage à ne pas utiliser personnellement ces informations et notamment à ne pas déposer de brevet en mon nom propre.
+      Je sais que l’Icam se réserve le droit, en cas de violation du présent contrat, d’entreprendre toutes les démarches judiciaires qui seraient nécessaires pour assurer le respect de cet engagement
+      ou pour obtenir réparation du préjudice résultant d’une utilisation ou d’une transmission d’une information sur le projet.
+    </div>
+    <div class="block">Fait à Lieusaint, en 2 exemplaires originaux, le ______________________________</div>
+    <div class="block">Enseignant(e) chercheur</div>
+
+    <div class="block"><strong>Engagement de confidentialité</strong></div>
+    <div class="block">
+      Je soussigné(e) : ____________________________________________________________________________
+      Chargé d’affaires à l’Icam site de Grand Paris Sud, m’engage à observer le secret quant aux informations dont j’aurai connaissance en raison
+      ou à l’occasion de mon intervention dans le cadre du projet : {{titre}} lié à {{entrepriseNom}}.
+    </div>
+    <div class="block">
+      Je m’engage à ne divulguer à qui que ce soit, tant pendant l’exécution de ma mission qu’après sa fin et pour une durée de cinq (5) ans,
+      et pour quelque cause que ce soit, aucun des documents, des plans, conceptions, projets, réalisations... étudiés dans le cadre de ce projet.
+      Je sais que les travaux que je mène sont la propriété de l’Icam ou de l'entreprise.
+      Je m’engage à ne pas utiliser personnellement ces informations et notamment à ne pas déposer de brevet en mon nom propre.
+      Je sais que l’Icam se réserve le droit, en cas de violation du présent contrat, d’entreprendre toutes les démarches judiciaires qui seraient nécessaires pour assurer le respect de cet engagement
+      ou pour obtenir réparation du préjudice résultant d’une utilisation ou d’une transmission d’une information sur le projet.
+    </div>
+    <div class="block">Fait à Lieusaint, en 2 exemplaires originaux, le ______________________________</div>
+    <div class="block">Le Chargé d’affaires</div>
+  </div>
+</body>
+</html>

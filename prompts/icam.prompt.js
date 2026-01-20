@@ -1,53 +1,333 @@
 /**
- * Prompt système Icam
- * Définit le persona, le ton et les contraintes de sortie JSON.
+ * Prompt systeme Icam
+ * Definit le persona, le ton et les contraintes de sortie JSON.
+ *
+ * @module prompts/icam.prompt
  */
 
-exports.SYSTEM_PROMPT = `
-Tu es un consultant expert Icam (Ingénieur Arts et Métiers).
-Ton rôle est de rédiger des propositions commerciales techniques, rigoureuses et convaincantes.
+const contextWindowUtil = require('../utils/context-window.util');
 
-TON : Professionnel, technique, précis, orienté résultat.
+/**
+ * Prompt systeme de base pour le consultant Icam.
+ * @constant {string}
+ */
+const SYSTEM_PROMPT = `
+Tu es un consultant expert Icam (Ingenieur Arts et Metiers).
+Ton role est de rediger des propositions commerciales techniques, rigoureuses et convaincantes.
+
+TON : Professionnel, technique, precis, oriente resultat.
 
 INSTRUCTIONS :
 1. Analyse le contexte client et le brief projet fournis.
-2. Rédige un contenu unique et adapté pour chaque section.
-3. NE RECOPIE PAS les exemples ou les placeholders. Génère du vrai contenu pertinent.
-4. Si une information manque, fais une hypothèse raisonnable professionnelle ou reste généraliste mais pertinent.
+2. Redige un contenu unique et adapte pour chaque section.
+3. NE RECOPIE PAS les exemples ou les placeholders. Genere du vrai contenu pertinent.
+4. Si une information manque, fais une hypothese raisonnable professionnelle ou reste generaliste mais pertinent.
 
 STRUCTURE JSON OBLIGATOIRE :
-Tu dois impérativement répondre avec un objet JSON valide contenant exactement les clés suivantes :
+Tu dois imperativement repondre avec un objet JSON valide contenant exactement les cles suivantes :
 {
   "titre": "Titre professionnel et accrocheur pour la proposition",
-  "contexte": "Rédaction détaillée du contexte, de l'historique et des enjeux du client.",
-  "demarche": "Explication méthodologique de l'approche Icam pour ce projet.",
-  "phases": "Détail des grandes phases du projet (ex: Audit, Conception, Réalisation, Test).",
-  "phrase": "Phrase de conclusion synthétique et engageante."
+  "contexte": "Redaction detaillee du contexte, de l'historique et des enjeux du client.",
+  "demarche": "Explication methodologique de l'approche Icam pour ce projet.",
+  "phases": "Detail des grandes phases du projet (ex: Audit, Conception, Realisation, Test).",
+  "phrase": "Phrase de conclusion synthetique et engageante."
 }
 
 Ne mets pas de balises markdown comme \`\`\`json ou \`\`\`. Renvoie juste le JSON brut.
 `;
 
 /**
- * Construit le message utilisateur à partir des données du formulaire.
+ * Regles methodologiques par type de contrat.
+ * @constant {Object.<string, string>}
  */
-exports.buildUserMessage = (data) => {
+const METHODOLOGY_RULES = {
+  'Lean': "Approche DMAIC, VSM, 5S. Focus sur l'elimination des gaspillages (Mudas).",
+  'Audit': "Diagnostic, Analyse de l'existant, Matrice SWOT, Plan d'actions.",
+  'RD': "Cycle en V, Niveaux TRL, AMDEC, Analyse fonctionnelle.",
+  'Supply Chain': "Flux logistiques, Gestion des stocks, Optimisation transport."
+};
+
+/**
+ * Retourne les regles methodologiques specifiques au type de contrat.
+ *
+ * @param {string} typeContrat - Le type de contrat (Lean, Audit, RD, Supply Chain)
+ * @returns {string} Les regles methodologiques correspondantes
+ *
+ * @example
+ * getMethodologyRules('Lean')
+ * // => "Approche DMAIC, VSM, 5S. Focus sur l'elimination des gaspillages (Mudas)."
+ *
+ * @example
+ * getMethodologyRules('Unknown')
+ * // => "Cycle en V, Niveaux TRL, AMDEC, Analyse fonctionnelle." (default RD)
+ */
+function getMethodologyRules(typeContrat) {
+  if (!typeContrat) {
+    return METHODOLOGY_RULES['RD'];
+  }
+
+  // Normaliser le type de contrat pour la recherche
+  const normalizedType = typeContrat.trim();
+
+  // Recherche exacte
+  if (METHODOLOGY_RULES[normalizedType]) {
+    return METHODOLOGY_RULES[normalizedType];
+  }
+
+  // Recherche insensible a la casse
+  const lowerType = normalizedType.toLowerCase();
+  for (const [key, value] of Object.entries(METHODOLOGY_RULES)) {
+    if (key.toLowerCase() === lowerType) {
+      return value;
+    }
+  }
+
+  // Valeur par defaut: RD
+  return METHODOLOGY_RULES['RD'];
+}
+
+/**
+ * Retourne la regle de continuite si un contrat precedent existe.
+ * Permet a l'IA de faire le lien avec les travaux passes.
+ *
+ * @param {string|null|undefined} contratPrecedent - Nom ou reference du contrat precedent
+ * @returns {string} Texte de continuite ou chaine vide si pas de contrat precedent
+ *
+ * @example
+ * getContinuityRule('Audit Lean 2024')
+ * // => 'Ce projet fait suite au contrat "Audit Lean 2024". Debute la section contexte par une phrase de liaison valorisant les travaux passes.'
+ *
+ * @example
+ * getContinuityRule(null)
+ * // => ''
+ */
+function getContinuityRule(contratPrecedent) {
+  if (!contratPrecedent || contratPrecedent.trim() === '') {
+    return '';
+  }
+
+  return `Ce projet fait suite au contrat "${contratPrecedent.trim()}". Debute la section contexte par une phrase de liaison valorisant les travaux passes.`;
+}
+
+/**
+ * Construit un prompt systeme dynamique enrichi avec les regles methodologiques
+ * et la continuite contractuelle.
+ *
+ * @param {Object} data - Donnees du formulaire
+ * @param {string} [data.typeContrat] - Type de contrat (Lean, Audit, RD, Supply Chain)
+ * @param {string} [data.thematique] - Thematique du projet (utilisee si typeContrat absent)
+ * @param {string} [data.contratPrecedent] - Reference du contrat precedent
+ * @returns {string} Prompt systeme enrichi
+ *
+ * @example
+ * buildDynamicPrompt({ typeContrat: 'Lean', contratPrecedent: 'Audit 2024' })
+ * // => Prompt enrichi avec regles Lean et continuite
+ */
+function buildDynamicPrompt(data = {}) {
+  // Determiner le type de contrat (typeContrat prioritaire sur thematique)
+  const contractType = data.typeContrat || data.thematique || 'RD';
+
+  // Recuperer les regles methodologiques
+  const methodologyRules = getMethodologyRules(contractType);
+
+  // Recuperer la regle de continuite
+  const continuityRule = getContinuityRule(data.contratPrecedent);
+
+  // Construire les sections additionnelles
+  let additionalRules = `
+METHODOLOGIE APPLICABLE :
+Type de mission : ${contractType}
+Approche : ${methodologyRules}
+`;
+
+  if (continuityRule) {
+    additionalRules += `
+CONTINUITE CONTRACTUELLE :
+${continuityRule}
+`;
+  }
+
+  // Injecter les regles dans le prompt systeme
+  // Inserer avant la section STRUCTURE JSON OBLIGATOIRE
+  const insertionPoint = 'STRUCTURE JSON OBLIGATOIRE';
+  const parts = SYSTEM_PROMPT.split(insertionPoint);
+
+  if (parts.length === 2) {
+    return parts[0] + additionalRules + '\n' + insertionPoint + parts[1];
+  }
+
+  // Fallback: ajouter a la fin si la structure n'est pas trouvee
+  return SYSTEM_PROMPT + additionalRules;
+}
+
+/**
+ * Construit le message utilisateur a partir des donnees du formulaire.
+ *
+ * @param {Object} data - Donnees du formulaire
+ * @param {string} [data.entrepriseNom] - Nom de l'entreprise cliente
+ * @param {string} [data.thematique] - Secteur ou thematique du projet
+ * @param {string} [data.typeContrat] - Type de contrat (Lean, Audit, RD, Supply Chain)
+ * @param {string} [data.contratPrecedent] - Reference du contrat precedent
+ * @param {string} [data.ia_histoire] - Histoire et ADN de l'entreprise
+ * @param {string} [data.ia_lieux] - Lieux et implantations
+ * @param {string} [data.titre] - Titre initial du projet
+ * @param {string} [data.ia_probleme] - Probleme a resoudre
+ * @param {string} [data.ia_solution] - Solution envisagee
+ * @param {string} [data.ia_objectifs] - Objectifs du projet
+ * @param {string|number} [data.dureeSemaines] - Duree du projet en semaines
+ * @returns {string} Message utilisateur formate
+ */
+function buildUserMessage(data) {
+  // Construire la section contrat precedent si elle existe
+  let contratPrecedentSection = '';
+  if (data.contratPrecedent && data.contratPrecedent.trim() !== '') {
+    contratPrecedentSection = `Contrat precedent : ${data.contratPrecedent}`;
+  }
+
   return `
 CONTEXTE CLIENT :
-Entreprise : ${data.entrepriseNom || 'Non spécifié'}
-Secteur : ${data.thematique || 'Non spécifié'}
+Entreprise : ${data.entrepriseNom || 'Non specifie'}
+Secteur : ${data.thematique || 'Non specifie'}
+Type de contrat : ${data.typeContrat || 'RD'}
+${contratPrecedentSection}
 Histoire/ADN : ${data.ia_histoire || ''}
 Lieux : ${data.ia_lieux || ''}
 
 BRIEF PROJET :
 Titre initial : ${data.titre || ''}
-Problème à résoudre : ${data.ia_probleme || ''}
-Solution envisagée : ${data.ia_solution || ''}
+Probleme a resoudre : ${data.ia_probleme || ''}
+Solution envisagee : ${data.ia_solution || ''}
 Objectifs : ${data.ia_objectifs || ''}
-Durée : ${data.dureeSemaines || '?'} semaines
+Duree : ${data.dureeSemaines || '?'} semaines
 
 TACHE :
-Rédige les sections de la proposition commerciale en te basant sur ces éléments.
-Sois force de proposition. Le texte doit être prêt à être inséré dans un document commercial.
+Redige les sections de la proposition commerciale en te basant sur ces elements.
+Sois force de proposition. Le texte doit etre pret a etre insere dans un document commercial.
+`.trim();
+}
+
+/**
+ * Construit un message utilisateur optimise pour la fenetre de contexte.
+ * Cette fonction applique l'optimisation de contexte pour s'assurer que
+ * le contenu total (prompt systeme + message utilisateur) respecte la limite.
+ *
+ * @param {Object} data - Donnees du formulaire + contenu extrait
+ * @param {Object} [options] - Options d'optimisation
+ * @param {number} [options.maxTokens] - Limite totale de tokens (defaut: 35000)
+ * @param {boolean} [options.verbose=false] - Afficher le rapport de contexte
+ * @returns {Object} Message optimise avec rapport
+ *
+ * @example
+ * const result = buildOptimizedUserMessage(data, { verbose: true });
+ * // => { message: "...", report: {...} }
+ */
+function buildOptimizedUserMessage(data, options = {}) {
+  const { maxTokens, verbose = false } = options;
+
+  // Construire le prompt systeme pour calculer le budget
+  const systemPrompt = buildDynamicPrompt({
+    typeContrat: data.typeContrat || data.thematique,
+    contratPrecedent: data.contratPrecedent
+  });
+
+  // Optimiser les donnees en fonction du budget disponible
+  const optimizationResult = contextWindowUtil.optimizeContextWindow(
+    data,
+    systemPrompt,
+    { maxTokens }
+  );
+
+  // Construire le message utilisateur avec les donnees optimisees
+  const optimizedData = optimizationResult.data;
+
+  // Construire la section contrat precedent si elle existe
+  let contratPrecedentSection = '';
+  if (optimizedData.contratPrecedent && optimizedData.contratPrecedent.trim() !== '') {
+    contratPrecedentSection = `Contrat precedent : ${optimizedData.contratPrecedent}`;
+  }
+
+  // Construire la section contenu extrait si elle existe
+  let extractedContentSection = '';
+  if (optimizedData.extractedContent || optimizedData.documentContext) {
+    const extractedContent = optimizedData.extractedContent || optimizedData.documentContext || '';
+    if (extractedContent.trim()) {
+      extractedContentSection = `
+CONTENU EXTRAIT DES DOCUMENTS :
+${extractedContent}
 `;
-};
+    }
+  }
+
+  const message = `
+CONTEXTE CLIENT :
+Entreprise : ${optimizedData.entrepriseNom || 'Non specifie'}
+Secteur : ${optimizedData.thematique || 'Non specifie'}
+Type de contrat : ${optimizedData.typeContrat || 'RD'}
+${contratPrecedentSection}
+Histoire/ADN : ${optimizedData.ia_histoire || ''}
+Lieux : ${optimizedData.ia_lieux || ''}
+
+BRIEF PROJET :
+Titre initial : ${optimizedData.titre || ''}
+Probleme a resoudre : ${optimizedData.ia_probleme || ''}
+Solution envisagee : ${optimizedData.ia_solution || ''}
+Objectifs : ${optimizedData.ia_objectifs || ''}
+Duree : ${optimizedData.dureeSemaines || '?'} semaines
+${extractedContentSection}
+TACHE :
+Redige les sections de la proposition commerciale en te basant sur ces elements.
+Sois force de proposition. Le texte doit etre pret a etre insere dans un document commercial.
+`.trim();
+
+  // Afficher le rapport si demande
+  if (verbose) {
+    console.log(contextWindowUtil.formatContextReport(optimizationResult.report));
+  }
+
+  return {
+    message,
+    systemPrompt,
+    report: optimizationResult.report,
+    optimizedData
+  };
+}
+
+/**
+ * Prepare les messages pour l'API IA avec optimisation de contexte integree.
+ * Fonction tout-en-un pour les use cases.
+ *
+ * @param {Object} proposalDraft - Donnees du formulaire + extractions
+ * @param {Object} [options] - Options
+ * @param {number} [options.maxTokens] - Limite de contexte (defaut: 35000)
+ * @param {number} [options.temperature=0.7] - Temperature pour l'IA
+ * @param {boolean} [options.verbose=false] - Afficher le rapport
+ * @returns {Object} Messages prets pour l'API + metadonnees
+ */
+function prepareAIMessages(proposalDraft, options = {}) {
+  const { temperature = 0.7, verbose = false, maxTokens } = options;
+
+  const optimizedResult = buildOptimizedUserMessage(proposalDraft, {
+    maxTokens,
+    verbose
+  });
+
+  return {
+    messages: [
+      { role: 'system', content: optimizedResult.systemPrompt },
+      { role: 'user', content: optimizedResult.message }
+    ],
+    temperature,
+    contextReport: optimizedResult.report,
+    forceJson: true
+  };
+}
+
+// Exports
+exports.SYSTEM_PROMPT = SYSTEM_PROMPT;
+exports.METHODOLOGY_RULES = METHODOLOGY_RULES;
+exports.getMethodologyRules = getMethodologyRules;
+exports.getContinuityRule = getContinuityRule;
+exports.buildDynamicPrompt = buildDynamicPrompt;
+exports.buildUserMessage = buildUserMessage;
+exports.buildOptimizedUserMessage = buildOptimizedUserMessage;
+exports.prepareAIMessages = prepareAIMessages;

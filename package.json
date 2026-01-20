@@ -7,7 +7,11 @@
     "dev": "node server.js",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage",
+    "benchmark:generate": "node scripts/benchmark-generate.js",
+    "template:check": "node scripts/find-broken-placeholders.js",
+    "cleanup": "node scripts/cleanup.js",
+    "cleanup:dry-run": "node scripts/cleanup.js --dry-run --verbose"
   },
   "dependencies": {
     "axios": "^1.13.2",
@@ -22,9 +26,11 @@
     "fs-extra": "^11.3.2",
     "libreoffice-convert": "^1.7.0",
     "multer": "^2.0.2",
+    "number-to-words": "^1.2.4",
     "openai": "^6.14.0",
     "pdf-lib": "^1.17.1",
     "pizzip": "^3.1.4",
+    "playwright": "^1.57.0",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1"
   },

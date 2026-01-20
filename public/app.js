@@ -54,25 +54,20 @@ generateBtn.addEventListener('click', async () => {
     const payload = collectFormData();
     const result = await callApi('/api/proposal/generate', payload);
 
-    let html = `
-      <p>
-        <a href="${result.documents.docx.url}" target="_blank">
-          📄 Télécharger DOCX
-        </a>
-      </p>
-    `;
+    resultZone.textContent = '';
 
-    if (result.documents.pdf) {
-      html += `
-        <p>
-          <a href="${result.documents.pdf.url}" target="_blank">
-            📕 Télécharger PDF
-          </a>
-        </p>
-      `;
+    // Nouvelle structure API: { documents: { pdf: { url, path } } }
+    if (result.documents?.pdf?.url) {
+      const pdfParagraph = document.createElement('p');
+      const pdfLink = document.createElement('a');
+      pdfLink.href = result.documents.pdf.url;
+      pdfLink.target = '_blank';
+      pdfLink.textContent = 'Telecharger PDF';
+      pdfParagraph.appendChild(pdfLink);
+      resultZone.appendChild(pdfParagraph);
+    } else {
+      resultZone.textContent = 'Erreur: URL du PDF non disponible.';
     }
-
-    resultZone.innerHTML = html;
   } catch (err) {
     resultZone.textContent = 'Erreur génération : ' + err.message;
   }

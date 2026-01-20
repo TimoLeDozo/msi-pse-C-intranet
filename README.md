@@ -1,54 +1,68 @@
-# MSI Propales - Intranet Edition
+﻿# MSI Propales - Intranet Edition
 
-> **Plateforme web de génération de contrats R&D Icam, sécurisée, multi-utilisateurs et souveraine.**
+> Plateforme web de generation de contrats R&D Icam, securisee, multi-utilisateurs et souveraine.
 
 ![Status](https://img.shields.io/badge/Status-Beta-orange)
 ![Stack](https://img.shields.io/badge/Node.js-Express-green)
-![AI](https://img.shields.io/badge/AI-Ollama%20%2F%20DeepSeek-blue)
+![AI](https://img.shields.io/badge/AI-Ollama-blue)
+![Output](https://img.shields.io/badge/Output-PDF%20%2F%20Playwright-blue)
 
-Ce projet est la **version (Production/Intranet)** du générateur de propositions commerciales MSI. Il offre une alternative aux solutions précédentes en offrant une architecture serveur robuste, capable de fonctionner totalement hors-ligne (Air-gapped) ou connectée, avec une gestion fine des utilisateurs.
+## Positionnement
 
-## 🔄 Évolution & Comparatif
+Ce projet est la version intranet du generateur de propositions MSI. Il fonctionne hors ligne (air-gapped) ou connecte, avec une generation PDF directe exploitable.
 
-Pourquoi cette version Node.js plutôt que les précédentes ?
+## Fonctionnalites
 
-| Version | Technologie | Architecture | Avantages | Limites |
-| :--- | :--- | :--- | :--- | :--- |
-| **V1 (Google)** | AppScript | Cloud (Google) | Rapide à faire | Données non souveraines, IA faible, maintenance complexe. |
-| **V2 (Local)** | Python/Streamlit | Monoposte | Puissant & Local | Difficile à déployer pour plusieurs utilisateurs (il faut installer Python partout). |
-| **V3 (Actuelle)** | **Node.js/Express** | **Client-Serveur** | **Multi-utilisateurs, API REST, Architecture "Adapter" (IA interchangeable), Intranet.** | Nécessite un serveur d'hébergement. |
+- Souverainete des donnees (intranet, pas d'appel cloud)
+- IA locale via Ollama (Qwen 2.5 14B)
+- Generation PDF directe via template HTML (`templates/proposal.html`)
+- Authentification par session
+- Documentation API via Swagger
+- Tests unitaires (Jest) et E2E (Playwright)
 
-## ✨ Fonctionnalités Clés
+## Stack technique
 
-- **🛡️ Souveraineté des Données** : Conçu pour tourner sur un intranet. Aucune donnée client ne transite sur le cloud public si le mode Local est activé.
-- **🧠 IA Hybride (Adapter Pattern)** :
-    - **Mode Local (Ollama)** : Gratuit, confidentiel, utilise le CPU/GPU du serveur.
-    - **Mode Cloud (DeepSeek)** : Pour des besoins de puissance ponctuels (via API).
-- **📝 Génération Word Native** : Utilisation de `docxtemplater` pour remplir fidèlement le template institutionnel (`contrat_rnd_icam.docx`).
-- **🔐 Authentification** : Système de login avec session sécurisée (`express-session`).
-- **📚 Documentation API** : Swagger UI intégré pour faciliter l'interconnexion avec d'autres outils SI.
-- **🧪 Qualité Industrielle** : Tests unitaires (Jest) et E2E (Playwright) intégrés.
+- Backend: Node.js, Express
+- Architecture: Clean architecture (usecases + adapters)
+- IA: Ollama (local)
+- Template: HTML (`templates/proposal.html`)
+- PDF: Playwright (Chromium headless)
 
-## 🛠️ Stack Technique
+## Installation
 
-- **Backend** : Node.js, Express.js.
-- **Architecture** : MVC + Clean Architecture (Use Cases & Adapters).
-- **IA** : Ollama (Local) ou DeepSeek (Cloud) via le pattern Adapter.
-- **Frontend** : HTML5/CSS3/JS Vanilla (Léger et rapide).
-- **Moteur Doc** : `docxtemplater` (Génération .docx), `libreoffice-convert` (PDF).
+### Prerequis
 
-## 🚀 Installation & Démarrage
-
-### 1. Prérequis
 - Node.js v18+
-- [Ollama](https://ollama.com/) installé (pour le mode local).
-- LibreOffice (optionnel, pour la conversion PDF).
+- Ollama installe et modele `qwen2.5:14b` telecharge
+- Playwright browsers: `npx playwright install --with-deps`
 
-### 2. Installation
+### Mise en place
+
 ```bash
-# Cloner le dépôt
-git clone [https://github.com/votre-repo/msi-pse-c-intranet.git](https://github.com/votre-repo/msi-pse-c-intranet.git)
-cd msi-pse-c-intranet
-
-# Installer les dépendances
+cp .env.example .env
 npm install
+npx playwright install --with-deps
+```
+
+### Demarrage
+
+```bash
+npm run dev
+```
+
+## Utilisation
+
+- Generer une propale via l'UI ou l'API.
+- Le PDF est sauvegarde sous `storage/outputs/<entreprise>/<date>/proposal.pdf`.
+
+## Tests et benchmark
+
+```bash
+npm test
+npm run benchmark:generate
+```
+
+## Docker
+
+- `Dockerfile` et `docker-compose.yml` sont fournis pour un deploiement reproductible.
+- Dans Docker, utilisez `docker compose up --build` et verifiez les variables dans `.env`.

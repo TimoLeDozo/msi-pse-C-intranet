@@ -2,7 +2,7 @@
 
 ## 1. Presentation du Projet
 
-**MSI Propales Generator** est une application Node.js de generation de propositions commerciales utilisant l'IA pour transformer des notes de reunion en documents professionnels (DOCX/PDF).
+**MSI Propales Generator** est une application Node.js de generation de propositions commerciales utilisant l'IA pour transformer des notes de reunion en documents professionnels (PDF).
 
 ### Contexte
 - Projet MSI (Mission de Semestre Industriel) - 4 mois
@@ -17,10 +17,9 @@
 |-----------|-------------|---------|
 | Runtime | Node.js | 20+ |
 | Framework | Express | 5.x |
-| IA Cloud | DeepSeek API | deepseek-chat |
-| IA Locale | Ollama | qwen2.5:14b |
-| Documents | docxtemplater + pizzip | latest |
-| PDF | libreoffice-convert | latest |
+| IA | Ollama | qwen2.5:14b |
+| Documents | HTML template + Playwright | latest |
+| PDF | Playwright (Chromium) | latest |
 | Auth | bcrypt + express-session | latest |
 | Frontend | Vanilla JS | ES6+ |
 | Tests | Jest + Playwright | latest |
@@ -36,12 +35,11 @@ msi-propales/
 ├── adapters/                    # Couche I/O (connecteurs externes)
 │   ├── ai/
 │   │   ├── index.js             # Factory - selection automatique
-│   │   ├── deepseek.adapter.js  # Connecteur API DeepSeek (Cloud)
 │   │   └── ollama.adapter.js    # Connecteur Ollama (Local)
 │   ├── document/
-│   │   └── pdf.adapter.js       # Conversion DOCX → PDF
+│   │   └── pdf.adapter.js       # HTML → PDF (Playwright)
 │   └── storage/
-│       ├── docx.adapter.js      # Generation DOCX
+│       ├── docx.adapter.js      # Generation DOCX (legacy)
 │       └── file.adapter.js      # Gestion fichiers outputs
 │
 ├── usecases/                    # Logique metier pure
@@ -62,8 +60,8 @@ msi-propales/
 ├── prompts/                     # Prompts systeme IA
 │   └── icam.prompt.js
 │
-├── templates/                   # Templates DOCX
-│   └── contrat_rnd_icam.docx
+├── templates/                   # Templates HTML
+│   └── proposal.html (nom via HTML_TEMPLATE_PATH)
 │
 ├── storage/outputs/             # Fichiers generes
 ├── public/                      # Frontend (HTML/CSS/JS)
@@ -99,7 +97,7 @@ HTTP Request → Routes → Controllers → Use Cases → Adapters
 | Methode | Endpoint | Auth | Description |
 |---------|----------|------|-------------|
 | POST | `/api/proposal/preview` | Oui | Generation IA des sections |
-| POST | `/api/proposal/generate` | Oui | Generation DOCX/PDF |
+| POST | `/api/proposal/generate` | Oui | Generation PDF |
 
 ### Fichiers
 
@@ -170,11 +168,19 @@ HTTP Request → Routes → Controllers → Use Cases → Adapters
 ```json
 {
   "success": true,
-  "url": "/files/propale_1704067200000.docx",
-  "pdfUrl": "/files/propale_1704067200000.pdf",
   "documents": {
-    "docx": { "path": "...", "url": "..." },
-    "pdf": { "path": "...", "url": "..." }
+    "pdf": {
+      "path": "/storage/out/AcmeCorp/2026-01-20/proposal.pdf",
+      "url": "/files/out/AcmeCorp/2026-01-20/proposal.pdf"
+    }
+  },
+  "metadata": {
+    "generatedAt": "2026-01-20T10:30:00.000Z",
+    "entreprise": "Acme Corp",
+    "budget": 20000,
+    "budgetFormatted": "20 000 EUR",
+    "templateUsed": "proposal.html",
+    "archiveDir": "/storage/out/AcmeCorp/2026-01-20"
   }
 }
 ```
@@ -185,7 +191,7 @@ HTTP Request → Routes → Controllers → Use Cases → Adapters
 
 ### Mode Local (Intranet - RGPD)
 
-L'application supporte une IA locale via Ollama pour garantir la confidentialite des donnees.
+L'application repose exclusivement sur une IA locale via Ollama pour garantir la confidentialite des donnees.
 
 ```env
 USE_LOCAL_AI=true
@@ -194,21 +200,9 @@ OLLAMA_MODEL=qwen2.5:14b
 AI_TIMEOUT_MS=600000
 ```
 
-### Mode Cloud (Developpement)
-
-```env
-USE_LOCAL_AI=false
-DEEPSEEK_API_KEY=sk-.....
-DEEPSEEK_MODEL=deepseek-chat
-```
-
 ### Selection automatique
 
-Le fichier `adapters/ai/index.js` agit comme une Factory :
-- Si `USE_LOCAL_AI=true` → charge `ollama.adapter.js`
-- Si `USE_LOCAL_AI=false` → charge `deepseek.adapter.js`
-
-Le code metier importe simplement `require('../adapters/ai')` sans se soucier du backend IA.
+Le fichier `adapters/ai/index.js` agit comme une Factory qui renvoie systematiquement `ollama.adapter.js`. La variable `USE_LOCAL_AI` doit rester `true` pour conserver ce comportement.
 
 ### Choix du modele Ollama selon le materiel
 
@@ -230,17 +224,13 @@ ADMIN_USERNAME=admin
 ADMIN_PASSWORD_HASH=$2b$12$hash-bcrypt-complet
 ```
 
-### IA (selon le mode)
+### IA (Ollama)
 
 ```env
-# Mode Local
 USE_LOCAL_AI=true
 OLLAMA_BASE_URL=http://localhost:11434/v1
 OLLAMA_MODEL=qwen2.5:14b
 AI_TIMEOUT_MS=600000
-
-# Mode Cloud
-DEEPSEEK_API_KEY=sk-.....
 ```
 
 ### Optionnelles
@@ -249,6 +239,10 @@ DEEPSEEK_API_KEY=sk-.....
 PORT=3000
 NODE_ENV=development
 FILE_BASE_URL=http://localhost:3000/files
+HTML_TEMPLATE_PATH=templates/proposal.html
+PDF_RENDER_TIMEOUT=60000
+PDF_RENDER_FORMAT=A4
+PDF_RENDER_MARGIN_MM=20
 ```
 
 ### Generer un hash de mot de passe
@@ -326,17 +320,167 @@ curl http://localhost:11434/v1/models
 
 ---
 
-## 11. Points de Vigilance
+## 11. Deploiement Docker (Node + Playwright)
 
-1. **LibreOffice** doit etre installe sur le serveur pour la conversion PDF
+Objectif : packager l'app Node.js avec Chromium (Playwright) pour un rendu PDF stable.
+LibreOffice reste optionnel si tu conserves un fallback DOCX.
+
+### Dockerfile (Node + Playwright)
+
+```Dockerfile
+FROM node:20-bullseye
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    fonts-dejavu \
+    fonts-liberation \
+    libnss3 \
+    libatk1.0-0 \
+    libatk-bridge2.0-0 \
+    libcups2 \
+    libdrm2 \
+    libxkbcommon0 \
+    libxcomposite1 \
+    libxdamage1 \
+    libxfixes3 \
+    libxrandr2 \
+    libgbm1 \
+    libasound2 \
+    libpango-1.0-0 \
+    libpangocairo-1.0-0 \
+  && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm ci --omit=dev
+RUN npm install playwright
+ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
+RUN npx playwright install chromium
+
+COPY . .
+
+ENV NODE_ENV=production
+EXPOSE 3000
+
+CMD ["node", "server.js"]
+```
+
+### docker-compose.yml
+
+```yaml
+version: "3.9"
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    env_file: .env
+    environment:
+      OLLAMA_BASE_URL: "http://host.docker.internal:11434/v1"
+      NODE_ENV: "production"
+    volumes:
+      - ./storage/outputs:/app/storage/outputs
+```
+
+### Notes
+- Sur Linux, remplace `host.docker.internal` par l'IP host (ex: 172.17.0.1) ou utilise `network_mode: host`.
+- Pour un serveur Windows, `host.docker.internal` fonctionne par defaut.
+- Si tu utilises TLS inverse-proxy, pense a configurer `trust proxy` et la gestion des cookies secure.
+
+---
+
+## 12. Conversion PDF - alternatives (legacy DOCX)
+
+Le pipeline principal utilise Playwright (HTML → PDF). Les options ci-dessous
+ne sont utiles que si tu conserves une generation DOCX en parallele.
+
+### Option A (Windows + Word + Python docx2pdf)
+Prerequis : Microsoft Word installe + Python + `pip install docx2pdf`
+
+Micro-script `scripts/convert_pdf.py` :
+```python
+import sys
+from docx2pdf import convert
+
+def main():
+    if len(sys.argv) < 3:
+        print("Usage: python convert_pdf.py input.docx output.pdf")
+        sys.exit(1)
+
+    input_path = sys.argv[1]
+    output_path = sys.argv[2]
+
+    try:
+        convert(input_path, output_path)
+        print("Success")
+    except Exception as e:
+        print(f"Error: {e}")
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main()
+```
+
+Adapter Node.js (exemple) :
+```javascript
+const { exec } = require('child_process');
+const path = require('path');
+
+class PdfAdapter {
+  async convert(inputPath, outputPath) {
+    return new Promise((resolve, reject) => {
+      const scriptPath = path.join(__dirname, '../../scripts/convert_pdf.py');
+      const cmd = `python "${scriptPath}" "${inputPath}" "${outputPath}"`;
+
+      exec(cmd, (error, stdout, stderr) => {
+        if (error) return reject(error);
+        if (stdout.includes("Success")) return resolve(outputPath);
+        return reject(new Error(stderr || stdout));
+      });
+    });
+  }
+}
+
+module.exports = new PdfAdapter();
+```
+
+### Option B (LibreOffice headless - legacy)
+LibreOffice est gratuit et fonctionne en mode headless via `libreoffice-convert` (si DOCX conserve).
+
+```javascript
+const libre = require('libreoffice-convert');
+const fs = require('fs').promises;
+
+class PdfAdapter {
+  async convert(inputPath, outputPath) {
+    try {
+      const docxBuf = await fs.readFile(inputPath);
+      return new Promise((resolve, reject) => {
+        libre.convert(docxBuf, '.pdf', undefined, (err, pdfBuf) => {
+          if (err) return reject(err);
+          fs.writeFile(outputPath, pdfBuf).then(() => resolve(outputPath)).catch(reject);
+        });
+      });
+    } catch (error) {
+      throw new Error(`Echec conversion PDF: ${error.message}`);
+    }
+  }
+}
+```
+
+---
+
+## 13. Points de Vigilance
+
+1. **Playwright/Chromium** doit etre installe pour le rendu PDF
 2. **SESSION_SECRET** doit etre long et aleatoire en production
 3. **Ollama** doit etre demarre avant l'application en mode local
-4. **Template DOCX** doit exister dans `templates/`
+4. **Template HTML** doit exister dans `templates/` (proposal.html par defaut)
 5. **Rate limiting** est desactive en developpement (actif en production)
 
 ---
 
-## 12. Tests
+## 14. Tests
 
 ### Tests unitaires (Jest)
 
@@ -356,7 +500,7 @@ npx playwright test
 
 ---
 
-## 13. Dependances Critiques
+## 15. Dependances Critiques
 
 | Package | Usage | Note |
 |---------|-------|------|
@@ -364,9 +508,10 @@ npx playwright test
 | express-session | Sessions | In-memory (Redis en prod) |
 | bcrypt | Hash passwords | |
 | axios | Appels API | |
-| docxtemplater | Generation DOCX | |
-| pizzip | Manipulation ZIP/DOCX | |
-| libreoffice-convert | DOCX → PDF | Requiert LibreOffice |
+| playwright | HTML → PDF | Chromium requis |
+| docxtemplater | Generation DOCX (legacy) | |
+| pizzip | Manipulation ZIP/DOCX (legacy) | |
+| libreoffice-convert | DOCX → PDF (legacy) | Requiert LibreOffice |
 
 ---
 

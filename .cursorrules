@@ -8,7 +8,7 @@ Développé par Tim (Icam) | Deadline : Jury MSI
 
 ## STACK
 - Backend: Node.js 20+ / Express 5.x
-- IA: DeepSeek API (deepseek-chat)
+- IA: Ollama (qwen2.5:14b)
 - Documents: docxtemplater + pizzip + libreoffice-convert
 - Auth: bcrypt + express-session
 - Frontend: HTML/CSS/JS vanilla (Neural UI)
@@ -20,7 +20,7 @@ usecases/    → Logique métier pure
 controllers/ → Orchestration HTTP
 routes/      → Définition endpoints
 services/    → Utilitaires partagés
-prompts/     → Prompts DeepSeek
+prompts/     → Prompts IA
 ```
 
 # ═══════════════════════════════════════════════════════════════
@@ -131,5 +131,4 @@ Coverage > 70%.
 - `middleware/requireAuth.js` → Auth session
 - `usecases/generateProposal.usecase.js` → Cœur métier
 - `usecases/previewProposal.usecase.js` → Preview IA
-- `adapters/ai/deepseek.adapter.js` → Connecteur IA
 - `config/swagger.config.js` → Config Swagger

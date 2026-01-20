@@ -21,7 +21,7 @@ describe('previewProposal.usecase', () => {
     jest.clearAllMocks();
 
     // Setup default prompt service mock
-    promptService.SYSTEM_PROMPT = 'System prompt for testing';
+    promptService.buildDynamicPrompt = jest.fn(() => 'System prompt for testing');
     promptService.buildUserMessage = jest.fn((draft) => `User message for ${draft.titre}`);
   });
 
@@ -50,7 +50,7 @@ describe('previewProposal.usecase', () => {
           outputUsd: 0.0002,
           totalUsd: 0.0003
         },
-        model: 'deepseek-chat',
+        model: 'qwen2.5:14b',
         durationMs: 1500
       };
 
@@ -72,7 +72,7 @@ describe('previewProposal.usecase', () => {
       expect(aiAdapter.generateStructuredContent).toHaveBeenCalledTimes(1);
       expect(aiAdapter.generateStructuredContent).toHaveBeenCalledWith({
         messages: [
-          { role: 'system', content: promptService.SYSTEM_PROMPT },
+          { role: 'system', content: 'System prompt for testing' },
           { role: 'user', content: expect.any(String) }
         ],
         temperature: 0.7,
@@ -80,6 +80,10 @@ describe('previewProposal.usecase', () => {
       });
 
       // Verify prompt service was called
+      expect(promptService.buildDynamicPrompt).toHaveBeenCalledWith({
+        typeContrat: proposalDraft.typeContrat || proposalDraft.thematique,
+        contratPrecedent: proposalDraft.contratPrecedent
+      });
       expect(promptService.buildUserMessage).toHaveBeenCalledWith(proposalDraft);
     });
 
@@ -93,7 +97,7 @@ describe('previewProposal.usecase', () => {
       aiAdapter.generateStructuredContent.mockResolvedValue({
         sections: {},
         cost: {},
-        model: 'deepseek-chat',
+        model: 'qwen2.5:14b',
         durationMs: 1000
       });
 
@@ -104,16 +108,16 @@ describe('previewProposal.usecase', () => {
       expect(validationService.validateProposalDraft).toHaveBeenCalledWith(proposalDraft);
     });
 
-    it('should propagate errors from DeepSeek adapter', async () => {
+    it('should propagate errors from Ollama adapter', async () => {
       // Arrange
       const proposalDraft = { titre: 'Test' };
-      const error = new Error('DeepSeek API error: Rate limit exceeded');
+      const error = new Error('Ollama adapter error: Rate limit exceeded');
 
       aiAdapter.generateStructuredContent.mockRejectedValue(error);
 
       // Act & Assert
       await expect(previewProposalUseCase.execute(proposalDraft)).rejects.toThrow(
-        'DeepSeek API error: Rate limit exceeded'
+        'Ollama adapter error: Rate limit exceeded'
       );
     });
 
@@ -151,7 +155,7 @@ describe('previewProposal.usecase', () => {
           phrase: 'Conclusion'
         },
         cost: { inputUsd: 0.0001, outputUsd: 0.0001, totalUsd: 0.0002 },
-        model: 'deepseek-chat',
+        model: 'qwen2.5:14b',
         durationMs: 1000
       };
 
@@ -172,7 +176,7 @@ describe('previewProposal.usecase', () => {
       aiAdapter.generateStructuredContent.mockResolvedValue({
         sections: {},
         cost: {},
-        model: 'deepseek-chat',
+        model: 'qwen2.5:14b',
         durationMs: 1000
       });
 
@@ -190,12 +194,13 @@ describe('previewProposal.usecase', () => {
       const proposalDraft = { titre: 'Test Project' };
       const expectedUserMessage = 'User message for Test Project';
 
+      promptService.buildDynamicPrompt.mockReturnValue('System prompt for testing');
       promptService.buildUserMessage.mockReturnValue(expectedUserMessage);
 
       aiAdapter.generateStructuredContent.mockResolvedValue({
         sections: {},
         cost: {},
-        model: 'deepseek-chat',
+        model: 'qwen2.5:14b',
         durationMs: 1000
       });
 
@@ -216,7 +221,7 @@ describe('previewProposal.usecase', () => {
       const mockAiResponse = {
         sections: { titre: 'Title', contexte: 'Context' },
         cost: { inputUsd: 0.001, outputUsd: 0.002, totalUsd: 0.003 },
-        model: 'deepseek-chat',
+        model: 'qwen2.5:14b',
         durationMs: 2000
       };
 

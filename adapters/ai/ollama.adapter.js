@@ -4,6 +4,7 @@
  * Avantage : Gratuit, Privé (Intranet), Agnostique au matériel
  */
 const axios = require('axios');
+const { safeJsonParse } = require('../../utils/json.util');
 
 // Configuration par défaut (peut être surchargée par .env)
 const BASE_URL = (process.env.OLLAMA_BASE_URL || 'http://localhost:11434/v1').replace(/\/$/, '');
@@ -42,7 +43,13 @@ class OllamaAdapter {
       const content = response?.data?.choices?.[0]?.message?.content;
       if (!content) throw new Error('Réponse IA vide');
 
-      const parsed = this.safeJsonParse(content);
+      let parsed;
+      try {
+        parsed = safeJsonParse(content);
+      } catch (e) {
+        console.warn("ƒsÿ‹÷? JSON IA invalide, dump:", String(content).substring(0, 100));
+        throw new Error(`Erreur parsing JSON IA: ${e.message}`);
+      }
 
       // Métriques pour le debug
       return {
@@ -55,19 +62,6 @@ class OllamaAdapter {
 
     } catch (error) {
       this.handleError(error);
-    }
-  }
-
-  // Nettoyage robuste du JSON (les LLM locaux sont parfois bavards)
-  safeJsonParse(rawContent) {
-    const raw = String(rawContent ?? '').trim();
-    // Extraction du bloc JSON uniquement
-    const jsonBlock = raw.match(/\{[\s\S]*\}/)?.[0] || raw;
-    try {
-      return JSON.parse(jsonBlock);
-    } catch (e) {
-      console.warn("⚠️ JSON IA invalide, dump:", raw.substring(0, 100));
-      throw new Error(`Erreur parsing JSON IA: ${e.message}`);
     }
   }
 

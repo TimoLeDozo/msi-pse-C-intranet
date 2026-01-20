@@ -603,7 +603,7 @@
           <span class="ops-stat-label">PRÉCISION IA</span>
         </div>
         <div class="ops-stat-card">
-          <span class="ops-stat-value">DeepSeek</span>
+          <span class="ops-stat-value">Ollama</span>
           <span class="ops-stat-label">Chat</span>
         </div>
         <div class="ops-stat-card">
@@ -629,7 +629,7 @@
             <div class="console-header-text">
               <h4 style="margin:0; font-size:0.9rem; color:rgba(255,255,255,0.6); text-transform:uppercase; letter-spacing:2px;">Générateur Propale V2 (Corrigé)</h4>
               <h2>Console Neural · Génération de propale</h2>
-              <p>Renseignez les zones clés. Toutes les informations sont transmises au serveur Node.js qui génère le document DOCX via l'IA DeepSeek.</p>
+              <p>Renseignez les zones cles. Toutes les informations sont transmises au serveur Node.js qui genere le PDF via l'IA locale Ollama.</p>
             </div>
           </div>
         </div>
@@ -896,8 +896,7 @@
               </div>
 
               <div id="resultLinks" style="display:none; margin-top:20px;">
-                <a href="#" id="docLink" target="_blank" class="cost-log-link" style="margin-bottom:10px; background:#00ffff; color:#000;">📄 Ouvrir GDoc</a>
-                <a href="#" id="pdfLink" target="_blank" class="cost-log-link">⬇️ Télécharger PDF</a>
+                <a href="#" id="pdfLink" target="_blank" class="cost-log-link" style="background:#00ffff; color:#000;">Telecharger PDF</a>
               </div>
 
             </section>
@@ -944,11 +943,10 @@
       <!-- SUCCESS STATE -->
       <div id="modalSuccess" class="modal-state" style="display: none;">
         <div class="success-icon">✨</div>
-        <h3 class="modal-title">Propale Générée</h3>
-        <p class="modal-desc">Le document a été créé et stocké avec succès.</p>
+        <h3 class="modal-title">PDF Genere</h3>
+        <p class="modal-desc">Le document PDF a ete cree avec succes.</p>
         <div class="modal-actions" style="display: flex; flex-direction: column; gap: 15px; width: 100%;">
-          <a href="#" id="modalDocLink" target="_blank" class="ops-btn-primary">OUVRIR LE DOCUMENT</a>
-          <a href="#" id="modalPdfLink" target="_blank" class="cost-log-link">Télécharger PDF</a>
+          <a href="#" id="modalPdfLink" target="_blank" class="ops-btn-primary">Telecharger le PDF</a>
         </div>
       </div>
 

@@ -15,8 +15,8 @@ const options = {
       description: `
 ## 🚀 API de Génération de Propositions Commerciales
 
-Cette API permet de transformer des notes brutes de rendez-vous commerciaux 
-en propositions commerciales professionnelles (.docx/.pdf) via l'IA DeepSeek.
+Cette API permet de transformer des notes brutes de rendez-vous commerciaux
+en propositions commerciales professionnelles (PDF) via l'IA locale Ollama.
 
 ### Flux d'utilisation
 1. **POST /auth/login** - Authentification
@@ -28,7 +28,7 @@ en propositions commerciales professionnelles (.docx/.pdf) via l'IA DeepSeek.
 Session-based via cookie \`msi.sid\` après POST /auth/login
 
 ### Coûts IA
-Chaque appel preview/generate retourne le coût en USD de l'appel DeepSeek.
+Chaque appel preview/generate retourne le coût estimé en temps machine de l'inférence Ollama.
       `,
       contact: {
         name: 'Tim - Icam Engineering',
@@ -152,7 +152,7 @@ Chaque appel preview/generate retourne le coût en USD de l'appel DeepSeek.
             meta: {
               type: 'object',
               properties: {
-                model: { type: 'string', example: 'deepseek-chat' },
+                model: { type: 'string', example: 'qwen2.5:14b' },
                 durationMs: { type: 'integer', example: 4520 }
               }
             }
@@ -163,33 +163,34 @@ Chaque appel preview/generate retourne le coût en USD de l'appel DeepSeek.
           type: 'object',
           properties: {
             success: { type: 'boolean', example: true },
-            url: { type: 'string', example: '/files/propale_1704067200000.docx' },
-            pdfUrl: { type: 'string', example: '/files/propale_1704067200000.pdf' },
             documents: {
               type: 'object',
               properties: {
-                docx: {
-                  type: 'object',
-                  properties: {
-                    path: { type: 'string' },
-                    url: { type: 'string' }
-                  }
-                },
                 pdf: {
                   type: 'object',
-                  nullable: true,
+                  description: 'Document PDF genere',
                   properties: {
-                    path: { type: 'string' },
-                    url: { type: 'string' }
+                    url: { type: 'string', example: '/files/out/AcmeCorp/2026-01-20/proposal.pdf' },
+                    path: { type: 'string', example: '/storage/out/AcmeCorp/2026-01-20/proposal.pdf' }
                   }
                 }
               }
             },
-            cost: {
+            metadata: {
               type: 'object',
               properties: {
-                totalUsd: { type: 'number', example: 0.028 }
+                generatedAt: { type: 'string', format: 'date-time', example: '2026-01-20T10:30:00.000Z' },
+                entreprise: { type: 'string', example: 'Acme Corp' },
+                budget: { type: 'number', example: 20000 },
+                budgetFormatted: { type: 'string', example: '20 000 EUR' },
+                templateUsed: { type: 'string', example: 'proposal.html' },
+                archiveDir: { type: 'string', example: '/storage/out/AcmeCorp/2026-01-20' }
               }
+            },
+            error: {
+              type: 'string',
+              nullable: true,
+              description: 'Message d\'erreur si success=false'
             }
           }
         },

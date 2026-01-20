@@ -1,5 +1,5 @@
 /**
- * Script de vérification de la structure du fichier .env
+ * Script de verification de la structure du fichier .env
  * Usage: node check-env.js
  */
 
@@ -8,124 +8,111 @@ require('dotenv').config();
 const requiredVars = [
   'SESSION_SECRET',
   'ADMIN_USERNAME',
-  'ADMIN_PASSWORD_HASH',
-  'DEEPSEEK_API_KEY'
+  'ADMIN_PASSWORD_HASH'
 ];
 
 const optionalVars = [
-  'DEEPSEEK_MODEL',
-  'DEEPSEEK_BASE_URL',
-  'DEEPSEEK_TIMEOUT_MS',
+  'OLLAMA_BASE_URL',
+  'OLLAMA_MODEL',
+  'AI_TIMEOUT_MS',
   'PORT',
   'FILE_BASE_URL',
   'NODE_ENV'
 ];
 
-console.log('🔍 Vérification de la structure du fichier .env\n');
+console.log('Verification de la structure du fichier .env\n');
 console.log('='.repeat(60));
 
-// Vérification des variables requises
-console.log('\n📋 Variables REQUISES :');
+// Verification des variables requises
+console.log('\n Variables REQUISES :');
 let allRequiredPresent = true;
 
 requiredVars.forEach(varName => {
   const value = process.env[varName];
   if (!value || value.trim() === '') {
-    console.log(`  ❌ ${varName} : MANQUANTE ou VIDE`);
+    console.log(`  [ERREUR] ${varName} : MANQUANTE ou VIDE`);
     allRequiredPresent = false;
   } else {
     // Masquer les valeurs sensibles
     let displayValue = value;
-    if (varName === 'DEEPSEEK_API_KEY') {
-      displayValue = value.substring(0, 7) + '...' + value.substring(value.length - 4);
-    } else if (varName === 'ADMIN_PASSWORD_HASH') {
+    if (varName === 'ADMIN_PASSWORD_HASH') {
       displayValue = value.substring(0, 20) + '...';
     } else if (varName === 'SESSION_SECRET') {
       displayValue = value.length > 20 ? value.substring(0, 20) + '...' : '***';
     } else {
       displayValue = value;
     }
-    console.log(`  ✅ ${varName} : ${displayValue}`);
+    console.log(`  [OK] ${varName} : ${displayValue}`);
   }
 });
 
-// Vérification des variables optionnelles
-console.log('\n📋 Variables OPTIONNELLES :');
+// Verification des variables optionnelles
+console.log('\n Variables OPTIONNELLES :');
 optionalVars.forEach(varName => {
   const value = process.env[varName];
   if (value) {
-    console.log(`  ✅ ${varName} : ${value}`);
+    console.log(`  [OK] ${varName} : ${value}`);
   } else {
-    console.log(`  ⚪ ${varName} : Non définie (valeur par défaut utilisée)`);
+    console.log(`  [--] ${varName} : Non definie (valeur par defaut utilisee)`);
   }
 });
 
-// Validations spécifiques
-console.log('\n🔐 Validations spécifiques :');
+// Validations specifiques
+console.log('\n Validations specifiques :');
 
-// Vérifier SESSION_SECRET
+// Verifier SESSION_SECRET
 if (process.env.SESSION_SECRET) {
   if (process.env.SESSION_SECRET.length < 16) {
-    console.log('  ⚠️  SESSION_SECRET : Trop court (minimum 16 caractères recommandé)');
+    console.log('  [WARN] SESSION_SECRET : Trop court (minimum 16 caracteres recommande)');
   } else {
-    console.log('  ✅ SESSION_SECRET : Longueur correcte');
+    console.log('  [OK] SESSION_SECRET : Longueur correcte');
   }
 }
 
-// Vérifier ADMIN_PASSWORD_HASH
+// Verifier ADMIN_PASSWORD_HASH
 if (process.env.ADMIN_PASSWORD_HASH) {
-  if (!process.env.ADMIN_PASSWORD_HASH.startsWith('$2b$') && 
+  if (!process.env.ADMIN_PASSWORD_HASH.startsWith('$2b$') &&
       !process.env.ADMIN_PASSWORD_HASH.startsWith('$2a$')) {
-    console.log('  ⚠️  ADMIN_PASSWORD_HASH : Format suspect (devrait commencer par $2b$ ou $2a$)');
+    console.log('  [WARN] ADMIN_PASSWORD_HASH : Format suspect (devrait commencer par $2b$ ou $2a$)');
   } else {
-    console.log('  ✅ ADMIN_PASSWORD_HASH : Format bcrypt correct');
+    console.log('  [OK] ADMIN_PASSWORD_HASH : Format bcrypt correct');
   }
 }
 
-// Vérifier DEEPSEEK_API_KEY
-if (process.env.DEEPSEEK_API_KEY) {
-  if (!process.env.DEEPSEEK_API_KEY.startsWith('sk-')) {
-    console.log('  ⚠️  DEEPSEEK_API_KEY : Ne commence pas par "sk-" (format suspect)');
-  } else {
-    console.log('  ✅ DEEPSEEK_API_KEY : Format correct (commence par sk-)');
-  }
-}
-
-// Vérifier DEEPSEEK_MODEL
-if (process.env.DEEPSEEK_MODEL) {
-  const validModels = ['deepseek-chat', 'deepseek-reasoner'];
-  if (!validModels.includes(process.env.DEEPSEEK_MODEL)) {
-    console.log(`  ⚠️  DEEPSEEK_MODEL : "${process.env.DEEPSEEK_MODEL}" n'est pas un modèle valide`);
-    console.log(`     Modèles valides : ${validModels.join(', ')}`);
-  } else {
-    console.log(`  ✅ DEEPSEEK_MODEL : ${process.env.DEEPSEEK_MODEL} (modèle valide)`);
-  }
+// Verifier OLLAMA_BASE_URL
+if (process.env.OLLAMA_BASE_URL) {
+  console.log(`  [OK] OLLAMA_BASE_URL : ${process.env.OLLAMA_BASE_URL}`);
 } else {
-  console.log('  ⚪ DEEPSEEK_MODEL : Non définie (défaut: deepseek-chat)');
-  console.log('     💡 Pour utiliser DeepSeek Reasoner, ajoutez: DEEPSEEK_MODEL=deepseek-reasoner');
+  console.log('  [--] OLLAMA_BASE_URL : Non definie (defaut: http://localhost:11434/v1)');
 }
 
-// Vérifier PORT
+// Verifier OLLAMA_MODEL
+if (process.env.OLLAMA_MODEL) {
+  console.log(`  [OK] OLLAMA_MODEL : ${process.env.OLLAMA_MODEL}`);
+} else {
+  console.log('  [--] OLLAMA_MODEL : Non definie (defaut: qwen2.5:14b)');
+}
+
+// Verifier PORT
 if (process.env.PORT) {
   const port = parseInt(process.env.PORT);
   if (isNaN(port) || port < 1 || port > 65535) {
-    console.log(`  ⚠️  PORT : "${process.env.PORT}" n'est pas un port valide (1-65535)`);
+    console.log(`  [WARN] PORT : "${process.env.PORT}" n'est pas un port valide (1-65535)`);
   } else {
-    console.log(`  ✅ PORT : ${port}`);
+    console.log(`  [OK] PORT : ${port}`);
   }
 } else {
-  console.log('  ⚪ PORT : Non définie (défaut: 3000)');
+  console.log('  [--] PORT : Non definie (defaut: 3000)');
 }
 
-// Résumé final
+// Resume final
 console.log('\n' + '='.repeat(60));
 if (allRequiredPresent) {
-  console.log('\n✅ Toutes les variables REQUISES sont présentes !');
-  console.log('✅ Votre fichier .env est correctement configuré.');
-  console.log('\n💡 Vous pouvez maintenant démarrer le serveur avec : npm run dev');
+  console.log('\n[OK] Toutes les variables REQUISES sont presentes !');
+  console.log('[OK] Votre fichier .env est correctement configure.');
+  console.log('\nVous pouvez maintenant demarrer le serveur avec : npm run dev');
 } else {
-  console.log('\n❌ Certaines variables REQUISES sont manquantes.');
-  console.log('💡 Consultez ENV_SETUP.md pour voir comment les configurer.');
+  console.log('\n[ERREUR] Certaines variables REQUISES sont manquantes.');
+  console.log('Consultez .env.example pour voir comment les configurer.');
 }
 console.log('='.repeat(60) + '\n');
-

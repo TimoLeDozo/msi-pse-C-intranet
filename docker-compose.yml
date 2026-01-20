@@ -1,0 +1,28 @@
+version: "3.9"
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    env_file: .env
+    environment:
+      NODE_ENV: "production"
+      OLLAMA_BASE_URL: "http://host.docker.internal:11434/v1"
+      # PDF Render configuration (Playwright/Chromium)
+      PDF_RENDER_TIMEOUT: "60000"
+      PDF_RENDER_FORMAT: "A4"
+      PDF_RENDER_MARGIN_MM: "20"
+      # Playwright browser path
+      PLAYWRIGHT_BROWSERS_PATH: "/home/appuser/.cache/ms-playwright"
+      # LibreOffice fallback configuration
+      LIBREOFFICE_PATH: "/usr/bin/soffice"
+      LIBREOFFICE_TIMEOUT: "30000"
+      LIBREOFFICE_TEMP_DIR: "/tmp/libreoffice-convert"
+    volumes:
+      - ./storage/outputs:/app/storage/outputs
+      - ./templates:/app/templates:ro
+    # Required for Chromium to run in container
+    security_opt:
+      - seccomp:unconfined
+    # Shared memory size for Chromium (prevents crashes)
+    shm_size: "1gb"

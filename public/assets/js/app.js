@@ -55,7 +55,16 @@
     if (!historyList) return;
     const li = document.createElement("li");
     li.className = "result-item";
-    li.innerHTML = `<span>${msg}</span><br><small style="color:rgba(255,255,255,0.3); font-size:0.7em;">${new Date().toLocaleTimeString()}</small>`;
+    const messageSpan = document.createElement("span");
+    messageSpan.textContent = msg;
+    const timeBreak = document.createElement("br");
+    const timeSmall = document.createElement("small");
+    timeSmall.style.color = "rgba(255,255,255,0.3)";
+    timeSmall.style.fontSize = "0.7em";
+    timeSmall.textContent = new Date().toLocaleTimeString();
+    li.appendChild(messageSpan);
+    li.appendChild(timeBreak);
+    li.appendChild(timeSmall);
     historyList.prepend(li);
     if (historyList.children.length > 5) historyList.lastChild.remove();
   }
@@ -96,11 +105,20 @@
       : "Aucun fichier sélectionné (0/15).";
 
     if (!attachmentsList) return;
-    attachmentsList.innerHTML = "";
+    while (attachmentsList.firstChild) {
+      attachmentsList.removeChild(attachmentsList.firstChild);
+    }
     selectedFiles.forEach((f) => {
       const li = document.createElement("li");
       li.className = "attachment-item";
-      li.innerHTML = `<span>${f.name}</span> <span style="opacity:0.5">${(f.size / 1024).toFixed(1)} KB</span>`;
+      const nameSpan = document.createElement("span");
+      nameSpan.textContent = f.name;
+      const sizeSpan = document.createElement("span");
+      sizeSpan.style.opacity = "0.5";
+      sizeSpan.textContent = `${(f.size / 1024).toFixed(1)} KB`;
+      li.appendChild(nameSpan);
+      li.appendChild(document.createTextNode(" "));
+      li.appendChild(sizeSpan);
       attachmentsList.appendChild(li);
     });
   }
@@ -529,15 +547,17 @@
         statusMain.textContent = "Succès !";
         statusMain.style.color = "#00ff99";
 
-        addHistory("Document créé avec succès.");
-        log("Document OK.");
+        addHistory("PDF genere avec succes.");
+        log("PDF OK.");
 
-        $("docLink").href = res.url;
-        $("pdfLink").href = res.pdfUrl;
-        resultLinks.style.display = "grid";
+        // Nouvelle structure API: { documents: { pdf: { url, path } } }
+        const pdfUrl = res.documents?.pdf?.url;
+        if (pdfUrl) {
+          $("pdfLink").href = pdfUrl;
+          $("modalPdfLink").href = pdfUrl;
+          resultLinks.style.display = "grid";
+        }
 
-        $("modalDocLink").href = res.url;
-        $("modalPdfLink").href = res.pdfUrl;
         setModalState("success");
       } else {
         statusMain.textContent = "Erreur Serveur";

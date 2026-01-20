@@ -1,206 +1,35 @@
-# CLAUDE.md
+# Synthese de Consolidation - Etat Actuel
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+## Avancement - Fait (code)
+- Pipeline PDF-only: HTML -> renderTemplate -> Playwright -> PDF (generateProposal.usecase)
+- Template HTML: `templates/proposal.html`
+- Rendu HTML: `utils/template.util.js` (echappement + \n -> <br>)
+- Mapping PDF: objectifs, livrables, methodologie, echeancier2, eligibiliteCIR + budget_texte (en lettres)
+- UI PDF-only: `public/assets/js/app.js`, `public/app.js`, `public/index.html`
+- PDF adapter modernise (Playwright + fallback LibreOffice)
+- Benchmarks PDF-only: `scripts/benchmark.js`, `scripts/benchmark-generate.js`
+- Docker: dependances Playwright/Chromium integrees (LibreOffice optionnel)
+- Tests PDF-only mis a jour (generate usecase + pdf adapter)
 
-## Project Overview
+## Blocages actuels
+- Playwright/Chromium doit etre installe sur l'environnement cible (sinon rendu PDF KO)
+- Validation reelle du rendu PDF (benchmark/generation) pas encore executee
+- Nettoyage final des docs (dernieres mentions DOCX a verifier)
 
-**MSI Propal Generator** (Hypothesis C) - Node.js commercial proposal generation system.
+## Reste a faire (prioritaire)
+- Lancer `npm test` + `npm run benchmark:generate` pour valider la chaine PDF
+- Verifier le rendu PDF final (mise en page + champs)
+- Finaliser docs: `DOCUMENTATION_TECHNIQUE.md`, `README.md`, `.env.example` (si reste DOCX)
+- Decider du traitement legacy DOCX (conserver ou retirer docxtemplater/libreoffice-convert)
+- Rotation secrets + purge historique si necessaire
 
-This is a POC-to-production architecture that generates commercial proposals using:
+## Tests
+- `npm test` (non relance apres pivot PDF-only)
+- `npm run benchmark:generate` (non relance apres pivot PDF-only)
 
-- Structured client brief input
-- AI-powered content generation (DeepSeek)
-- Template-based document generation (DOCX/PDF)
-
-This is part of a 4-month industrial engineering project (MSI - Mission de Semestre Industriel) migrating from Google Apps Script to a clean, testable Node.js architecture.
-
-## Development Commands
-
-```bash
-# Start development server
-npm run dev
-
-# Server runs on http://localhost:3000 (or PORT from .env)
-```
-
-## Environment Setup
-
-1. Copy `.env.example` to `.env`
-2. Required environment variables:
-   - `SESSION_SECRET`: Session signing key (must be set, no default)
-   - `DEEPSEEK_API_KEY`: DeepSeek AI API key
-   - `ADMIN_USERNAME` / `ADMIN_PASSWORD_HASH`: Admin credentials (bcrypt hash)
-   - `PORT`: Server port (default: 3000)
-   - `FILE_BASE_URL`: Base URL for file access
-
-To generate a password hash for ADMIN_PASSWORD_HASH:
-
-```javascript
-const bcrypt = require("bcrypt");
-bcrypt.hash("your-password", 12).then(console.log);
-```
-
-## Architecture
-
-### Clean Architecture Layers (Strict Separation)
-
-This codebase follows a **use case-driven architecture** with strict layer separation:
-
-```
-HTTP Request → Routes → Controllers → Use Cases → Adapters
-                                          ↓
-                                      Services
-```
-
-**Key principles:**
-
-1. **Use Cases** (`usecases/`) contain ALL business logic
-2. **Adapters** (`adapters/`) are pure technical connectors (NO business logic)
-3. **Controllers** (`controllers/`) are thin HTTP adapters that delegate to use cases
-4. **Routes** (`routes/`) define Express routing only
-
-### Directory Structure
-
-- `server.js` - Express app configuration, session setup, route mounting
-- `routes/` - Express route definitions
-  - `auth.routes.js` - `/auth` endpoints (login, logout, /me)
-  - `proposal.routes.js` - `/api/proposal` endpoints (preview, generate)
-- `controllers/` - HTTP request/response handlers that call use cases
-- `usecases/` - Business logic orchestration
-  - `previewProposal.usecase.js` - Transform draft → AI-generated sections
-  - `generateProposal.usecase.js` - Generate final DOCX/PDF (currently stub)
-- `adapters/` - External system connectors (NO business logic)
-  - `ai/deepseek.adapter.js` - DeepSeek API client with JSON parsing
-  - `document/pdf.adapter.js` - PDF generation adapter
-  - `storage/docx.adapter.js` - DOCX template generation (docxtemplater)
-  - `storage/file.adapter.js` - File storage operations
-- `prompts/` - AI prompt templates
-  - `icam.prompt.js` - System prompt + user message builder for Icam proposals
-- `middleware/` - Express middleware
-  - `requireAuth.js` - Session-based auth guard (redirects to /login)
-  - `error.middleware.js` - Error handling
-- `services/` - Reusable domain services (validation, cost calculation, etc.)
-- `templates/` - DOCX templates for proposal generation
-  - `contrat_rnd_icam.docx` - Main proposal template
-- `storage/outputs/` - Generated files output directory
-- `public/` - Frontend static files (HTML/CSS/JS)
-
-### Authentication Flow
-
-Session-based authentication with bcrypt password hashing:
-
-- Public routes: `/login`, `/assets/*`, `/auth/*`
-- Protected routes: `/` (index.html), `/api/proposal/*`
-- Session cookie: `msi.sid` (httpOnly, sameSite: lax, 8h max age)
-- Rate limiting: 5 login attempts per 10 minutes per IP
-- Middleware: `requireAuth` redirects unauthenticated users to `/login`
-
-### Proposal Generation Flow
-
-1. **Preview** (`POST /api/proposal/preview`):
-
-   - Input: `proposalDraft` JSON (client context + project brief)
-   - Process: `previewProposal.usecase` → `deepseek.adapter` → `icam.prompt`
-   - Output: AI-generated sections (titre, contexte, demarche, phases, phrase)
-
-2. **Generate** (`POST /api/proposal/generate`):
-   - Input: `proposalDraft` JSON with AI sections
-   - Process: `generateProposal.usecase` → `docx.adapter` + `pdf.adapter`
-   - Output: DOCX + PDF download URLs
-   - **Status**: Currently stubbed, returns placeholder URLs
-
-### AI Integration (DeepSeek)
-
-- Adapter: `adapters/ai/deepseek.adapter.js`
-- Model: `deepseek-chat` (configurable via `DEEPSEEK_MODEL`)
-- Features:
-  - Tolerant JSON parsing (extracts JSON from markdown fences)
-  - Cost estimation (input: $0.28/1M tokens, output: $0.42/1M tokens)
-  - Timeout: 120s default (configurable via `DEEPSEEK_TIMEOUT_MS`)
-- Prompt system: Domain-specific prompts in `prompts/` (e.g., `icam.prompt.js`)
-
-### Document Generation
-
-- **DOCX**: `docxtemplater` with placeholder replacement (similar to Apps Script template engine)
-  - Template: `templates/contrat_rnd_icam.docx`
-  - Sanitization: Cleans markdown, normalizes line breaks for Word
-  - Output: `storage/outputs/propale_<timestamp>.docx`
-- **PDF**: Conversion adapter (implementation TBD)
-
-## Important Implementation Notes
-
-### When Adding Features
-
-1. **Business logic belongs in use cases**, not in adapters or controllers
-2. **Adapters must remain pure** - they only translate technical protocols (HTTP, AI API, file I/O)
-3. **Prompts are domain artifacts** - store them in `prompts/`, not in adapters
-4. **Controllers are thin** - they only handle HTTP concerns (req/res), then delegate to use cases
-
-### Testing Strategy
-
-When implementing tests:
-
-- Test use cases with mocked adapters (business logic validation)
-- Test adapters in isolation (technical integration validation)
-- Controllers can be tested via supertest (HTTP contract validation)
-
-### Session Management
-
-- Sessions are stored in-memory (express-session default)
-- For production: configure external session store (Redis, database)
-- Session regeneration on login prevents session fixation attacks
-- Cookie config adapts to NODE_ENV (secure flag for production)
-
-## Migration Context (Hypothesis B → C)
-
-This codebase maintains 100% functional parity with "Hypothesis B" (Google Apps Script version) while providing:
-
-- Clean, testable architecture
-- Portable deployment (no Google Workspace dependency)
-- Production-ready patterns (session auth, rate limiting, error handling)
-
-When comparing with previous implementations, focus on architectural improvements, not functional changes.
-
----
-
-## 🎯 Roadmap - Finalisation Projet
-
-### Phase 1 - UX Polish ✅
-
-- [x] Tooltips sur les champs IA (Problème, Solution, Objectifs)
-- [x] Améliorer modales d'erreur (retry, message clair)
-
-### Phase 2 - Documentation ✅
-
-- [x] CLAUDE.md nettoyé et à jour
-
-### Phase 3 - Swagger API ✅
-
-- [x] Valider annotations routes
-- [x] Tester endpoints via UI
-
-### Phase 4 - GitHub Push ✅
-
-- [x] Vérifier .gitignore
-- [x] Commit & Push
-
-### Phase 5 - UI Final ✅
-
-- [x] Corriger orthographe
-- [x] Effets boutons/touches
-
----
-
-## ✅ Problèmes résolus
-
-| Date       | Problème                    | Solution                                           |
-| ---------- | --------------------------- | -------------------------------------------------- |
-| 2026-01-08 | Attributs `name` manquants  | Ajouté sur tous les inputs login + console         |
-| 2026-01-08 | Sélecteurs E2E incorrects   | Corrigés dans `msi-propales.spec.js`               |
-| 2026-01-08 | Playwright sans navigateur  | Installé Chromium via `npx playwright install`     |
-| 2026-01-08 | CSS lint `background-clip`  | Ajouté propriété standard                          |
-| 2026-01-08 | Tests E2E échouaient (8/15) | Rate limiting désactivé en dev + waits robustes    |
-| 2026-01-08 | Validation côté client      | Inline errors, scroll-to-error, real-time feedback |
-| 2026-01-08 | États de loading boutons    | Spinner CSS, classes btn-loading, disabled state   |
-| 2026-01-08 | Tooltips champs IA          | 3 tooltips avec conseils pour l'utilisateur        |
-| 2026-01-08 | Modale erreur basique       | Bouton Réessayer + message d'aide                  |
+## Checklist V1
+- [x] Inference 100% locale via Ollama (Qwen 2.5 14B)
+- [ ] Zero fuite de secrets dans le controle de version
+- [x] Couverture tests unitaires > 80% sur adapters critiques
+- [ ] Temps generation PDF < 60 secondes (benchmark a valider)
+- [ ] Zero residu de balises {{...}} dans les documents finaux (validation PDF a faire)

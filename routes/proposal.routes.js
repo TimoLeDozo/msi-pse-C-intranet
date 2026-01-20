@@ -1,13 +1,24 @@
 const express = require('express');
+const rateLimit = require('express-rate-limit');
 const router = express.Router();
 
 const proposalController = require('../controllers/proposal.controllers');
 
-router.post('/preview', (req, res, next) =>
+// Rate limiting - desactive en developpement pour ne pas bloquer les tests
+const isProduction = process.env.NODE_ENV === 'production';
+const aiLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: isProduction ? 20 : 1000,
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: () => !isProduction
+});
+
+router.post('/preview', aiLimiter, (req, res, next) =>
   proposalController.preview(req, res, next)
 );
 
-router.post('/generate', (req, res, next) =>
+router.post('/generate', aiLimiter, (req, res, next) =>
   proposalController.generate(req, res, next)
 );
 
@@ -19,7 +30,7 @@ module.exports = router;
  *   post:
  *     summary: Pré-génération IA du contenu
  *     description: |
- *       Génère les sections de la proposition via DeepSeek.
+ *       Génère les sections de la proposition via Ollama (inférence locale).
  *       Permet à l'utilisateur de prévisualiser et éditer avant génération finale.
  *     tags: [Proposal]
  *     security:
@@ -53,10 +64,12 @@ module.exports = router;
  * @swagger
  * /api/proposal/generate:
  *   post:
- *     summary: Génération des documents finaux
+ *     summary: Generation du document PDF final
  *     description: |
- *       Génère le document DOCX et PDF à partir des données.
- *       Si les sections IA sont fournies (après preview), pas de nouvel appel IA.
+ *       Genere le document PDF a partir des donnees via le pipeline HTML-to-PDF.
+ *       Le document est archive dans out/{Nom_Client}/{Date_Projet}/.
+ *       Si les sections IA sont fournies (apres preview), pas de nouvel appel IA.
+ *       entrepriseNom est requis pour la generation et l'archivage.
  *     tags: [Proposal]
  *     security:
  *       - sessionAuth: []
@@ -68,15 +81,15 @@ module.exports = router;
  *             $ref: '#/components/schemas/GenerateInput'
  *     responses:
  *       200:
- *         description: Documents générés avec succès
+ *         description: Document PDF genere avec succes
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/GenerateResponse'
  *       400:
- *         description: Erreur de validation
+ *         description: Erreur de validation (entrepriseNom requis)
  *       401:
- *         description: Non authentifié
+ *         description: Non authentifie
  *       500:
  *         description: Erreur serveur
  */

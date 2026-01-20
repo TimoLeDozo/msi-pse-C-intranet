@@ -18,8 +18,13 @@ module.exports = {
       validationService.validateProposalDraft(proposalDraft);
     }
 
+    const systemPrompt = promptService.buildDynamicPrompt({
+      typeContrat: proposalDraft.typeContrat || proposalDraft.thematique,
+      contratPrecedent: proposalDraft.contratPrecedent
+    });
+
     const messages = [
-      { role: 'system', content: promptService.SYSTEM_PROMPT },
+      { role: 'system', content: systemPrompt },
       { role: 'user', content: promptService.buildUserMessage(proposalDraft) }
     ];
 
