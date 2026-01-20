@@ -1,0 +1,277 @@
+Template: /app/templates/Template - PlaceHolder V2.docx
+
+[word/document.xml]
+1. {{|typeContrat|}} -> {{typeContrat}}
+   context: {{|typeContrat|}}|<w:left w:val="nil"/><w:botto
+   fragments:
+     - #0: "{{"
+     - #1: "typeContrat"
+     - #2: "}}"
+2. {{|codeProjet|}} -> {{codeProjet}}
+   context: Pr><w:r><w:t>Référence n|°:| |{{|codeProjet|}}_|{{|entrepriseNom|}}|<w:tab w
+   fragments:
+     - #7: "{{"
+     - #8: "codeProjet"
+     - #9: "}}_"
+3. {{|entrepriseNom|}} -> {{entrepriseNom}}
+   context: ence n|°:| |{{|codeProjet|}}_|{{|entrepriseNom|}}|<w:tab w:val="left" w:pos="18
+   fragments:
+     - #10: "{{"
+     - #11: "entrepriseNom"
+     - #12: "}}"
+4. {{|clientNom|}} -> {{clientNom}}
+   context: al="right"/></w:pPr><w:r><w:t>{{|clientNom|}}|<w:left w:val="nil"/><w:botto
+   fragments:
+     - #26: "<w:left w:val="nil"/><w:bottom w:val="nil"/><w:right w:val="nil"/><w:between w:val="nil"/></w:pBdr><w:spacing w:before="0" w:line="240" w:lineRule="auto"/><w:jc w:val="right"/></w:pPr><w:r><w:t>{{"
+     - #27: "clientNom"
+     - #28: "}}"
+5. {{|clientFonction|}} -> {{clientFonction}}
+   context: al="right"/></w:pPr><w:r><w:t>{{|clientFonction|}} |<w:left w:val="nil"/><w:bott
+   fragments:
+     - #29: "<w:left w:val="nil"/><w:bottom w:val="nil"/><w:right w:val="nil"/><w:between w:val="nil"/></w:pBdr><w:spacing w:before="0" w:line="240" w:lineRule="auto"/><w:jc w:val="right"/></w:pPr><w:r><w:t>{{"
+     - #30: "clientFonction"
+     - #31: "}} "
+6. {{|entrepriseNom|}} -> {{entrepriseNom}}
+   context: al="right"/></w:pPr><w:r><w:t>{{|entrepriseNom|}} |<w:left w:val="nil"/><w:bott
+   fragments:
+     - #32: "<w:left w:val="nil"/><w:bottom w:val="nil"/><w:right w:val="nil"/><w:between w:val="nil"/></w:pBdr><w:spacing w:before="0" w:line="240" w:lineRule="auto"/><w:jc w:val="right"/></w:pPr><w:r><w:t>{{"
+     - #33: "entrepriseNom"
+     - #34: "}} "
+7. {{|entrepriseAdresse|}} -> {{entrepriseAdresse}}
+   context: t"/></w:pPr><w:r><w:tab/><w:t>{{|entrepriseAdresse|}}|<w:left w:val="nil"/><w:botto
+   fragments:
+     - #35: "<w:left w:val="nil"/><w:bottom w:val="nil"/><w:right w:val="nil"/><w:between w:val="nil"/></w:pBdr><w:spacing w:before="0" w:line="240" w:lineRule="auto"/><w:jc w:val="right"/></w:pPr><w:r><w:tab/><w:t>{{"
+     - #36: "entrepriseAdresse"
+     - #37: "}}"
+8. {{|clientTelephone|}} -> {{clientTelephone}}
+   context:  w:val="single"/></w:rPr><w:t>{{|clientTelephone|}} |{{|clientEmail|}} |<w:left w
+   fragments:
+     - #38: "<w:left w:val="nil"/><w:bottom w:val="nil"/><w:right w:val="nil"/><w:between w:val="nil"/></w:pBdr><w:spacing w:before="0" w:line="240" w:lineRule="auto"/><w:jc w:val="right"/><w:rPr><w:i/><w:iCs/></w:rPr></w:pPr><w:r><w:rPr><w:i/><w:iCs/><w:u w:val="single"/></w:rPr><w:t>{{"
+     - #39: "clientTelephone"
+     - #40: "}} "
+9. {{|clientEmail|}} -> {{clientEmail}}
+   context: r><w:t>{{|clientTelephone|}} |{{|clientEmail|}} |<w:left w:val="nil"/><w:bott
+   fragments:
+     - #41: "{{"
+     - #42: "clientEmail"
+     - #43: "}} "
+10. {{|entrepriseLogo|}} -> {{entrepriseLogo}}
+   context: Pr><w:i/><w:iCs/></w:rPr><w:t>{{|entrepriseLogo|}}|<w:tab w:val="left" w:pos="18
+   fragments:
+     - #44: "<w:left w:val="nil"/><w:bottom w:val="nil"/><w:right w:val="nil"/><w:between w:val="nil"/></w:pBdr><w:spacing w:before="0" w:line="240" w:lineRule="auto"/><w:jc w:val="right"/></w:pPr><w:r><w:rPr><w:i/><w:iCs/></w:rPr><w:t>{{"
+     - #45: "entrepriseLogo"
+     - #46: "}}"
+11. {{|DateDuJour|}} -> {{DateDuJour}}
+   context: e">Fait à : |Lieusaint| |le : {{|DateDuJour|}} |<w:left w:val="nil"/><w:bott
+   fragments:
+     - #50: "le : {{"
+     - #51: "DateDuJour"
+     - #52: "}} "
+12. {{|dateDebut|}} -> {{dateDebut}}
+   context: dPageBreak/><w:t>Version du : {{|dateDebut|}} |<w:left w:val="nil"/><w:bott
+   fragments:
+     - #53: "<w:left w:val="nil"/><w:bottom w:val="nil"/><w:right w:val="nil"/><w:between w:val="nil"/></w:pBdr></w:pPr><w:r><w:lastRenderedPageBreak/><w:t>Version du : {{"
+     - #54: "dateDebut"
+     - #55: "}} "
+13. {{|entrepriseNom|}} -> {{entrepriseNom}}
+   context: ans le cadre de ce projet que {{|entrepriseNom|}} souhaite se faire accompagner
+   fragments:
+     - #112: "<w:left w:val="none" w:sz="0" w:space="0" w:color="000000"/><w:bottom w:val="none" w:sz="0" w:space="0" w:color="000000"/><w:right w:val="none" w:sz="0" w:space="0" w:color="000000"/><w:between w:val="none" w:sz="0" w:space="0" w:color="000000"/></w:pBdr><w:shd w:val="clear" w:color="auto" w:fill="FFFFFF"/><w:spacing w:after="220"/></w:pPr><w:r><w:t>C'est dans le cadre de ce projet que {{"
+     - #113: "entrepriseNom"
+     - #114: "}} souhaite se faire accompagner par l’Icam pour sa réalisation."
+14. {{|thematique|}} -> {{thematique}}
+   context:  sa réalisation.|Thématique : {{|thematique|}}|L|’Icam, école d’ingénieur gé
+   fragments:
+     - #115: "Thématique : {{"
+     - #116: "thematique"
+     - #117: "}}"
+15. {{|thematique|}} -> {{thematique}}
+   context: culièrement dans son domaine “{{|thematique|}}”.|Démarche proposée|{{|demarc
+   fragments:
+     - #131: "Cette étude s’inscrit dans les compétences de l’Icam et plus particulièrement dans son domaine “{{"
+     - #132: "thematique"
+     - #133: "}}”."
+16. {{|demarche|}} -> {{demarche}}
+   context: atique|}}”.|Démarche proposée|{{|demarche|}}|La démarche se déroule selon
+   fragments:
+     - #135: "{{"
+     - #136: "demarche"
+     - #137: "}}"
+17. {{|entrepriseNom|}} -> {{entrepriseNom}}
+   context: ercheurs.|Pour le partenaire, {{|entrepriseNom|}} :|Pour mener à bien ce projet
+   fragments:
+     - #148: "Pour le partenaire, {{"
+     - #149: "entrepriseNom"
+     - #150: "}} :"
+18. {|{|entrepriseNom|}} -> {{entrepriseNom}}
+   context: son auteur. En |contrepartie,|{|{|entrepriseNom|}} |s'engage à citer l'|Icam| co
+   fragments:
+     - #179: "{"
+     - #180: "{"
+     - #181: "entrepriseNom"
+     - #182: "}} "
+19. {{|entrepriseNom|}} -> {{entrepriseNom}}
+   context: che et l'|Icam| pourra citer| {{|entrepriseNom|}} |comme référence.|Limites du
+   fragments:
+     - #188: " {{"
+     - #189: "entrepriseNom"
+     - #190: "}} "
+20. {{|entrepriseNom|}} -> {{entrepriseNom}}
+   context: ments officiels transmis par |{{|entrepriseNom|}}| à l’administration française
+   fragments:
+     - #212: "{{"
+     - #213: "entrepriseNom"
+     - #214: "}}"
+21. {{|entrepriseNom|}} -> {{entrepriseNom}}
+   context: 0"/></w:rPr></w:pPr><w:r><w:t>{{|entrepriseNom|}}| conservera le bénéfice exclu
+   fragments:
+     - #222: "<w:left w:val="nil"/><w:bottom w:val="nil"/><w:right w:val="nil"/><w:between w:val="nil"/></w:pBdr><w:rPr><w:color w:val="000000"/></w:rPr></w:pPr><w:r><w:t>{{"
+     - #223: "entrepriseNom"
+     - #224: "}}"
+22. {{|dureeSemaines|}} -> {{dureeSemaines}}
+   context: globale de réalisation est de {{|dureeSemaines|}} |semaines répartie| comme |su
+   fragments:
+     - #236: "L’offre est conclue pour une durée globale de réalisation est de {{"
+     - #237: "dureeSemaines"
+     - #238: "}} "
+23. {{|entrepriseNom|}} -> {{entrepriseNom}}
+   context: idée entre l’équipe projet et {{|entrepriseNom|}} au démarrage du projet, inclu
+   fragments:
+     - #244: "Une note de cadrage du projet sera établie et validée entre l’équipe projet et {{"
+     - #245: "entrepriseNom"
+     - #246: "}} au démarrage du projet, incluant un planning prévisionnel détaillé. "
+24. {{|entrepriseNom|}} -> {{entrepriseNom}}
+   context:  sera organisé en accord avec {{|entrepriseNom|}} dès la signature du contrat p
+   fragments:
+     - #247: "Le début du projet sera organisé en accord avec {{"
+     - #248: "entrepriseNom"
+     - #249: "}} dès la signature du contrat pour septembre 2025."
+25. {{|entrepriseNom|}} -> {{entrepriseNom}}
+   context:  après un accord préalable de {{|entrepriseNom|}}.|Le Pôle Services aux Entrepr
+   fragments:
+     - #269: "Pour les besoins de l’étude, des achats de matériels, des frais de logement, de restauration (20€/pers au maximum), de déplacement (0,60€/km), autres frais de prestation et/ou de logiciels pour la réalisation sont à prévoir. Ils seront facturés et majorés de 20% à l’entreprise accompagnée des factures justificatives.  Les frais seront engagés seulement après un accord préalable de {{"
+     - #270: "entrepriseNom"
+     - #271: "}}."
+26. {{|dureeSemaines|}} -> {{dureeSemaines}}
+   context: r></w:pPr><w:r><w:t>Projet de {{|dureeSemaines|}} semaines| |{{|echeancier|}}|{
+   fragments:
+     - #279: "<w:trPr><w:trHeight w:val="260"/></w:trPr><w:tc><w:tcPr><w:tcW w:w="2835" w:type="dxa"/></w:tcPr><w:p w14:paraId="11EEF094" w14:textId="77777777" w:rsidR="00595BD5" w:rsidRDefault="00000000"><w:pPr><w:jc w:val="center"/><w:rPr><w:shd w:val="clear" w:color="auto" w:fill="93C47D"/></w:rPr></w:pPr><w:r><w:t>Projet de {{"
+     - #280: "dureeSemaines"
+     - #281: "}} semaines"
+27. {{|echeancier|}} -> {{echeancier}}
+   context: {|dureeSemaines|}} semaines| |{{|echeancier|}}|{{|echeancier| 2|}}|<w:tcPr><
+   fragments:
+     - #283: "{{"
+     - #284: "echeancier"
+     - #285: "}}"
+28. {{|echeancier| 2|}} -> {{echeancier 2}}
+   context: } semaines| |{{|echeancier|}}|{{|echeancier| 2|}}|<w:tcPr><w:tcW w:w="3300" w:t
+   fragments:
+     - #286: "{{"
+     - #287: "echeancier"
+     - #288: " 2"
+     - #289: "}}"
+29. {{|dateDebut|}} -> {{dateDebut}}
+   context: tart"/><w:r><w:t>à| partir du {{|dateDebut|}} |<w:tcPr><w:tcW w:w="3525" w:
+   fragments:
+     - #291: " partir du {{"
+     - #292: "dateDebut"
+     - #293: "}} "
+30. {{|budget_texte|}} -> {{budget_texte}}
+   context: l="center"/></w:pPr><w:r><w:t>{{|budget_texte|}}|<w:trPr><w:trHeight w:val="26
+   fragments:
+     - #294: "<w:tcPr><w:tcW w:w="3525" w:type="dxa"/></w:tcPr><w:p w14:paraId="2DB51C65" w14:textId="77777777" w:rsidR="00595BD5" w:rsidRDefault="00000000"><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:t>{{"
+     - #295: "budget_texte"
+     - #296: "}}"
+31. {{|budget_texte|}} -> {{budget_texte}}
+   context: Cs/></w:rPr></w:pPr><w:r><w:t>{{|budget_texte|}}|Le coût global de la prestati
+   fragments:
+     - #299: "<w:tcPr><w:tcW w:w="3525" w:type="dxa"/><w:shd w:val="clear" w:color="auto" w:fill="D9D9D9"/></w:tcPr><w:p w14:paraId="60950633" w14:textId="77777777" w:rsidR="00595BD5" w:rsidRDefault="00000000"><w:pPr><w:jc w:val="center"/><w:rPr><w:b/><w:bCs/></w:rPr></w:pPr><w:r><w:t>{{"
+     - #300: "budget_texte"
+     - #301: "}}"
+32. {{|budgetEnLettres|}} -> {{budgetEnLettres}}
+   context: restation est de |{{budget}} ({{|budgetEnLettres|}} euros hors |taxes)|hors| frai
+   fragments:
+     - #303: "{{budget}} ({{"
+     - #304: "budgetEnLettres"
+     - #305: "}} euros hors "
+33. {{|entrepriseNom|}} -> {{entrepriseNom}}
+   context:  long du projet, l’entreprise {{|entrepriseNom|}} conserve la possibilité de me
+   fragments:
+     - #309: "Tout au long du projet, l’entreprise {{"
+     - #310: "entrepriseNom"
+     - #311: "}} conserve la possibilité de mettre fin à cette étude à la fin de chaque phase après la signature du PV de réception des livrables"
+34. {{|eligibiliteCII|}} -> {{eligibiliteCII}}
+   context:  de réception des livrables|.|{{|eligibiliteCII|}}|“|L’Icam est agréé| au CIR (C
+   fragments:
+     - #313: "{{"
+     - #314: "eligibiliteCII"
+     - #315: "}}"
+35. {{|entrepriseNom|}} -> {{entrepriseNom}}
+   context: "/></w:pBdr></w:pPr><w:r><w:t>{{|entrepriseNom|}} |conserve la possibilité de m
+   fragments:
+     - #333: "<w:left w:val="nil"/><w:bottom w:val="nil"/><w:right w:val="nil"/><w:between w:val="nil"/></w:pBdr></w:pPr><w:r><w:t>{{"
+     - #334: "entrepriseNom"
+     - #335: "}} "
+36. {{|entrepriseNom|}} -> {{entrepriseNom}}
+   context: "preserve">            |Pour |{{|entrepriseNom|}}   |  |<w:tc><w:tcPr><w:tcW w:
+   fragments:
+     - #365: "{{"
+     - #366: "entrepriseNom"
+     - #367: "}}   "
+37. {{|clientNom|}} -> {{clientNom}}
+   context: 3"/></w:rPr></w:pPr><w:r><w:t>{{|clientNom|}}|{{|clientFonction|}}|<w:tc><w
+   fragments:
+     - #373: "<w:tcPr><w:tcW w:w="4875" w:type="dxa"/></w:tcPr><w:p w14:paraId="6EEC1FED" w14:textId="77777777" w:rsidR="00595BD5" w:rsidRDefault="00000000"><w:pPr><w:spacing w:before="0"/><w:jc w:val="right"/><w:rPr><w:shd w:val="clear" w:color="auto" w:fill="D9EAD3"/></w:rPr></w:pPr><w:r><w:t>{{"
+     - #374: "clientNom"
+     - #375: "}}"
+38. {{|clientFonction|}} -> {{clientFonction}}
+   context: pPr><w:r><w:t>{{|clientNom|}}|{{|clientFonction|}}|<w:tc><w:tcPr><w:tcW w:w="451
+   fragments:
+     - #376: "{{"
+     - #377: "clientFonction"
+     - #378: "}}"
+39. {{|entrepriseNom|}} -> {{entrepriseNom}}
+   context: e du projet : {{titre}} lié à {{|entrepriseNom|}}.|<w:tab w:val="left" w:pos="5
+   fragments:
+     - #389: "(e) en mémoire scientifique à l’Icam site de Grand Paris Sud, m’engage à observer le secret quant aux informations dont j’aurai connaissance en raison ou à l’occasion de mon intervention dans le cadre du projet : {{titre}} lié à {{"
+     - #390: "entrepriseNom"
+     - #391: "}}."
+40. {{|entrepriseNom|}} -> {{entrepriseNom}}
+   context: e du projet : {{titre}} lié à {{|entrepriseNom|}}.|<w:left w:val="nil"/><w:bott
+   fragments:
+     - #402: "<w:left w:val="nil"/><w:bottom w:val="nil"/><w:right w:val="nil"/><w:between w:val="nil"/></w:pBdr><w:tabs><w:tab w:val="left" w:pos="560"/><w:tab w:val="left" w:pos="1120"/><w:tab w:val="left" w:pos="1680"/><w:tab w:val="left" w:pos="2240"/><w:tab w:val="left" w:pos="2800"/><w:tab w:val="left" w:pos="3360"/><w:tab w:val="left" w:pos="3920"/><w:tab w:val="left" w:pos="4480"/><w:tab w:val="left" w:pos="5040"/><w:tab w:val="left" w:pos="5600"/><w:tab w:val="left" w:pos="6160"/><w:tab w:val="left" w:pos="6720"/></w:tabs><w:spacing w:before="0" w:line="360" w:lineRule="auto"/><w:rPr><w:shd w:val="clear" w:color="auto" w:fill="F9CB9C"/></w:rPr></w:pPr><w:r><w:t>Chef de projet à l’Icam site de Grand Paris Sud, m’engage à observer le secret quant aux informations dont j’aurai connaissance en raison ou à l’occasion de mon intervention dans le cadre du projet : {{titre}} lié à {{"
+     - #403: "entrepriseNom"
+     - #404: "}}."
+41. {|{titre}} -> {{titre}}
+   context: n dans le cadre du projet |:  {|{titre}} lié à {{|entrepriseNom|}}.|<w
+   fragments:
+     - #416: ":  {"
+     - #417: "{titre}} lié à {{"
+42. {{|entrepriseNom|}} -> {{entrepriseNom}}
+   context: u projet |:  {|{titre}} lié à {{|entrepriseNom|}}.|<w:tab w:val="left" w:pos="5
+   fragments:
+     - #417: "{titre}} lié à {{"
+     - #418: "entrepriseNom"
+     - #419: "}}."
+43. {{|entrepriseNom|}} -> {{entrepriseNom}}
+   context: e du projet : {{titre}} lié à {{|entrepriseNom|}}.|<w:tab w:val="left" w:pos="5
+   fragments:
+     - #430: "<w:tab w:val="left" w:pos="560"/><w:tab w:val="left" w:pos="1120"/><w:tab w:val="left" w:pos="1680"/><w:tab w:val="left" w:pos="2240"/><w:tab w:val="left" w:pos="2800"/><w:tab w:val="left" w:pos="3360"/><w:tab w:val="left" w:pos="3920"/><w:tab w:val="left" w:pos="4480"/><w:tab w:val="left" w:pos="5040"/><w:tab w:val="left" w:pos="5600"/><w:tab w:val="left" w:pos="6160"/><w:tab w:val="left" w:pos="6720"/></w:tabs><w:spacing w:line="360" w:lineRule="auto"/><w:rPr><w:shd w:val="clear" w:color="auto" w:fill="F9CB9C"/></w:rPr></w:pPr><w:r><w:t>Chargé d’affaires à l’Icam site de Grand Paris Sud, m’engage à observer le secret quant aux informations dont j’aurai connaissance en raison ou à l’occasion de mon intervention dans le cadre du projet : {{titre}} lié à {{"
+     - #431: "entrepriseNom"
+     - #432: "}}."
+
+[word/header1.xml]
+1. {{|entrepriseNom|}} -> {{entrepriseNom}}
+   context: ace="preserve">Contrat R&D : |{{|entrepriseNom|}}|<w:left w:val="nil"/><w:botto
+   fragments:
+     - #1: "{{"
+     - #2: "entrepriseNom"
+     - #3: "}}"
+2. {|{titre}} -> {{titre}}
+   context: e"/></w:rPr><w:t>Obje|t| |:  |{|{titre}}
+   fragments:
+     - #8: "{"
+     - #9: "{titre}}"
+
+Total broken placeholders: 45

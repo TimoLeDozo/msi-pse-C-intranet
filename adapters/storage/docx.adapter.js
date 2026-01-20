@@ -99,6 +99,7 @@ class DocxAdapter {
       texts.push({
         fullMatch: match[0],
         content: match[1],
+        originalLength: match[1].length,
         index: match.index,
         start: match.index,
         end: match.index + match[0].length,
@@ -160,14 +161,14 @@ class DocxAdapter {
       // Calculate position within first node
       let posBeforeStart = 0;
       for (let j = 0; j < startNode; j++) {
-        posBeforeStart += texts[j].content.length;
+        posBeforeStart += texts[j].originalLength;
       }
       const offsetInFirstNode = fp.start - posBeforeStart;
 
       // Calculate position within last node
       let posBeforeEnd = 0;
       for (let j = 0; j < endNode; j++) {
-        posBeforeEnd += texts[j].content.length;
+        posBeforeEnd += texts[j].originalLength;
       }
       const offsetInLastNode = fp.end - posBeforeEnd;
 
@@ -202,7 +203,8 @@ class DocxAdapter {
     const rebuilt = [];
     for (const node of texts) {
       rebuilt.push(paragraph.slice(cursor, node.start));
-      rebuilt.push(`${node.openTag}${this._escapeXml(node.content)}</w:t>`);
+      // No escapeXml here because node.content comes from existing XML content which is already escaped
+      rebuilt.push(`${node.openTag}${node.content}</w:t>`);
       cursor = node.end;
     }
     rebuilt.push(paragraph.slice(cursor));
