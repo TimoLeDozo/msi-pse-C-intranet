@@ -9,7 +9,14 @@ marked.setOptions({
 });
 
 // Champs qui doivent être rendus en Markdown (sections IA)
-const MARKDOWN_FIELDS = ['contexte', 'demarche', 'phases', 'titre', 'phrase'];
+const MARKDOWN_FIELDS = [
+  'contexte',
+  'demarche',
+  'phases',
+  'titre',
+  'phrase',
+  'annexe_supplementaire'
+];
 
 function escapeHtml(value) {
   return String(value)

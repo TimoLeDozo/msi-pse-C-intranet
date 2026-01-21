@@ -3,7 +3,7 @@
 ## Etat actuel
 - Pipeline technique (Node/Playwright) stable.
 - Moteur financier implemente.
-- Priorites restantes : finesse semantique (prompts dynamiques), securite juridique (clauses variables), experience utilisateur (preview avant PDF).
+- Priorites restantes : experience utilisateur (preview avant PDF).
 
 ## Phase 1 : Cerveau Metier (Prompt Factory)
 ### 1.1 Segregation des methodologies (prompts/icam.prompt.js)
@@ -23,7 +23,7 @@
 
 ### 2.2 Generation d'annexes (nouveau service)
 - Action : generer une annexe "Matrice des Risques" ou "Equipe Projet" au-dela d'un seuil (> 15k EUR).
-- Statut : A planifier.
+- Statut : Fait.
 
 ## Phase 3 : Rendu "Pixel Perfect" (Playwright)
 ### 3.1 Gestion avancee des sauts de page (CSS Print)
@@ -46,7 +46,7 @@
 | P1 | Injection clauses legales | templates/proposal.html, usecases/generateProposal.usecase.js, config/legal.config.js | Faible | Fait |
 | P2 | CSS print (sauts de page) | public/assets/css/main.css, templates/proposal.html | Faible | Fait |
 | P3 | Workflow "Preview & Edit" | public/assets/js/app.js, public/index.html, routes API | Elevee | A planifier |
-| P4 | Annexes dynamiques | services/pdf-render.service.js | Moyenne | A planifier |
+| P4 | Annexes dynamiques | services/annex.service.js, templates/proposal.html | Moyenne | Fait |
 
 ## Notes
-- Les phases restantes (preview & edit, annexes dynamiques) sont les seules evolutions encore indispensables pour atteindre le niveau "optimal" cible.
+- La phase restante (preview & edit) est la seule evolution encore indispensable pour atteindre le niveau "optimal" cible.

@@ -171,6 +171,14 @@ describe('generateProposal.usecase', () => {
       expect(result.dureeTexte).toBe('16 semaines');
       expect(result.annee).toBe(new Date().getFullYear().toString());
     });
+
+    it('should include supplementary annex when budget exceeds threshold', () => {
+      const draft = { dureeSemaines: 24 };
+
+      const result = generateProposalUseCase.buildDocumentData(draft);
+
+      expect(result.annexe_supplementaire).toContain('Matrice des risques');
+    });
   });
 
   describe('execute', () => {

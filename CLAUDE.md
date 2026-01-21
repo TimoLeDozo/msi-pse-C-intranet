@@ -139,7 +139,7 @@ npm run dev
 
 ### Placeholders du Template HTML
 
-Le template `templates/proposal.html` utilise 23 placeholders :
+Le template `templates/proposal.html` utilise 25 placeholders :
 
 | Placeholder | Source | Description |
 |-------------|--------|-------------|
@@ -165,6 +165,8 @@ Le template `templates/proposal.html` utilise 23 placeholders :
 | `{{echeancier2}}` | Calcule | Echeancier de paiement (col 2) |
 | `{{DateDuJour}}` | Calcule | Date du jour en francais |
 | `{{eligibiliteCII}}` | Formulaire | Note eligibilite CII |
+| `{{clause_propriete_intellectuelle}}` | Calcule | Clause juridique adaptee au type de contrat |
+| `{{annexe_supplementaire}}` | Calcule | Annexe dynamique (risques ou equipe projet) |
 | `{{entrepriseLogo}}` | Formulaire | URL du logo |
 
 ---

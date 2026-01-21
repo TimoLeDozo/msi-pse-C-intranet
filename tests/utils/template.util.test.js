@@ -125,6 +125,13 @@ describe('template.util', () => {
       const data = { nom: 'Test' };
       expect(renderTemplate(template, data)).toBe('Test');
     });
+
+    it('should allow HTML in annexe_supplementaire field', () => {
+      const template = '{{annexe_supplementaire}}';
+      const data = { annexe_supplementaire: '<div class="section-title">Annexe</div>' };
+      const result = renderTemplate(template, data);
+      expect(result).toContain('section-title');
+    });
   });
 
   describe('MARKDOWN_FIELDS', () => {
@@ -134,6 +141,7 @@ describe('template.util', () => {
       expect(MARKDOWN_FIELDS).toContain('phases');
       expect(MARKDOWN_FIELDS).toContain('titre');
       expect(MARKDOWN_FIELDS).toContain('phrase');
+      expect(MARKDOWN_FIELDS).toContain('annexe_supplementaire');
     });
   });
 });

@@ -18,6 +18,7 @@ const costService = require('../services/cost.service.js');
 const { renderTemplate } = require('../utils/template.util.js');
 const { renderHtmlToPdf } = require('../services/pdf-render.service.js');
 const { getLegalClauses } = require('../config/legal.config.js');
+const { buildSupplementaryAnnex } = require('../services/annex.service.js');
 
 /**
  * @typedef {Object} ProposalDraft
@@ -43,6 +44,7 @@ const { getLegalClauses } = require('../config/legal.config.js');
  * @property {number} [budgetOverride] - Optional budget override
  * @property {number} [phaseCount] - Number of phases for payment schedule
  * @property {string} [eligibiliteCII] - Optional CII eligibility note
+ * @property {string} [annexeType] - Optional annex type override ('equipe' or 'risques')
  * @property {Date} [projectDate] - Project date for archive directory (defaults to now)
  */
 
@@ -124,6 +126,10 @@ function buildDocumentData(proposalDraft) {
     typeContrat,
     entrepriseNom: proposalDraft.entrepriseNom
   });
+  const annexeSupplementaire = buildSupplementaryAnnex({
+    budgetRaw: financialData.budgetRaw,
+    annexeType: proposalDraft.annexeType
+  });
 
   // Merge all data sources for template placeholders
   return {
@@ -165,6 +171,7 @@ function buildDocumentData(proposalDraft) {
     eligibiliteCII: proposalDraft.eligibiliteCII || '',
     eligibiliteCIR: proposalDraft.eligibiliteCIR || '',
     clause_propriete_intellectuelle: legalClauses.clause_propriete_intellectuelle,
+    annexe_supplementaire: annexeSupplementaire,
 
     // Additional computed fields for template compatibility
     dureeTexte: `${dureeSemaines} semaines`,
