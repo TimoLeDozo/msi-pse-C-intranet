@@ -227,7 +227,8 @@ describe('generateProposal.usecase', () => {
 
       expect(renderHtmlToPdf).toHaveBeenCalledWith({
         html: expect.any(String),
-        outputPath: expect.stringContaining('proposal.pdf')
+        outputPath: expect.stringContaining('proposal.pdf'),
+        entrepriseNom: 'Test Corp'
       });
     });
 

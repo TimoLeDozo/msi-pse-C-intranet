@@ -255,11 +255,12 @@ async function execute(proposalDraft) {
     // 4. Render HTML with document data
     const renderedHtml = renderTemplate(htmlTemplate, documentData);
 
-    // 5. Generate PDF using Playwright
+    // 5. Generate PDF using Playwright (avec header dynamique)
     const pdfPath = path.join(archiveDir, 'proposal.pdf');
     await renderHtmlToPdf({
       html: renderedHtml,
-      outputPath: pdfPath
+      outputPath: pdfPath,
+      entrepriseNom: documentData.entrepriseNom
     });
 
     // 6. Get public URL

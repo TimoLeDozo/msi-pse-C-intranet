@@ -37,29 +37,85 @@ Ne mets pas de balises markdown comme \`\`\`json ou \`\`\`. Renvoie juste le JSO
 `;
 
 /**
- * Regles methodologiques par type de contrat.
+ * Regles methodologiques par type de contrat avec KPIs associes.
+ * @constant {Object.<string, {approche: string, normes: string[], kpis: string[]}>}
+ */
+const METHODOLOGY_RULES_DETAILED = {
+  'RD': {
+    approche: "Cycle en V, Niveaux TRL (Technology Readiness Level), prototypage rapide, AMDEC, Analyse fonctionnelle.",
+    normes: ['ISO 9001', 'Norme NF X50-127'],
+    kpis: ['Faisabilite technique', 'Respect du CDC', 'Taux de maturite TRL', 'Couverture des exigences']
+  },
+  'Lean': {
+    approche: "Approche DMAIC (Define, Measure, Analyze, Improve, Control), VSM, 5S, Kaizen.",
+    normes: ['ISO 9001', 'Lean Six Sigma'],
+    kpis: ['Gain TRS (Taux de Rendement Synthetique)', 'Reduction lead time', 'Elimination des Mudas', 'Taux de rebut']
+  },
+  'Audit': {
+    approche: "Diagnostic ISO 19011, Analyse SWOT, Cartographie des risques, Plan d'actions correctives.",
+    normes: ['ISO 19011', 'ISO 9001', 'ISO 14001'],
+    kpis: ['Taux de conformite', 'Niveau de criticite', 'Ecarts majeurs/mineurs', 'Delai de cloture des actions']
+  },
+  'Supply Chain': {
+    approche: "Flux logistiques, Gestion des stocks (FIFO/LIFO), Optimisation transport, S&OP.",
+    normes: ['ISO 28000', 'SCOR Model'],
+    kpis: ['Taux de service', 'Rotation des stocks', 'Cout logistique/CA', 'Delai de livraison']
+  }
+};
+
+/**
+ * Regles methodologiques simplifiees (compatibilite ascendante).
  * @constant {Object.<string, string>}
  */
 const METHODOLOGY_RULES = {
-  'Lean': "Approche DMAIC, VSM, 5S. Focus sur l'elimination des gaspillages (Mudas).",
-  'Audit': "Diagnostic, Analyse de l'existant, Matrice SWOT, Plan d'actions.",
-  'RD': "Cycle en V, Niveaux TRL, AMDEC, Analyse fonctionnelle.",
-  'Supply Chain': "Flux logistiques, Gestion des stocks, Optimisation transport."
+  'Lean': "Approche DMAIC, VSM, 5S. Focus sur l'elimination des gaspillages (Mudas). KPIs: Gain TRS, reduction lead time.",
+  'Audit': "Diagnostic ISO 19011, Analyse SWOT, Cartographie des risques. KPIs: Taux de conformite, criticite.",
+  'RD': "Cycle en V, Niveaux TRL, AMDEC, Analyse fonctionnelle. KPIs: Faisabilite technique, respect CDC.",
+  'Supply Chain': "Flux logistiques, Gestion des stocks, Optimisation transport. KPIs: Taux de service, rotation stocks."
 };
+
+/**
+ * Retourne les regles methodologiques detaillees pour un type de contrat.
+ *
+ * @param {string} typeContrat - Le type de contrat (Lean, Audit, RD, Supply Chain)
+ * @returns {Object} Les regles detaillees avec approche, normes et KPIs
+ */
+function getMethodologyDetails(typeContrat) {
+  if (!typeContrat) {
+    return METHODOLOGY_RULES_DETAILED['RD'];
+  }
+
+  const normalizedType = typeContrat.trim();
+
+  // Recherche exacte
+  if (METHODOLOGY_RULES_DETAILED[normalizedType]) {
+    return METHODOLOGY_RULES_DETAILED[normalizedType];
+  }
+
+  // Recherche insensible a la casse
+  const lowerType = normalizedType.toLowerCase();
+  for (const [key, value] of Object.entries(METHODOLOGY_RULES_DETAILED)) {
+    if (key.toLowerCase() === lowerType) {
+      return value;
+    }
+  }
+
+  return METHODOLOGY_RULES_DETAILED['RD'];
+}
 
 /**
  * Retourne les regles methodologiques specifiques au type de contrat.
  *
  * @param {string} typeContrat - Le type de contrat (Lean, Audit, RD, Supply Chain)
- * @returns {string} Les regles methodologiques correspondantes
+ * @returns {string} Les regles methodologiques correspondantes avec KPIs
  *
  * @example
  * getMethodologyRules('Lean')
- * // => "Approche DMAIC, VSM, 5S. Focus sur l'elimination des gaspillages (Mudas)."
+ * // => "Approche DMAIC, VSM, 5S. Focus sur l'elimination des gaspillages (Mudas). KPIs: Gain TRS, reduction lead time."
  *
  * @example
  * getMethodologyRules('Unknown')
- * // => "Cycle en V, Niveaux TRL, AMDEC, Analyse fonctionnelle." (default RD)
+ * // => "Cycle en V, Niveaux TRL, AMDEC, Analyse fonctionnelle. KPIs: Faisabilite technique, respect CDC." (default RD)
  */
 function getMethodologyRules(typeContrat) {
   if (!typeContrat) {
@@ -133,11 +189,16 @@ function buildDynamicPrompt(data = {}) {
   // Recuperer la regle de continuite
   const continuityRule = getContinuityRule(data.contratPrecedent);
 
-  // Construire les sections additionnelles
+  // Recuperer les details complets (avec KPIs)
+  const methodologyDetails = getMethodologyDetails(contractType);
+
+  // Construire les sections additionnelles avec KPIs
   let additionalRules = `
 METHODOLOGIE APPLICABLE :
 Type de mission : ${contractType}
-Approche : ${methodologyRules}
+Approche : ${methodologyDetails.approche}
+Normes de reference : ${methodologyDetails.normes.join(', ')}
+Indicateurs cles (KPIs) a mentionner : ${methodologyDetails.kpis.join(', ')}
 `;
 
   if (continuityRule) {
@@ -325,7 +386,9 @@ function prepareAIMessages(proposalDraft, options = {}) {
 // Exports
 exports.SYSTEM_PROMPT = SYSTEM_PROMPT;
 exports.METHODOLOGY_RULES = METHODOLOGY_RULES;
+exports.METHODOLOGY_RULES_DETAILED = METHODOLOGY_RULES_DETAILED;
 exports.getMethodologyRules = getMethodologyRules;
+exports.getMethodologyDetails = getMethodologyDetails;
 exports.getContinuityRule = getContinuityRule;
 exports.buildDynamicPrompt = buildDynamicPrompt;
 exports.buildUserMessage = buildUserMessage;

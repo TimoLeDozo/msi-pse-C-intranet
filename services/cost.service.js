@@ -4,7 +4,7 @@
  *
  * Implémente la logique métier de la Phase 1 de la roadmap:
  * - Automatisation Financière (Base 20k/24 sem)
- * - Échéancier Dynamique (30% commande, phases, 20% solde)
+ * - Échéancier Dynamique (30% commande, 40% phases, 30% solde)
  * - Conversion en Lettres (mention légale française)
  * - Formatage Dates Littérales Françaises
  */
@@ -147,10 +147,10 @@ function calculateBudget(dureeSemaines, nbEquipes = 1) {
 }
 
 /**
- * Génère l'échéancier de paiement selon les règles métier Icam
+ * Génère l'échéancier de paiement selon les règles métier Icam (30/40/30)
  * - 30% à la commande
- * - 50% répartis sur les phases
- * - 20% au solde final
+ * - 40% répartis sur les phases intermédiaires
+ * - 30% au solde final
  *
  * @param {number} totalBudget - Budget total en euros
  * @param {number} [nbPhases=1] - Nombre de phases de livraison
@@ -161,9 +161,9 @@ function calculateBudget(dureeSemaines, nbEquipes = 1) {
  * getPaymentSchedule(20000, 2)
  * // => [
  * //   { label: 'À la commande', pct: 30, amount: 6000 },
- * //   { label: 'Livraison Phase 1', pct: 25, amount: 5000 },
- * //   { label: 'Livraison Phase 2', pct: 25, amount: 5000 },
- * //   { label: 'Solde à la réception finale', pct: 20, amount: 4000 }
+ * //   { label: 'Livraison Phase 1', pct: 20, amount: 4000 },
+ * //   { label: 'Livraison Phase 2', pct: 20, amount: 4000 },
+ * //   { label: 'Solde à la réception finale', pct: 30, amount: 6000 }
  * // ]
  */
 function getPaymentSchedule(totalBudget, nbPhases = 1) {
@@ -185,8 +185,8 @@ function getPaymentSchedule(totalBudget, nbPhases = 1) {
     amount: commandeAmount
   });
 
-  // 50% répartis sur les phases
-  const phasesPctTotal = 50;
+  // 40% répartis sur les phases intermédiaires
+  const phasesPctTotal = 40;
   const phasePct = phasesPctTotal / nbPhases;
   let phasesAmountDistributed = 0;
 
@@ -207,8 +207,8 @@ function getPaymentSchedule(totalBudget, nbPhases = 1) {
     });
   }
 
-  // 20% solde final
-  const soldePct = 20;
+  // 30% solde final
+  const soldePct = 30;
   const soldeAmount = Math.round(totalBudget * soldePct / 100);
   schedule.push({
     label: 'Solde à la réception finale',
