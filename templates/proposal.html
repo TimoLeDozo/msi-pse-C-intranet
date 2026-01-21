@@ -10,6 +10,23 @@
       margin: 20mm;
     }
 
+    @media print {
+      table,
+      figure,
+      .table,
+      .payment-schedule {
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+
+      h2,
+      h3,
+      .section-title {
+        break-after: avoid;
+        page-break-after: avoid;
+      }
+    }
+
     html, body {
       font-family: Calibri, "Segoe UI", Arial, sans-serif;
       font-size: 11pt;
@@ -258,8 +275,7 @@ Les comptes rendus de réunion approuvés par les deux parties pourront faire of
 
     <div class="section-title">Propriété des travaux</div>
     <div class="block">
-      {{entrepriseNom}} conservera le bénéfice exclusif des travaux et services décrits ci-dessus. Tous les droits de propriété industrielle qui pourraient être acquis en conséquence de ces travaux seront la pleine et entière propriété de l'entreprise.
-      Toutefois, les résultats demeurent l'entière propriété de l'Icam jusqu'au paiement intégral des travaux engagés.
+      {{clause_propriete_intellectuelle}}
     </div>
 
     <div class="section-title">Juridiction et litiges</div>

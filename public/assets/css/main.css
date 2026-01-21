@@ -733,3 +733,19 @@ footer {
   gap: 15px;
   flex-wrap: wrap;
 }
+
+@media print {
+  table,
+  figure,
+  .payment-schedule {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  h2,
+  h3,
+  .section-title {
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+}

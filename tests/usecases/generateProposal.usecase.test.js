@@ -41,6 +41,7 @@ const fileAdapter = require('../../adapters/storage/file.adapter.js');
 const { renderTemplate } = require('../../utils/template.util.js');
 const { renderHtmlToPdf } = require('../../services/pdf-render.service.js');
 const costService = require('../../services/cost.service.js');
+const { getLegalClauses } = require('../../config/legal.config.js');
 
 describe('generateProposal.usecase', () => {
   const mockArchiveDir = '/storage/out/TestCompany/2026-01-20';
@@ -99,6 +100,21 @@ describe('generateProposal.usecase', () => {
       expect(result.contactEmail).toBe('john@acme.com');
       expect(result.thematique).toBe('Lean');
       expect(result.dureeSemaines).toBe(12);
+    });
+
+    it('should include legal clauses based on contract type', () => {
+      const draft = {
+        entrepriseNom: 'Acme Corp',
+        typeContrat: 'Lean'
+      };
+
+      const result = generateProposalUseCase.buildDocumentData(draft);
+      const expected = getLegalClauses({
+        typeContrat: 'Lean',
+        entrepriseNom: 'Acme Corp'
+      }).clause_propriete_intellectuelle;
+
+      expect(result.clause_propriete_intellectuelle).toBe(expected);
     });
 
     it('should include financial data from costService', () => {

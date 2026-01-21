@@ -17,6 +17,7 @@ const fileAdapter = require('../adapters/storage/file.adapter.js');
 const costService = require('../services/cost.service.js');
 const { renderTemplate } = require('../utils/template.util.js');
 const { renderHtmlToPdf } = require('../services/pdf-render.service.js');
+const { getLegalClauses } = require('../config/legal.config.js');
 
 /**
  * @typedef {Object} ProposalDraft
@@ -91,6 +92,7 @@ function buildDocumentData(proposalDraft) {
   const dureeSemaines = toPositiveNumber(proposalDraft.dureeSemaines, 24);
   const nbEquipes = toPositiveNumber(proposalDraft.nbEquipes, 1);
   const phaseCount = toPositiveNumber(proposalDraft.phaseCount, 3);
+  const typeContrat = proposalDraft.typeContrat || proposalDraft.thematique || '';
 
   const clientNom = proposalDraft.clientNom || proposalDraft.contactNom || '';
   const clientEmail = proposalDraft.clientEmail || proposalDraft.contactEmail || '';
@@ -118,6 +120,10 @@ function buildDocumentData(proposalDraft) {
   const splitIndex = Math.ceil(scheduleLines.length / 2);
   const echeancierLeft = scheduleLines.slice(0, splitIndex).join('\n');
   const echeancierRight = scheduleLines.slice(splitIndex).join('\n');
+  const legalClauses = getLegalClauses({
+    typeContrat,
+    entrepriseNom: proposalDraft.entrepriseNom
+  });
 
   // Merge all data sources for template placeholders
   return {
@@ -136,7 +142,7 @@ function buildDocumentData(proposalDraft) {
     entrepriseAdresse: proposalDraft.entrepriseAdresse || '',
     entrepriseLogo: proposalDraft.entrepriseLogo || '',
     codeProjet: proposalDraft.codeProjet || '',
-    typeContrat: proposalDraft.typeContrat || proposalDraft.thematique || '',
+    typeContrat,
     dateDebut: formatDateInput(proposalDraft.dateDebut),
     clientNom,
     clientFonction: proposalDraft.clientFonction || '',
@@ -158,6 +164,7 @@ function buildDocumentData(proposalDraft) {
     DateDuJour: financialData.DateDuJour,
     eligibiliteCII: proposalDraft.eligibiliteCII || '',
     eligibiliteCIR: proposalDraft.eligibiliteCIR || '',
+    clause_propriete_intellectuelle: legalClauses.clause_propriete_intellectuelle,
 
     // Additional computed fields for template compatibility
     dureeTexte: `${dureeSemaines} semaines`,

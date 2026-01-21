@@ -23,6 +23,14 @@ INSTRUCTIONS :
 3. NE RECOPIE PAS les exemples ou les placeholders. Genere du vrai contenu pertinent.
 4. Si une information manque, fais une hypothese raisonnable professionnelle ou reste generaliste mais pertinent.
 
+INTERDICTIONS FORMELLES (Securite Contractuelle) :
+- NE JAMAIS inventer de montant financier, budget ou tarif hors de l'enveloppe fournie par le client.
+- NE JAMAIS citer de normes obsoletes ou retirees (verifier ISO actuelles).
+- NE JAMAIS garantir des resultats chiffres specifiques (ex: "gain de 30%") sans donnees client.
+- NE JAMAIS mentionner de noms de concurrents ou de technologies proprietaires non validees.
+- NE JAMAIS inclure de clauses juridiques ou de conditions contractuelles dans les sections redactionnelles.
+- TOUJOURS rester factuel et eviter les superlatifs non justifies ("le meilleur", "revolutionnaire").
+
 STRUCTURE JSON OBLIGATOIRE :
 Tu dois imperativement repondre avec un objet JSON valide contenant exactement les cles suivantes :
 {
